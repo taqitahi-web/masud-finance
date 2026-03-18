@@ -1,0 +1,3111 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>মাসউদ ফিন্যান্সিয়াল অ্যাপস</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pr:#e8533a;--prd:#c43d26;--inc:#2ecc71;--exp:#e74c3c;--tr:#3498db;
+  --bg:#f5f5f5;--card:#fff;--text:#2c2c2c;--tl:#888;--bd:#e8e8e8;
+  --sh:0 2px 12px rgba(0,0,0,.08);--r:12px;
+}
+body.dark{--bg:#121212;--card:#1e1e1e;--text:#f0f0f0;--tl:#aaa;--bd:#2e2e2e;--sh:0 2px 12px rgba(0,0,0,.4);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--text);max-width:430px;margin:0 auto;min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s;}
+
+/* ===== USER SELECT SCREEN ===== */
+#userScreen{position:fixed;inset:0;z-index:9999;background:linear-gradient(145deg,#e8533a,#c43d26);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;color:#fff;}
+.us-logo{font-size:56px;margin-bottom:12px;}
+.us-title{font-size:24px;font-weight:700;margin-bottom:6px;}
+.us-sub{font-size:13px;opacity:.8;margin-bottom:36px;}
+.us-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:340px;}
+.us-card{background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.3);border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;transition:all .2s;backdrop-filter:blur(8px);}
+.us-card:hover,.us-card:active{background:rgba(255,255,255,.32);transform:scale(1.04);}
+.us-avatar{font-size:32px;margin-bottom:8px;}
+.us-name{font-size:14px;font-weight:600;}
+.us-info{font-size:11px;opacity:.7;margin-top:3px;}
+
+/* PIN VIEW */
+#pinScreen{position:fixed;inset:0;z-index:9998;background:linear-gradient(145deg,#e8533a,#c43d26);display:none;flex-direction:column;align-items:center;justify-content:center;color:#fff;}
+.ps-back{position:absolute;top:20px;left:20px;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;}
+.ps-avatar{font-size:48px;margin-bottom:8px;}
+.ps-name{font-size:20px;font-weight:700;margin-bottom:4px;}
+.ps-sub{font-size:13px;opacity:.8;margin-bottom:32px;}
+.ps-dots{display:flex;gap:14px;margin-bottom:28px;}
+.ps-dot{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.6);background:transparent;transition:background .2s;}
+.ps-dot.on{background:#fff;border-color:#fff;}
+.ps-pad{display:grid;grid-template-columns:repeat(3,72px);gap:14px;}
+.ps-btn{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:22px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ps-btn:hover{background:rgba(255,255,255,.28);}
+.ps-btn .sub{font-size:9px;letter-spacing:1px;opacity:.7;font-weight:400;}
+.ps-err{color:#ffcdd2;font-size:13px;margin-top:12px;height:20px;text-align:center;}
+.ps-skip{margin-top:18px;font-size:12px;opacity:.7;cursor:pointer;text-decoration:underline;}
+
+/* ===== SCREENS ===== */
+.screen{display:none;flex-direction:column;min-height:100vh;}
+.screen.active{display:flex;}
+
+/* ===== HEADER ===== */
+.hdr{background:var(--pr);color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(232,83,58,.3);}
+.hdr h1{font-size:16px;font-weight:600;}
+.hdr-btn{background:none;border:none;color:#fff;cursor:pointer;font-size:18px;opacity:.9;padding:4px;}
+.user-badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.2);border-radius:20px;padding:4px 10px;cursor:pointer;font-size:12px;}
+
+/* DATE PICKER HEADER */
+.date-hdr{background:var(--pr);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;}
+.date-hdr-center{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.month-label{font-size:16px;font-weight:700;cursor:pointer;padding:4px 12px;border-radius:20px;transition:background .2s;}
+.month-label:hover{background:rgba(255,255,255,.2);}
+.year-row{display:flex;align-items:center;gap:8px;}
+.year-btn{background:rgba(255,255,255,.2);border:none;color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.year-label{font-size:13px;font-weight:500;cursor:pointer;}
+
+/* MONTH PICKER OVERLAY */
+#monthPicker{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;padding:20px;}
+#monthPicker.show{display:flex;}
+.mp-box{background:var(--card);border-radius:20px;width:100%;max-width:380px;overflow:hidden;animation:popIn .25s ease;}
+.mp-head{background:var(--pr);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;}
+.mp-head h3{font-size:16px;font-weight:600;}
+.mp-close{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;}
+.mp-year{display:flex;align-items:center;justify-content:center;gap:16px;padding:14px 20px;border-bottom:1px solid var(--bd);}
+.mp-yr-btn{background:var(--bg);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;color:var(--text);}
+.mp-yr-label{font-size:18px;font-weight:700;min-width:60px;text-align:center;}
+.mp-months{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px;}
+.mp-month{padding:12px 8px;border-radius:10px;text-align:center;cursor:pointer;font-size:14px;font-weight:500;background:var(--bg);border:2px solid transparent;transition:all .15s;}
+.mp-month:hover{background:#fff5f3;border-color:var(--pr);color:var(--pr);}
+.mp-month.active{background:var(--pr);color:#fff;border-color:var(--pr);}
+
+/* ===== SUMMARY ===== */
+.sum-bar{background:var(--card);padding:14px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;border-bottom:1px solid var(--bd);}
+.sum-item{text-align:center;}
+.sum-lbl{font-size:11px;color:var(--tl);margin-bottom:4px;}
+.sum-amt{font-size:15px;font-weight:700;}
+.c-inc{color:var(--inc);} .c-exp{color:var(--exp);} .c-pos{color:var(--inc);} .c-neg{color:var(--exp);}
+
+/* ===== TX LIST ===== */
+.tx-content{flex:1;overflow-y:auto;padding-bottom:80px;}
+.day-group{margin-bottom:2px;}
+.day-hdr{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:#f9f9f9;border-bottom:1px solid var(--bd);}
+body.dark .day-hdr{background:#181818;}
+.day-badge{background:var(--text);color:var(--card);border-radius:6px;padding:3px 8px;font-size:18px;font-weight:700;line-height:1;}
+.day-badge .wd{font-size:10px;font-weight:400;margin-left:2px;}
+.tx-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border-bottom:1px solid #f0f0f0;cursor:pointer;transition:background .15s;}
+body.dark .tx-item{border-color:#252525;}
+.tx-item:hover{background:var(--bg);}
+.tx-icon{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.tx-info{flex:1;min-width:0;}
+.tx-cat{font-size:13px;color:var(--tl);}
+.tx-note{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tx-amt{font-size:15px;font-weight:700;}
+
+/* ===== FAB ===== */
+.fab{position:fixed;bottom:72px;right:calc(50% - 215px + 16px);width:54px;height:54px;border-radius:50%;background:var(--pr);color:#fff;border:none;font-size:26px;cursor:pointer;box-shadow:0 4px 20px rgba(232,83,58,.5);display:flex;align-items:center;justify-content:center;z-index:150;transition:transform .2s;}
+.fab:hover{transform:scale(1.08);}
+
+/* ===== BOTTOM NAV ===== */
+.bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--card);display:flex;border-top:1px solid var(--bd);z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,.08);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 14px;cursor:pointer;border:none;background:none;color:var(--tl);font-family:inherit;font-size:10px;gap:3px;transition:color .2s;}
+.nav-btn.active{color:var(--pr);}
+.nav-btn svg{width:22px;height:22px;}
+
+/* ===== MODAL ===== */
+.moverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:flex-end;justify-content:center;}
+.moverlay.open{display:flex;}
+.modal{background:var(--card);width:100%;max-width:430px;border-radius:20px 20px 0 0;max-height:92vh;overflow-y:auto;animation:slideUp .3s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+.mhdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--bd);position:sticky;top:0;background:var(--card);z-index:1;}
+.mhdr h3{font-size:16px;font-weight:600;}
+.mclose{background:none;border:none;font-size:22px;cursor:pointer;color:var(--tl);}
+
+/* ===== FORM ===== */
+.tx-tabs{display:flex;border-bottom:1px solid var(--bd);}
+.ttab{flex:1;padding:14px;text-align:center;cursor:pointer;border:none;background:none;font-family:inherit;font-size:14px;font-weight:500;color:var(--tl);border-bottom:3px solid transparent;transition:all .2s;}
+.ttab.active.income{color:var(--inc);border-color:var(--inc);}
+.ttab.active.expense{color:var(--exp);border-color:var(--exp);}
+.ttab.active.transfer{color:var(--tr);border-color:var(--tr);}
+.fbody{padding:16px 20px;display:flex;flex-direction:column;gap:14px;}
+.frow{display:flex;flex-direction:column;gap:6px;}
+.flbl{font-size:12px;color:var(--tl);font-weight:500;}
+.finp,.fsel{border:none;border-bottom:2px solid var(--bd);padding:10px 0;font-size:15px;font-family:inherit;background:transparent;color:var(--text);outline:none;width:100%;transition:border-color .2s;}
+.finp:focus,.fsel:focus{border-color:var(--pr);}
+.finp.amt{font-size:22px;font-weight:700;color:var(--exp);}
+.finp.amt.income{color:var(--inc);}
+.catbtn{display:flex;align-items:center;justify-content:space-between;border:none;border-bottom:2px solid var(--bd);padding:10px 0;font-size:15px;font-family:inherit;background:transparent;cursor:pointer;color:var(--tl);width:100%;transition:border-color .2s;}
+.catbtn.sel{color:var(--text);}
+.fsave{background:var(--pr);color:#fff;border:none;border-radius:10px;padding:15px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;width:100%;margin-top:8px;}
+
+/* ===== CAT PICKER ===== */
+.cpicker{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;align-items:flex-end;justify-content:center;}
+.cpicker.open{display:flex;}
+.cp-inner{background:var(--card);width:100%;max-width:430px;border-radius:20px 20px 0 0;max-height:70vh;display:flex;flex-direction:column;animation:slideUp .3s ease;}
+.cp-hdr{background:#1a1a1a;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-radius:20px 20px 0 0;}
+.cp-body{display:flex;flex:1;overflow:hidden;}
+.cp-main{width:150px;overflow-y:auto;border-right:1px solid var(--bd);flex-shrink:0;}
+.cp-mitem{padding:13px 12px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;transition:background .15s;}
+.cp-mitem:hover,.cp-mitem.act{background:#fff5f3;color:var(--pr);}
+.cp-sub{flex:1;overflow-y:auto;padding:8px 0;}
+.cp-sitem{padding:13px 16px;font-size:14px;cursor:pointer;border-bottom:1px solid #f5f5f5;transition:background .15s;}
+.cp-sitem:hover{background:#fff5f3;color:var(--pr);}
+
+/* ===== STATS ===== */
+.stats-content{flex:1;overflow-y:auto;padding-bottom:80px;}
+.chart-box{background:var(--card);padding:16px;margin-bottom:8px;}
+.pie-wrap{display:flex;justify-content:center;margin-bottom:16px;}
+.s-list{background:var(--card);padding:0 16px;}
+.s-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f5f5f5;}
+body.dark .s-item{border-color:#252525;}
+.s-pct{color:#fff;border-radius:6px;padding:3px 8px;font-size:12px;font-weight:600;min-width:44px;text-align:center;}
+.s-bar-bg{height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;margin-top:4px;}
+body.dark .s-bar-bg{background:#2e2e2e;}
+.s-bar-fill{height:100%;border-radius:3px;}
+
+/* ===== NOTES ===== */
+.notes-content{flex:1;overflow-y:auto;padding:12px;padding-bottom:80px;}
+.note-card{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:10px;box-shadow:var(--sh);cursor:pointer;border-left:4px solid var(--pr);}
+.note-title{font-size:15px;font-weight:600;margin-bottom:6px;}
+.note-prev{font-size:13px;color:var(--tl);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.note-date{font-size:11px;color:var(--tl);margin-top:8px;}
+.note-title-inp{border:none;border-bottom:2px solid var(--bd);padding:12px 16px;font-size:18px;font-weight:600;font-family:inherit;outline:none;background:var(--card);color:var(--text);width:100%;transition:border-color .2s;}
+.note-title-inp:focus{border-color:var(--pr);}
+.note-ta{flex:1;border:none;padding:14px 16px;font-family:inherit;font-size:15px;resize:none;outline:none;min-height:300px;line-height:1.7;background:var(--card);color:var(--text);}
+.nc-btn{width:28px;height:28px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:transform .15s;}
+.nc-btn.act{border-color:#333;transform:scale(1.2);}
+
+/* ===== ACCOUNTS ===== */
+.acc-content{flex:1;overflow-y:auto;padding:16px;padding-bottom:80px;}
+.acc-card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--sh);display:flex;justify-content:space-between;align-items:center;}
+.acc-bal{font-size:22px;font-weight:700;}
+.acc-add-btn{width:100%;background:#fff5f3;border:2px dashed var(--pr);border-radius:var(--r);padding:16px;font-family:inherit;font-size:14px;color:var(--pr);cursor:pointer;font-weight:500;}
+
+/* ===== SETTINGS ===== */
+.settings-content{flex:1;overflow-y:auto;padding-bottom:80px;}
+.s-sec-title{padding:10px 16px 6px;font-size:12px;color:var(--tl);font-weight:600;text-transform:uppercase;letter-spacing:.5px;background:var(--bg);}
+.s-sec{background:var(--card);margin-bottom:8px;}
+.s-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #f5f5f5;cursor:pointer;}
+body.dark .s-row{border-color:#252525;}
+.s-row:hover{background:var(--bg);}
+.s-row-l{display:flex;align-items:center;gap:12px;}
+.s-ico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.s-row-info h4{font-size:14px;font-weight:500;}
+.s-row-info p{font-size:12px;color:var(--tl);margin-top:2px;}
+.s-val{font-size:13px;color:var(--pr);font-weight:500;}
+.toggle{width:44px;height:24px;background:#ddd;border-radius:12px;position:relative;cursor:pointer;transition:background .3s;flex-shrink:0;}
+.toggle.on{background:var(--pr);}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#fff;border-radius:50%;transition:left .3s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.toggle.on::after{left:22px;}
+
+/* ===== AI ===== */
+.ai-content{flex:1;display:flex;flex-direction:column;padding-bottom:80px;}
+.ai-chat{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.ai-msg{max-width:85%;border-radius:16px;padding:12px 14px;font-size:14px;line-height:1.6;}
+.ai-msg.bot{background:var(--card);align-self:flex-start;box-shadow:var(--sh);border-bottom-left-radius:4px;}
+.ai-msg.user{background:var(--pr);color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
+.ai-name{font-size:11px;color:var(--pr);font-weight:600;margin-bottom:4px;}
+.ai-irow{background:var(--card);border-top:1px solid var(--bd);padding:10px 12px;display:flex;gap:10px;align-items:flex-end;}
+.ai-inp{flex:1;border:1px solid var(--bd);border-radius:22px;padding:10px 14px;font-family:inherit;font-size:14px;resize:none;outline:none;max-height:100px;transition:border-color .2s;background:var(--bg);color:var(--text);}
+.ai-inp:focus{border-color:var(--pr);}
+.ai-send{width:40px;height:40px;background:var(--pr);color:#fff;border:none;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* ===== VOICE BTN ===== */
+.voice-btn{width:40px;height:40px;background:var(--bg);border:1px solid var(--bd);border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.voice-btn.listening{background:#ff4444;border-color:#ff4444;color:#fff;animation:vp 1s infinite;}
+@keyframes vp{0%{box-shadow:0 0 0 0 rgba(255,68,68,.4);}70%{box-shadow:0 0 0 10px rgba(255,68,68,0);}100%{box-shadow:0 0 0 0 rgba(255,68,68,0);}}
+.voice-status{font-size:11px;color:var(--pr);height:14px;text-align:center;margin-top:2px;}
+
+/* ===== LAYOUT TOGGLE ===== */
+.layout-toggle{position:fixed;top:10px;right:10px;z-index:500;background:var(--card);border:1px solid var(--bd);border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.1);display:none;align-items:center;gap:5px;color:var(--text);font-family:inherit;}
+
+/* ===== DESKTOP MODE ===== */
+body.dmode{max-width:100%;background:var(--bg);}
+body.dmode .bnav{display:none!important;}
+body.dmode .fab{display:none!important;}
+body.dmode .layout-toggle{top:14px;right:16px;}
+.dsk-wrap{display:none;}
+body.dmode .dsk-wrap{display:flex;height:100vh;overflow:hidden;max-width:100%;}
+body.dmode #mainApp>.screen{display:none!important;}
+body.dmode #mainApp{max-width:100%;}
+
+/* Desktop sidebar */
+.dsk-side{width:230px;background:var(--card);border-right:1px solid var(--bd);display:flex;flex-direction:column;height:100vh;flex-shrink:0;}
+.dsk-logo{background:var(--pr);color:#fff;padding:18px 16px;}
+.dsk-logo h2{font-size:15px;font-weight:700;}
+.dsk-logo p{font-size:11px;opacity:.8;margin-top:2px;}
+.dsk-nav a{display:flex;align-items:center;gap:10px;padding:13px 16px;font-size:14px;font-weight:500;color:var(--tl);border-left:3px solid transparent;cursor:pointer;transition:all .15s;text-decoration:none;}
+.dsk-nav a:hover{background:var(--bg);color:var(--text);}
+.dsk-nav a.act{color:var(--pr);background:#fff5f3;border-left-color:var(--pr);}
+.dsk-nav a .di{width:22px;text-align:center;font-size:17px;}
+.dsk-month{padding:12px 16px;border-top:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
+.dsk-month span{font-size:13px;font-weight:600;}
+.dsk-month button{background:none;border:none;cursor:pointer;font-size:20px;color:var(--tl);line-height:1;}
+
+/* Desktop main area */
+.dsk-main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.dsk-topbar{background:var(--card);border-bottom:1px solid var(--bd);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.dsk-topbar h2{font-size:18px;font-weight:700;}
+.dsk-add-btn{background:var(--pr);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}
+.dsk-body{padding:24px;flex:1;}
+
+/* Desktop summary cards */
+.dsk-srow{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:22px;}
+.dsk-scard{background:var(--card);border-radius:var(--r);padding:18px 20px;box-shadow:var(--sh);border-left:4px solid var(--bd);}
+.dsk-scard.inc{border-color:var(--inc);}
+.dsk-scard.exp{border-color:var(--exp);}
+.dsk-scard.bal{border-color:var(--pr);}
+.dsk-scard label{font-size:11px;color:var(--tl);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.dsk-scard .amt{font-size:22px;font-weight:700;margin-top:6px;}
+
+/* Desktop 2-col */
+.dsk-2col{display:grid;grid-template-columns:1fr 360px;gap:18px;}
+.dsk-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;}
+.dsk-card-hdr{padding:14px 20px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;}
+.dsk-card-hdr h3{font-size:15px;font-weight:700;}
+.dsk-card-body{max-height:520px;overflow-y:auto;}
+
+/* Desktop AI panel */
+.dsk-ai-wrap{display:flex;flex-direction:column;height:100%;}
+.dsk-ai-chat{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px;background:var(--bg);}
+.dsk-ai-irow{background:var(--card);border-top:1px solid var(--bd);padding:12px 24px;display:flex;gap:10px;align-items:flex-end;}
+
+.ai-qbtns{display:flex;gap:8px;flex-wrap:wrap;padding:8px 12px 0;}
+.ai-qbtn{background:#fff5f3;border:1px solid #ffd5ce;color:var(--pr);border-radius:16px;padding:6px 12px;font-size:12px;font-family:inherit;cursor:pointer;white-space:nowrap;}
+.ai-dot{width:6px;height:6px;background:var(--tl);border-radius:50%;animation:bounce 1.4s infinite;display:inline-block;margin:0 2px;}
+.ai-dot:nth-child(2){animation-delay:.2s;}.ai-dot:nth-child(3){animation-delay:.4s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+/* ===== POPUP ===== */
+.pop-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;align-items:center;justify-content:center;padding:24px;}
+.pop-ov.open{display:flex;}
+.pop-box{background:var(--card);border-radius:20px;width:100%;max-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:popIn .25s cubic-bezier(.34,1.56,.64,1);overflow:hidden;}
+.pop-ico{padding:28px 24px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.pop-emoji{font-size:48px;line-height:1;}
+.pop-title{font-size:17px;font-weight:700;text-align:center;}
+.pop-msg{font-size:14px;color:var(--tl);text-align:center;line-height:1.6;padding:0 24px 20px;}
+.pop-hl{background:#fff5f3;border:1px solid #ffd5ce;border-radius:10px;padding:10px 14px;margin:0 20px 16px;font-size:14px;font-weight:600;color:var(--pr);text-align:center;}
+body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
+.pop-acts{display:flex;border-top:1px solid var(--bd);}
+.pop-btn{flex:1;padding:16px;border:none;background:transparent;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .15s;color:var(--tl);}
+.pop-btn:first-child{border-right:1px solid var(--bd);}
+.pop-btn.yes{color:var(--pr);}
+.pop-btn.danger{color:var(--exp);}
+.pop-btn.save{color:var(--inc);}
+.pop-btn:hover{background:var(--bg);}
+
+/* ===== SNACK ===== */
+.snack{position:fixed;bottom:92px;left:50%;transform:translateX(-50%) translateY(20px);background:#222;color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:500;z-index:9999;opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;gap:8px;white-space:nowrap;box-shadow:0 6px 24px rgba(0,0,0,.25);pointer-events:none;}
+.snack.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.snack.success{background:#1a6b3a;}
+.snack.error{background:#8b1a1a;}
+.snack.info{background:#1a3a6b;}
+
+/* ===== MISC ===== */
+.empty{text-align:center;padding:60px 20px;color:var(--tl);}
+.empty p{font-size:14px;margin-top:8px;}
+.tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;}
+.tag.income{background:#e8f8f0;color:var(--inc);}
+.tag.expense{background:#fef0ed;color:var(--exp);}
+.detail-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--bd);font-size:14px;}
+.detail-lbl{color:var(--tl);}
+.detail-val{font-weight:500;}
+.detail-acts{display:flex;gap:12px;padding:16px 0;}
+.d-del{flex:1;padding:12px;border-radius:10px;border:2px solid var(--exp);background:transparent;color:var(--exp);font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}
+.d-edit{flex:1;padding:12px;border-radius:10px;border:none;background:var(--pr);color:#fff;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px;}
+.pin-row{display:flex;gap:10px;justify-content:center;margin:16px 0;}
+.pin-d{width:48px;height:56px;border:2px solid var(--bd);border-radius:10px;text-align:center;font-size:22px;font-weight:700;font-family:inherit;outline:none;background:var(--card);color:var(--text);}
+.pin-d:focus{border-color:var(--pr);}
+.pub-step{background:var(--bg);border-radius:10px;padding:14px;margin-bottom:12px;}
+.pub-step h4{font-size:14px;font-weight:600;margin-bottom:6px;}
+.pub-step p{font-size:13px;color:var(--tl);line-height:1.6;}
+.copy-btn{background:var(--pr);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-family:inherit;font-size:12px;cursor:pointer;margin-top:8px;}
+
+/* ===== AI IMPROVE ===== */
+.ai-tabs{display:flex;border-bottom:2px solid var(--bd);background:var(--card);}
+.ai-tab{flex:1;padding:11px 6px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:var(--tl);border-bottom:3px solid transparent;font-family:inherit;transition:all .2s;}
+.ai-tab.act{color:var(--pr);border-bottom-color:var(--pr);}
+.ai-panel{display:none;flex-direction:column;flex:1;}
+.ai-panel.act{display:flex;}
+.imp-wrap{display:flex;flex-direction:column;flex:1;overflow:hidden;}
+.imp-top{display:flex;flex-direction:column;gap:10px;padding:12px;flex:1;overflow-y:auto;}
+.imp-label{font-size:12px;font-weight:600;color:var(--tl);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.imp-ta{width:100%;border:1.5px solid var(--bd);border-radius:10px;padding:12px;font-family:inherit;font-size:14px;resize:none;outline:none;background:var(--bg);color:var(--text);line-height:1.7;transition:border-color .2s;}
+.imp-ta:focus{border-color:var(--pr);}
+.imp-result{background:var(--bg);border:1.5px solid var(--bd);border-radius:10px;padding:12px;font-size:14px;min-height:80px;line-height:1.7;white-space:pre-wrap;color:var(--text);position:relative;}
+.imp-result.has-text{border-color:var(--pr);}
+.imp-btns{display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;border-top:1px solid var(--bd);background:var(--card);}
+.imp-style-btn{padding:7px 12px;border-radius:20px;border:1.5px solid var(--bd);background:var(--bg);color:var(--text);font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;transition:all .2s;}
+.imp-style-btn:hover,.imp-style-btn.act{background:var(--pr);color:#fff;border-color:var(--pr);}
+.imp-lang-row{display:flex;gap:6px;padding:8px 12px 0;border-top:1px solid var(--bd);}
+.imp-lang-btn{flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--bd);background:var(--bg);color:var(--text);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.imp-lang-btn.act{background:var(--pr);color:#fff;border-color:var(--pr);}
+.imp-go-btn{margin:8px 12px;padding:12px;border-radius:10px;border:none;background:var(--pr);color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.imp-go-btn:disabled{opacity:.5;cursor:default;}
+.imp-copy-btn{position:absolute;top:8px;right:8px;background:var(--pr);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;}
+.imp-use-btn{margin:0 12px 10px;padding:11px;border-radius:10px;border:2px solid var(--pr);background:transparent;color:var(--pr);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:none;}
+.imp-use-btn.show{display:block;}
+
+/* Note AI button */
+.note-ai-btn{background:linear-gradient(135deg,var(--pr),#9b59b6);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;}
+.note-ai-panel{display:none;background:var(--bg);border-top:1px solid var(--bd);padding:12px;}
+.note-ai-panel.show{display:block;}
+</style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+<!-- ===== USER SELECT SCREEN ===== -->
+<div id="userScreen">
+  <div class="us-logo">💰</div>
+  <div class="us-title">মাসউদ ফিন্যান্স</div>
+  <div class="us-sub">আপনার প্রোফাইল বেছে নিন</div>
+  <div class="us-grid" id="userGrid"></div>
+  <div style="margin-top:20px;width:100%;max-width:340px">
+    <div id="pinHintBox" style="font-size:11px;color:rgba(255,255,255,0.5);text-align:center;margin-bottom:10px;line-height:1.7">
+      ডিফল্ট PIN:<br>
+      Masud=<b>0000</b> | Mominur=<b>1111</b> | Nur Alam=<b>2222</b><br>
+      Apon=<b>3333</b> | Malek=<b>4444</b> | Rayhan=<b>5555</b>
+    </div>
+    <button onclick="showAdminPanel()" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.5);color:rgba(255,215,0,0.9);border-radius:12px;padding:12px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+      👑 অ্যাডমিন প্যানেল (Masud)
+    </button>
+  </div>
+</div>
+
+<!-- ===== PIN SCREEN ===== -->
+<div id="pinScreen">
+  <button class="ps-back" onclick="backToUsers()">←</button>
+  <div class="ps-avatar" id="psAvatar">👤</div>
+  <div class="ps-name" id="psName">ব্যবহারকারী</div>
+  <div class="ps-sub">PIN কোড দিন</div>
+  <div class="ps-dots">
+    <div class="ps-dot" id="pd0"></div><div class="ps-dot" id="pd1"></div>
+    <div class="ps-dot" id="pd2"></div><div class="ps-dot" id="pd3"></div>
+  </div>
+  <div class="ps-pad">
+    <button class="ps-btn" onclick="pinKey('1')">1</button>
+    <button class="ps-btn" onclick="pinKey('2')">2<span class="sub">ABC</span></button>
+    <button class="ps-btn" onclick="pinKey('3')">3<span class="sub">DEF</span></button>
+    <button class="ps-btn" onclick="pinKey('4')">4<span class="sub">GHI</span></button>
+    <button class="ps-btn" onclick="pinKey('5')">5<span class="sub">JKL</span></button>
+    <button class="ps-btn" onclick="pinKey('6')">6<span class="sub">MNO</span></button>
+    <button class="ps-btn" onclick="pinKey('7')">7<span class="sub">PQRS</span></button>
+    <button class="ps-btn" onclick="pinKey('8')">8<span class="sub">TUV</span></button>
+    <button class="ps-btn" onclick="pinKey('9')">9<span class="sub">WXYZ</span></button>
+    <button class="ps-btn" onclick="backToUsers()">←</button>
+    <button class="ps-btn" onclick="pinKey('0')">0</button>
+    <button class="ps-btn" onclick="pinDel()">⌫</button>
+  </div>
+  <div class="ps-err" id="pinErr"></div>
+  <div class="ps-skip" style="cursor:default;opacity:0.7;">← ফিরে যেতে বাম বাটন চাপুন</div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="mainApp" style="display:none">
+
+<!-- TRANS SCREEN -->
+<div id="sc-trans" class="screen active">
+  <div class="hdr">
+    <button class="hdr-btn" onclick="prevMonth()">‹</button>
+    <div class="date-hdr-center">
+      <div class="month-label" onclick="openMonthPicker()" id="monthLabel">মার্চ ২০২৬</div>
+      <div class="year-row">
+        <button class="year-btn" onclick="changeYear(-1)">‹</button>
+        <span class="year-label" id="yearLabel" onclick="openMonthPicker()">২০২৬</span>
+        <button class="year-btn" onclick="changeYear(1)">›</button>
+      </div>
+    </div>
+    <div class="user-badge" onclick="switchUser()" id="userBadge">👤</div>
+  </div>
+  <div class="sum-bar">
+    <div class="sum-item"><div class="sum-lbl">আয়</div><div class="sum-amt c-inc" id="sumInc">৳ ০</div></div>
+    <div class="sum-item"><div class="sum-lbl">ব্যয়</div><div class="sum-amt c-exp" id="sumExp">৳ ০</div></div>
+    <div class="sum-item"><div class="sum-lbl">মোট</div><div class="sum-amt" id="sumBal">৳ ০</div></div>
+  </div>
+  <div class="tx-content" id="txList"></div>
+</div>
+
+<!-- STATS SCREEN -->
+<div id="sc-stats" class="screen">
+  <div class="hdr">
+    <button class="hdr-btn" onclick="prevMonth()">‹</button>
+    <div class="date-hdr-center">
+      <div class="month-label" onclick="openMonthPicker()" id="statsMonthLabel">মার্চ ২০২৬</div>
+    </div>
+    <button class="hdr-btn" onclick="nextMonth()">›</button>
+  </div>
+  <div class="stats-content">
+    <div style="display:flex;border-bottom:1px solid var(--bd);background:var(--card)">
+      <button class="ttab active expense" id="stExpTab" onclick="toggleStatsType('expense')">ব্যয়</button>
+      <button class="ttab income" id="stIncTab" onclick="toggleStatsType('income')">আয়</button>
+    </div>
+    <div class="chart-box">
+      <div style="font-size:14px;font-weight:600;margin-bottom:14px" id="stTotal">মোট ব্যয়: ৳ ০</div>
+      <div class="pie-wrap"><canvas id="pieChart" width="200" height="200"></canvas></div>
+    </div>
+    <div class="s-list" id="statsList"></div>
+  </div>
+</div>
+
+<!-- AI SCREEN -->
+<div id="sc-ai" class="screen">
+  <div class="hdr"><h1>🤖 AI আর্থিক উপদেষ্টা</h1><span style="font-size:11px;font-weight:700;background:linear-gradient(90deg,#4285f4,#0f9d58,#f4b400,#db4437);-webkit-background-clip:text;-webkit-text-fill-color:transparent">স্মার্ট AI</span></div>
+
+  <!-- Tabs -->
+  <div class="ai-tabs">
+    <button class="ai-tab act" id="tab-chat" onclick="switchAiTab('chat')">💬 চ্যাট</button>
+    <button class="ai-tab" id="tab-imp" onclick="switchAiTab('imp')">✍️ টেক্সট উন্নত করুন</button>
+  </div>
+
+  <!-- Chat Panel -->
+  <div class="ai-panel act" id="aipanel-chat" style="overflow:hidden;">
+    <div class="ai-content" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+      <div class="ai-qbtns">
+        <button class="ai-qbtn" onclick="sendQ('মাসিক বিশ্লেষণ করো')">📊 বিশ্লেষণ</button>
+        <button class="ai-qbtn" onclick="sendQ('সঞ্চয়ের উপায় বলো')">💡 সঞ্চয়</button>
+        <button class="ai-qbtn" onclick="sendQ('বাজেট পরিকল্পনা করো')">📅 বাজেট</button>
+        <button class="ai-qbtn" onclick="sendQ('আমি কী কী করতে পারি')">❓ সাহায্য</button>
+        <button class="ai-qbtn" onclick="sendQ('এই সপ্তাহের খরচ কত')">📆 সাপ্তাহিক</button>
+        <button class="ai-qbtn" onclick="sendQ('সবচেয়ে বেশি কোথায় খরচ হচ্ছে')">🔍 শীর্ষ খরচ</button>
+      </div>
+      <div class="ai-chat" id="aiChat">
+        <div class="ai-msg bot"><div class="ai-name">✨ AI উপদেষ্টা</div>আস্সালামু আলাইকুম! আমি আপনার স্মার্ট আর্থিক সহকারী।<br><br>আমি যা করতে পারি:<br>📝 লেনদেন এন্ট্রি: "ব্যয় চাল ৫কেজি ৬০ টাকা করে"<br>📊 বিশ্লেষণ ও পরামর্শ<br>💰 বাজেট পরিকল্পনা<br><br>কী জানতে চান?</div>
+      </div>
+      <div class="ai-irow">
+        <button class="voice-btn" id="voiceBtn" onclick="toggleVoice('mob')" title="🎤 ভয়েস ইনপুট">🎤</button>
+        <div style="flex:1;display:flex;flex-direction:column;gap:2px;">
+          <textarea class="ai-inp" id="aiInp" placeholder="প্রশ্ন লিখুন বা 🎤 চাপুন..." rows="1" onkeydown="aiKey(event)"></textarea>
+          <div class="voice-status" id="voiceStat"></div>
+        </div>
+        <button class="ai-send" onclick="sendAI()">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Improve Panel -->
+  <div class="ai-panel" id="aipanel-imp">
+    <div class="imp-wrap">
+      <div class="imp-top">
+        <div>
+          <div class="imp-label">আপনার টেক্সট লিখুন</div>
+          <textarea class="imp-ta" id="impInput" rows="5" placeholder="এখানে বাংলা বা ইংরেজি টেক্সট লিখুন যেটা উন্নত করতে চান...&#10;&#10;উদাহরণ: &#10;• নোটের ভেতরের লেখা paste করুন&#10;• ইমেইল বা চিঠির ড্রাফট লিখুন&#10;• যেকোনো প্যারাগ্রাফ দিন"></textarea>
+        </div>
+        <div>
+          <div class="imp-label">উন্নত টেক্সট</div>
+          <div class="imp-result" id="impResult">
+            <span style="color:var(--tl);font-size:13px;">উন্নত টেক্সট এখানে দেখাবে...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Language -->
+      <div class="imp-lang-row">
+        <button class="imp-lang-btn act" id="lang-bn" onclick="setImpLang('bn')">🇧🇩 বাংলা</button>
+        <button class="imp-lang-btn" id="lang-en" onclick="setImpLang('en')">🇺🇸 English</button>
+        <button class="imp-lang-btn" id="lang-auto" onclick="setImpLang('auto')">🔁 স্বয়ংক্রিয়</button>
+      </div>
+
+      <!-- Style buttons -->
+      <div class="imp-btns">
+        <span style="font-size:12px;color:var(--tl);font-weight:600;align-self:center;margin-right:4px;">স্টাইল:</span>
+        <button class="imp-style-btn act" data-style="formal" onclick="setImpStyle(this)">📋 আনুষ্ঠানিক</button>
+        <button class="imp-style-btn" data-style="casual" onclick="setImpStyle(this)">💬 সহজ-সরল</button>
+        <button class="imp-style-btn" data-style="professional" onclick="setImpStyle(this)">💼 পেশাদার</button>
+        <button class="imp-style-btn" data-style="concise" onclick="setImpStyle(this)">✂️ সংক্ষিপ্ত</button>
+        <button class="imp-style-btn" data-style="detailed" onclick="setImpStyle(this)">📖 বিস্তারিত</button>
+        <button class="imp-style-btn" data-style="fix" onclick="setImpStyle(this)">🔧 ভুল ঠিক করুন</button>
+        <button class="imp-style-btn" data-style="translate_bn" onclick="setImpStyle(this)">🔄 বাংলায় অনুবাদ</button>
+        <button class="imp-style-btn" data-style="translate_en" onclick="setImpStyle(this)">🔄 ইংরেজিতে অনুবাদ</button>
+      </div>
+
+      <button class="imp-go-btn" id="impGoBtn" onclick="runImprove()">
+        ✨ <span id="impGoTxt">টেক্সট উন্নত করুন</span>
+      </button>
+      <button class="imp-use-btn" id="impUseBtn" onclick="useImprovedInNote()">
+        📝 এই টেক্সট নোটে ব্যবহার করুন
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- NOTES SCREEN -->
+<div id="sc-notes" class="screen">
+  <div class="hdr"><h1>📝 নোটস</h1><button class="hdr-btn" onclick="openNewNote()">+</button></div>
+  <div class="notes-content" id="notesList"></div>
+</div>
+
+<!-- NOTE EDITOR -->
+<div id="sc-note-ed" class="screen">
+  <div class="hdr">
+    <button class="hdr-btn" onclick="closeNoteEd()">←</button>
+    <h1 id="noteEdTitle">নতুন নোট</h1>
+    <button class="hdr-btn" onclick="saveNote()">💾</button>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column">
+    <input type="text" class="note-title-inp" id="noteTitleI" placeholder="শিরোনাম...">
+    <textarea class="note-ta" id="noteBodyI" placeholder="নোট লিখুন..."></textarea>
+    <div style="display:flex;gap:8px;padding:8px 16px;border-top:1px solid var(--bd);align-items:center;flex-wrap:wrap;">
+      <span style="font-size:12px;color:var(--tl)">রঙ:</span>
+      <div class="nc-btn act" style="background:#e8533a" onclick="setNC('#e8533a',this)"></div>
+      <div class="nc-btn" style="background:#3498db" onclick="setNC('#3498db',this)"></div>
+      <div class="nc-btn" style="background:#2ecc71" onclick="setNC('#2ecc71',this)"></div>
+      <div class="nc-btn" style="background:#f39c12" onclick="setNC('#f39c12',this)"></div>
+      <div class="nc-btn" style="background:#9b59b6" onclick="setNC('#9b59b6',this)"></div>
+      <div style="flex:1"></div>
+      <button class="note-ai-btn" onclick="toggleNoteAI()">✨ AI উন্নত করুন</button>
+      <button onclick="deleteNote()" style="padding:8px 14px;border-radius:8px;border:2px solid var(--exp);background:transparent;color:var(--exp);font-family:inherit;font-size:13px;cursor:pointer">🗑️ মুছুন</button>
+    </div>
+
+    <!-- Note AI quick panel -->
+    <div class="note-ai-panel" id="noteAiPanel">
+      <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;">✨ নোটের টেক্সট AI দিয়ে উন্নত করুন</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+        <button class="imp-style-btn" onclick="quickImpNote('formal')">📋 আনুষ্ঠানিক</button>
+        <button class="imp-style-btn" onclick="quickImpNote('casual')">💬 সহজ</button>
+        <button class="imp-style-btn" onclick="quickImpNote('professional')">💼 পেশাদার</button>
+        <button class="imp-style-btn" onclick="quickImpNote('concise')">✂️ সংক্ষিপ্ত</button>
+        <button class="imp-style-btn" onclick="quickImpNote('fix')">🔧 ভুল ঠিক</button>
+        <button class="imp-style-btn" onclick="quickImpNote('translate_en')">🔄 ইংরেজি</button>
+        <button class="imp-style-btn" onclick="quickImpNote('translate_bn')">🔄 বাংলা</button>
+      </div>
+      <div id="noteAiResult" style="display:none;background:var(--bg);border:1.5px solid var(--pr);border-radius:10px;padding:12px;font-size:14px;line-height:1.7;margin-bottom:8px;white-space:pre-wrap;"></div>
+      <div style="display:flex;gap:8px;" id="noteAiActions" style="display:none;">
+        <button onclick="applyNoteAI()" id="noteAiApplyBtn" style="display:none;flex:1;padding:10px;border-radius:8px;border:none;background:var(--pr);color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">✓ নোটে প্রয়োগ করুন</button>
+        <button onclick="copyNoteAI()" id="noteAiCopyBtn" style="display:none;padding:10px 14px;border-radius:8px;border:1.5px solid var(--bd);background:transparent;color:var(--text);font-family:inherit;font-size:13px;cursor:pointer;">📋 কপি</button>
+      </div>
+    </div>
+
+    <div style="padding:0 16px 16px">
+      <button onclick="saveNote()" class="fsave">সংরক্ষণ করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS SCREEN -->
+<div id="sc-settings" class="screen">
+  <div class="hdr"><h1>⚙️ সেটিংস</h1><div class="user-badge" onclick="switchUser()" id="settingsUserBadge" style="font-size:12px">👤 পরিবর্তন</div></div>
+  <div class="settings-content">
+    <div class="s-sec-title">ক্যাটাগরি</div>
+    <div class="s-sec">
+      <div class="s-row" onclick="switchScreen('cats')">
+        <div class="s-row-l"><div class="s-ico" style="background:#fff5f3">🗂️</div><div class="s-row-info"><h4>ব্যয়ের ক্যাটাগরি</h4><p>যোগ, সম্পাদনা ও মুছুন</p></div></div>
+        <span style="color:var(--tl)">›</span>
+      </div>
+      <div class="s-row" onclick="openIncCatModal()">
+        <div class="s-row-l"><div class="s-ico" style="background:#e8f8f0">💰</div><div class="s-row-info"><h4>আয়ের ক্যাটাগরি</h4><p>আয়ের ক্যাটাগরি পরিচালনা</p></div></div>
+        <span style="color:var(--tl)">›</span>
+      </div>
+    </div>
+    <div class="s-sec-title">ব্যাকআপ ও রপ্তানি</div>
+    <div class="s-sec">
+      <div class="s-row" onclick="exportJSON()"><div class="s-row-l"><div class="s-ico" style="background:#e8f4fd">📤</div><div class="s-row-info"><h4>JSON ব্যাকআপ</h4><p>সব ডেটা সেভ করুন</p></div></div><span style="color:var(--tl)">›</span></div>
+      <div class="s-row" onclick="exportCSV()"><div class="s-row-l"><div class="s-ico" style="background:#e8f8f0">📊</div><div class="s-row-info"><h4>CSV এক্সেল</h4><p>Excel-এ খুলুন</p></div></div><span style="color:var(--tl)">›</span></div>
+      <div class="s-row" onclick="importJSON()"><div class="s-row-l"><div class="s-ico" style="background:#fef9e7">📥</div><div class="s-row-info"><h4>ব্যাকআপ আমদানি</h4><p>JSON থেকে লোড করুন</p></div></div><span style="color:var(--tl)">›</span></div>
+      <div class="s-row" onclick="emailBackup()"><div class="s-row-l"><div class="s-ico" style="background:#fdf2f8">📧</div><div class="s-row-info"><h4>ইমেইলে ব্যাকআপ</h4><p>ডেটা ইমেইলে পাঠান</p></div></div><span style="color:var(--tl)">›</span></div>
+    </div>
+    <div class="s-sec-title">নিরাপত্তা</div>
+    <div class="s-sec">
+      <div class="s-row" onclick="openChangePIN()"><div class="s-row-l"><div class="s-ico" style="background:#f5eef8">🔐</div><div class="s-row-info"><h4>আমার PIN পরিবর্তন</h4><p>এই প্রোফাইলের PIN সেট করুন</p></div></div><span class="s-val" id="pinStatus">সেট করুন</span></div>
+    </div>
+    <div class="s-sec-title" id="adminSecTitle" style="display:none">অ্যাডমিন</div>
+    <div class="s-sec" id="adminSecRow" style="display:none">
+      <div class="s-row" onclick="showAdminPanel()"><div class="s-row-l"><div class="s-ico" style="background:#fff3cd">👑</div><div class="s-row-info"><h4>অ্যাডমিন প্যানেল</h4><p>ইউজার যোগ, মুছা ও PIN পরিবর্তন</p></div></div><span style="color:var(--tl)">›</span></div>
+    </div>
+    <div class="s-sec-title">চেহারা</div>
+    <div class="s-sec">
+      <div class="s-row" onclick="toggleDark()"><div class="s-row-l"><div class="s-ico" id="darkIco" style="background:#1a1a2e">🌙</div><div class="s-row-info"><h4>ডার্ক মোড</h4><p>রাতের থিম</p></div></div><div class="toggle" id="darkToggle"></div></div>
+    </div>
+    <div class="s-sec-title">অনলাইন</div>
+    <div class="s-sec">
+      <div class="s-row" onclick="openFbConfig()"><div class="s-row-l"><div class="s-ico" style="background:#fff3e0">🔥</div><div class="s-row-info"><h4>Firebase সংযোগ</h4><p id="fbStatusTxt">ক্লাউড ব্যাকআপ সেটআপ করুন</p></div></div><span class="s-val" id="fbConnStatus">বন্ধ</span></div>
+      <div class="s-row" onclick="openGithub()"><div class="s-row-l"><div class="s-ico" style="background:#f0f0f0">🌐</div><div class="s-row-info"><h4>GitHub Pages পাবলিশ</h4><p>অনলাইনে শেয়ার করুন</p></div></div><span style="color:var(--tl)">›</span></div>
+    </div>
+    <div class="s-sec-title">অ্যাকাউন্ট ম্যানেজমেন্ট</div>
+    <div class="s-sec">
+      <div class="s-row" onclick="switchScreen('accounts')"><div class="s-row-l"><div class="s-ico" style="background:#e8f4fd">💳</div><div class="s-row-info"><h4>অ্যাকাউন্টসমূহ</h4><p>নগদ, বিকাশ, ব্যাংক</p></div></div><span style="color:var(--tl)">›</span></div>
+      <div class="s-row" onclick="resetUserData()"><div class="s-row-l"><div class="s-ico" style="background:#fef0ed">🗑️</div><div class="s-row-info"><h4>এই প্রোফাইলের ডেটা মুছুন</h4><p>শুধু আপনার ডেটা রিসেট হবে</p></div></div></div>
+    </div>
+    <div style="text-align:center;padding:20px;font-size:12px;color:var(--tl)">মাসউদ ফিন্যান্সিয়াল অ্যাপস v3.0<br>Developed by মাসউদ</div>
+  </div>
+</div>
+
+<!-- CATS SCREEN -->
+<div id="sc-cats" class="screen">
+  <div class="hdr"><button class="hdr-btn" onclick="switchScreen('settings')">←</button><h1>ক্যাটাগরি</h1><button class="hdr-btn" onclick="openAddCat()">+</button></div>
+  <div style="flex:1;overflow-y:auto;padding-bottom:80px" id="catMgmt"></div>
+</div>
+
+<!-- ACCOUNTS SCREEN -->
+<div id="sc-accounts" class="screen">
+  <div class="hdr"><button class="hdr-btn" onclick="switchScreen('settings')">←</button><h1>💳 অ্যাকাউন্ট</h1><button class="hdr-btn" onclick="openAddAcc()">+</button></div>
+  <div class="acc-content" id="accList"></div>
+</div>
+
+</div><!-- end mainApp -->
+
+<!-- ===== BOTTOM NAV ===== -->
+
+<!-- ===== DESKTOP LAYOUT ===== -->
+<div class="dsk-wrap" id="dskWrap">
+  <div class="dsk-side">
+    <div class="dsk-logo">
+      <h2>💰 মাসউদ ফিন্যান্স</h2>
+      <p>আর্থিক ব্যবস্থাপনা</p>
+    </div>
+    <nav class="dsk-nav" style="flex:1;padding:8px 0;overflow-y:auto;">
+      <a class="act" id="dn-trans" onclick="dSwitch('trans')"><span class="di">📋</span> লেনদেন</a>
+      <a id="dn-stats" onclick="dSwitch('stats')"><span class="di">📊</span> পরিসংখ্যান</a>
+      <a id="dn-ai" onclick="dSwitch('ai')"><span class="di">🤖</span> AI উপদেষ্টা</a>
+      <a id="dn-notes" onclick="dSwitch('notes')"><span class="di">📝</span> নোটস</a>
+      <a id="dn-settings" onclick="dSwitch('settings')"><span class="di">⚙️</span> সেটিংস</a>
+    </nav>
+    <div class="dsk-month">
+      <button onclick="prevMon()">‹</button>
+      <span id="dskMonLbl">মার্চ ২০২৬</span>
+      <button onclick="nextMon()">›</button>
+    </div>
+  </div>
+  <div class="dsk-main" id="dskMain">
+
+    <!-- Trans -->
+    <div id="dp-trans">
+      <div class="dsk-topbar"><h2>📋 লেনদেন</h2><button class="dsk-add-btn" onclick="openTxModal()">+ নতুন লেনদেন</button></div>
+      <div class="dsk-body">
+        <div class="dsk-srow">
+          <div class="dsk-scard inc"><label>মোট আয়</label><div class="amt" id="d-inc" style="color:var(--inc)">৳ ০</div></div>
+          <div class="dsk-scard exp"><label>মোট ব্যয়</label><div class="amt" id="d-exp" style="color:var(--exp)">৳ ০</div></div>
+          <div class="dsk-scard bal"><label>ব্যালেন্স</label><div class="amt" id="d-bal" style="color:var(--pr)">৳ ০</div></div>
+        </div>
+        <div class="dsk-card"><div class="dsk-card-hdr"><h3>লেনদেনের তালিকা</h3><span id="d-txCnt" style="font-size:13px;color:var(--tl)"></span></div><div class="dsk-card-body" id="d-txList"></div></div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div id="dp-stats" style="display:none">
+      <div class="dsk-topbar"><h2>📊 পরিসংখ্যান</h2>
+        <div style="display:flex;gap:8px;">
+          <button onclick="toggleStats('expense')" style="padding:6px 14px;border-radius:6px;border:1px solid var(--bd);background:var(--card);cursor:pointer;font-family:inherit;font-size:13px;color:var(--text);">ব্যয়</button>
+          <button onclick="toggleStats('income')" style="padding:6px 14px;border-radius:6px;border:1px solid var(--bd);background:var(--card);cursor:pointer;font-family:inherit;font-size:13px;color:var(--text);">আয়</button>
+        </div>
+      </div>
+      <div class="dsk-body"><div class="dsk-2col">
+        <div class="dsk-card"><div class="dsk-card-hdr"><h3 id="d-statTtl">মোট ব্যয়: ৳ ০</h3></div>
+          <div style="padding:20px;display:flex;justify-content:center;"><canvas id="dPie" width="200" height="200"></canvas></div>
+          <div id="d-statList" style="padding:0 20px 20px;"></div>
+        </div>
+        <div class="dsk-card"><div class="dsk-card-hdr"><h3>মাসিক সারসংক্ষেপ</h3></div>
+          <div id="d-statSide" style="padding:16px;"></div>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- AI -->
+    <div id="dp-ai" style="display:none;flex-direction:column;height:100vh;">
+      <div class="dsk-topbar"><h2>🤖 AI আর্থিক উপদেষ্টা</h2><span style="font-size:12px;font-weight:700;background:linear-gradient(90deg,#4285f4,#0f9d58,#f4b400,#db4437);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">স্মার্ট AI</span></div>
+      <div style="display:flex;gap:8px;padding:10px 24px;flex-wrap:wrap;background:var(--card);border-bottom:1px solid var(--bd);">
+        <button class="ai-qbtn" onclick="sendQ('মাসিক বিশ্লেষণ করো')">📊 বিশ্লেষণ</button>
+        <button class="ai-qbtn" onclick="sendQ('সঞ্চয়ের উপায় বলো')">💡 সঞ্চয়</button>
+        <button class="ai-qbtn" onclick="sendQ('বাজেট পরিকল্পনা করো')">📅 বাজেট</button>
+        <button class="ai-qbtn" onclick="sendQ('সবচেয়ে বেশি কোথায় খরচ হচ্ছে')">🔍 শীর্ষ খরচ</button>
+      </div>
+      <div class="dsk-ai-chat" id="d-aiChat"></div>
+      <div class="dsk-ai-irow">
+        <button class="voice-btn" id="d-voiceBtn" onclick="toggleVoice('dsk')" title="🎤 ভয়েস ইনপুট">🎤</button>
+        <div style="flex:1;display:flex;flex-direction:column;gap:2px;">
+          <textarea class="ai-inp" id="d-aiInp" placeholder="প্রশ্ন লিখুন বা 🎤 চাপুন..." rows="1" onkeydown="dAiKey(event)"></textarea>
+          <div class="voice-status" id="d-voiceStat"></div>
+        </div>
+        <button class="ai-send" onclick="dSendAI()" style="width:46px;height:46px;font-size:18px;">➤</button>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div id="dp-notes" style="display:none">
+      <div class="dsk-topbar"><h2>📝 নোটস</h2><button class="dsk-add-btn" onclick="openNewNote()">+ নতুন নোট</button></div>
+      <div class="dsk-body"><div id="d-notesList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;"></div></div>
+    </div>
+
+    <!-- Settings -->
+    <div id="dp-settings" style="display:none">
+      <div class="dsk-topbar">
+        <h2>⚙️ সেটিংস</h2>
+        <div id="dsk-user-badge" style="font-size:13px;font-weight:600;background:var(--pr);color:#fff;padding:6px 14px;border-radius:20px;cursor:pointer;" onclick="switchUser()">👤 পরিবর্তন</div>
+      </div>
+      <div class="dsk-body" style="max-width:620px;">
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+
+          <!-- ক্যাটাগরি -->
+          <div class="dsk-card">
+            <div class="dsk-card-hdr"><h3>🗂️ ক্যাটাগরি</h3></div>
+            <div>
+              <div class="s-row" onclick="dSwitch('cats_exp')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bd);">
+                <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#fff5f3;border-radius:8px;display:flex;align-items:center;justify-content:center;">🗂️</div><div><div style="font-size:14px;font-weight:500;">ব্যয়ের ক্যাটাগরি</div><div style="font-size:12px;color:var(--tl);">যোগ, সম্পাদনা ও মুছুন</div></div></div>
+                <span style="color:var(--tl);">›</span>
+              </div>
+              <div onclick="openIncCatModal()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">
+                <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#e8f8f0;border-radius:8px;display:flex;align-items:center;justify-content:center;">💰</div><div><div style="font-size:14px;font-weight:500;">আয়ের ক্যাটাগরি</div><div style="font-size:12px;color:var(--tl);">আয়ের ক্যাটাগরি পরিচালনা</div></div></div>
+                <span style="color:var(--tl);">›</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ব্যাকআপ -->
+          <div class="dsk-card">
+            <div class="dsk-card-hdr"><h3>💾 ব্যাকআপ ও রপ্তানি</h3></div>
+            <div>
+              <div onclick="exportJSON()" style="cursor:pointer;display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--bd);"><div style="width:34px;height:34px;background:#e8f4fd;border-radius:8px;display:flex;align-items:center;justify-content:center;">📤</div><div><div style="font-size:14px;font-weight:500;">JSON ব্যাকআপ</div><div style="font-size:12px;color:var(--tl);">সব ডেটা সেভ করুন</div></div></div>
+              <div onclick="exportCSV()" style="cursor:pointer;display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--bd);"><div style="width:34px;height:34px;background:#e8f8f0;border-radius:8px;display:flex;align-items:center;justify-content:center;">📊</div><div><div style="font-size:14px;font-weight:500;">CSV এক্সেল</div><div style="font-size:12px;color:var(--tl);">Excel-এ খুলুন</div></div></div>
+              <div onclick="importJSON()" style="cursor:pointer;display:flex;align-items:center;gap:10px;padding:13px 16px;border-bottom:1px solid var(--bd);"><div style="width:34px;height:34px;background:#fef9e7;border-radius:8px;display:flex;align-items:center;justify-content:center;">📥</div><div><div style="font-size:14px;font-weight:500;">ব্যাকআপ আমদানি</div><div style="font-size:12px;color:var(--tl);">JSON থেকে লোড করুন</div></div></div>
+              <div onclick="emailBackup()" style="cursor:pointer;display:flex;align-items:center;gap:10px;padding:13px 16px;"><div style="width:34px;height:34px;background:#fdf2f8;border-radius:8px;display:flex;align-items:center;justify-content:center;">📧</div><div><div style="font-size:14px;font-weight:500;">ইমেইলে ব্যাকআপ</div><div style="font-size:12px;color:var(--tl);">ডেটা ইমেইলে পাঠান</div></div></div>
+            </div>
+          </div>
+
+          <!-- নিরাপত্তা -->
+          <div class="dsk-card">
+            <div class="dsk-card-hdr"><h3>🔐 নিরাপত্তা</h3></div>
+            <div>
+              <div onclick="openChangePIN()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bd);">
+                <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#f5eef8;border-radius:8px;display:flex;align-items:center;justify-content:center;">🔐</div><div><div style="font-size:14px;font-weight:500;">আমার PIN পরিবর্তন</div><div style="font-size:12px;color:var(--tl);">এই প্রোফাইলের PIN সেট করুন</div></div></div>
+                <span class="s-val" id="d-pinStatus" style="font-size:13px;color:var(--pr);font-weight:500;">সেট করুন</span>
+              </div>
+              <div onclick="resetUserData()" style="cursor:pointer;display:flex;align-items:center;gap:10px;padding:14px 16px;">
+                <div style="width:34px;height:34px;background:#fef0ed;border-radius:8px;display:flex;align-items:center;justify-content:center;">🗑️</div>
+                <div><div style="font-size:14px;font-weight:500;">প্রোফাইল ডেটা মুছুন</div><div style="font-size:12px;color:var(--tl);">শুধু আপনার ডেটা রিসেট হবে</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- চেহারা ও অনলাইন -->
+          <div class="dsk-card">
+            <div class="dsk-card-hdr"><h3>🎨 চেহারা ও অনলাইন</h3></div>
+            <div>
+              <div onclick="toggleDark()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bd);">
+                <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#1a1a2e;border-radius:8px;display:flex;align-items:center;justify-content:center;" id="d-darkIco">🌙</div><div><div style="font-size:14px;font-weight:500;">ডার্ক মোড</div><div style="font-size:12px;color:var(--tl);">রাতের থিম</div></div></div>
+                <div class="toggle" id="d-darkToggle"></div>
+              </div>
+              <div onclick="openFbConfig()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bd);">
+                <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#fff3e0;border-radius:8px;display:flex;align-items:center;justify-content:center;">🔥</div><div><div style="font-size:14px;font-weight:500;">Firebase সংযোগ</div><div style="font-size:12px;color:var(--tl);" id="d-fbStatusTxt">ক্লাউড ব্যাকআপ সেটআপ করুন</div></div></div>
+                <span class="s-val" id="d-fbConnStatus" style="font-size:13px;color:var(--pr);">বন্ধ</span>
+              </div>
+              <div onclick="openGithub()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bd);">
+                <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#f0f0f0;border-radius:8px;display:flex;align-items:center;justify-content:center;">🌐</div><div><div style="font-size:14px;font-weight:500;">GitHub Pages পাবলিশ</div><div style="font-size:12px;color:var(--tl);">অনলাইনে শেয়ার করুন</div></div></div>
+                <span style="color:var(--tl);">›</span>
+              </div>
+              <div onclick="switchScreen('accounts')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">
+                <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#e8f4fd;border-radius:8px;display:flex;align-items:center;justify-content:center;">💳</div><div><div style="font-size:14px;font-weight:500;">অ্যাকাউন্টসমূহ</div><div style="font-size:12px;color:var(--tl);">নগদ, বিকাশ, ব্যাংক</div></div></div>
+                <span style="color:var(--tl);">›</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- অ্যাডমিন প্যানেল (admin only) -->
+        <div class="dsk-card" id="d-adminCard" style="display:none;margin-bottom:16px;">
+          <div class="dsk-card-hdr"><h3>👑 অ্যাডমিন প্যানেল</h3></div>
+          <div onclick="showAdminPanel()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;">
+            <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#fff3cd;border-radius:8px;display:flex;align-items:center;justify-content:center;">👑</div><div><div style="font-size:14px;font-weight:500;">ইউজার ম্যানেজমেন্ট</div><div style="font-size:12px;color:var(--tl);">ইউজার যোগ, মুছা ও PIN পরিবর্তন</div></div></div>
+            <span style="color:var(--tl);">›</span>
+          </div>
+        </div>
+
+        <div style="text-align:center;font-size:12px;color:var(--tl);padding:16px 0;">মাসউদ ফিন্যান্সিয়াল অ্যাপস v3.0 — Developed by মাসউদ</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<nav class="bnav" id="bnav" style="display:none">
+  <button class="nav-btn active" id="nb-trans" onclick="switchScreen('trans')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>লেনদেন
+  </button>
+  <button class="nav-btn" id="nb-stats" onclick="switchScreen('stats')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>পরিসংখ্যান
+  </button>
+  <button class="nav-btn" id="nb-ai" onclick="switchScreen('ai')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>AI উপদেষ্টা
+  </button>
+  <button class="nav-btn" id="nb-notes" onclick="switchScreen('notes')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>নোটস
+  </button>
+  <button class="nav-btn" id="nb-settings" onclick="switchScreen('settings')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>সেটিংস
+  </button>
+</nav>
+<button class="fab" id="fabBtn" onclick="openTxModal()" style="display:none">+</button>
+<button class="layout-toggle" id="layoutToggle" onclick="toggleLayout()">
+  💻 <span id="ltText">ডেস্কটপ ভিউ</span>
+</button>
+
+<!-- MONTH PICKER -->
+<div id="monthPicker" onclick="if(event.target===this)closeMP()">
+  <div class="mp-box">
+    <div class="mp-head">
+      <h3>মাস ও বছর বেছে নিন</h3>
+      <button class="mp-close" onclick="closeMP()">✕</button>
+    </div>
+    <div class="mp-year">
+      <button class="mp-yr-btn" onclick="mpYear(-1)">‹</button>
+      <span class="mp-yr-label" id="mpYrLbl">২০২৬</span>
+      <button class="mp-yr-btn" onclick="mpYear(1)">›</button>
+    </div>
+    <div class="mp-months" id="mpMonths"></div>
+  </div>
+</div>
+
+<!-- TX MODAL -->
+<div class="moverlay" id="txModal">
+  <div class="modal">
+    <div class="tx-tabs">
+      <button class="ttab income" id="tabInc" onclick="setType('income')">আয়</button>
+      <button class="ttab active expense" id="tabExp" onclick="setType('expense')">ব্যয়</button>
+      <button class="ttab transfer" id="tabTrf" onclick="setType('transfer')">স্থানান্তর</button>
+    </div>
+    <div class="fbody">
+      <div class="frow"><label class="flbl">তারিখ</label><input type="date" class="finp" id="txDate"></div>
+      <div class="frow"><label class="flbl">অ্যাকাউন্ট</label><select class="fsel" id="txAcc"></select></div>
+      <div class="frow"><label class="flbl">ক্যাটাগরি</label><button class="catbtn" id="txCatBtn" onclick="openCP()">ক্যাটাগরি বেছে নিন ›</button></div>
+      <div class="frow"><label class="flbl">পরিমাণ (৳)</label><input type="number" class="finp amt expense" id="txAmt" placeholder="০.০০"></div>
+      <div class="frow"><label class="flbl">নোট</label><input type="text" class="finp" id="txNote" placeholder="ঐচ্ছিক"></div>
+      <button class="fsave" onclick="saveTx()">সংরক্ষণ করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- CAT PICKER -->
+<div class="cpicker" id="cpicker">
+  <div class="cp-inner">
+    <div class="cp-hdr"><h4>ক্যাটাগরি</h4><button style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer" onclick="closeCP()">✕</button></div>
+    <div class="cp-body">
+      <div class="cp-main" id="cpMain"></div>
+      <div class="cp-sub" id="cpSub"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="moverlay" id="detailModal">
+  <div class="modal">
+    <div class="mhdr"><h3>লেনদেনের বিবরণ</h3><button class="mclose" onclick="closeM('detailModal')">✕</button></div>
+    <div class="fbody" id="detailBody"></div>
+  </div>
+</div>
+
+<!-- ADD CAT MODAL -->
+<div class="moverlay" id="addCatModal">
+  <div class="modal">
+    <div class="mhdr"><h3 id="addCatTitle">নতুন ক্যাটাগরি</h3><button class="mclose" onclick="closeM('addCatModal')">✕</button></div>
+    <div class="fbody">
+      <div class="frow"><label class="flbl">নাম</label><input type="text" class="finp" id="newCatName" placeholder="ক্যাটাগরির নাম"></div>
+      <div class="frow"><label class="flbl">ধরন</label><select class="fsel" id="newCatType"><option value="expense">ব্যয়</option><option value="income">আয়</option></select></div>
+      <div class="frow"><label class="flbl">সাবক্যাটাগরি (কমা দিয়ে আলাদা)</label><input type="text" class="finp" id="newCatSubs" placeholder="যেমন: চাল, ডাল, তেল"></div>
+      <button class="fsave" onclick="saveNewCat()">যোগ করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT CAT MODAL -->
+<div class="moverlay" id="editCatModal">
+  <div class="modal">
+    <div class="mhdr"><h3 id="editCatTitle">ক্যাটাগরি সম্পাদনা</h3><button class="mclose" onclick="closeM('editCatModal')">✕</button></div>
+    <div class="fbody">
+      <input type="hidden" id="editCatId">
+      <div class="frow"><label class="flbl">নাম</label><input type="text" class="finp" id="editCatName"></div>
+      <div class="frow"><label class="flbl">আইকন (ইমোজি)</label><input type="text" class="finp" id="editCatIcon" maxlength="4"></div>
+      <div class="frow"><label class="flbl">সাবক্যাটাগরি (কমা দিয়ে)</label><textarea class="finp" id="editCatSubs" rows="4" style="resize:none;line-height:1.8;padding-top:8px"></textarea></div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button onclick="closeM('editCatModal')" style="flex:1;padding:12px;border-radius:10px;border:2px solid var(--bd);background:transparent;font-family:inherit;font-size:14px;cursor:pointer;color:var(--tl)">বাতিল</button>
+        <button class="fsave" style="flex:2;margin:0" onclick="saveEditCat()">✓ সংরক্ষণ</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INC CAT MODAL -->
+<div class="moverlay" id="incCatModal">
+  <div class="modal">
+    <div class="mhdr"><h3>💰 আয়ের ক্যাটাগরি</h3><button class="mclose" onclick="closeM('incCatModal')">✕</button></div>
+    <div id="incCatList" style="max-height:55vh;overflow-y:auto"></div>
+    <div style="padding:12px 16px"><button class="fsave" onclick="openAddCat('income')">+ নতুন আয় ক্যাটাগরি</button></div>
+  </div>
+</div>
+
+<!-- ADD ACC MODAL -->
+<div class="moverlay" id="addAccModal">
+  <div class="modal">
+    <div class="mhdr"><h3>নতুন অ্যাকাউন্ট</h3><button class="mclose" onclick="closeM('addAccModal')">✕</button></div>
+    <div class="fbody">
+      <div class="frow"><label class="flbl">নাম</label><input type="text" class="finp" id="newAccName" placeholder="নগদ, বিকাশ, ব্যাংক..."></div>
+      <div class="frow"><label class="flbl">প্রারম্ভিক ব্যালেন্স (৳)</label><input type="number" class="finp" id="newAccBal" placeholder="০"></div>
+      <button class="fsave" onclick="saveNewAcc()">যোগ করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- PIN MODAL -->
+<div class="moverlay" id="pinModal">
+  <div class="modal">
+    <div class="mhdr"><h3>PIN পরিবর্তন</h3><button class="mclose" onclick="closeM('pinModal')">✕</button></div>
+    <div class="fbody">
+      <p style="font-size:14px;color:var(--tl)">নতুন ৪ সংখ্যার PIN দিন:</p>
+      <div class="pin-row">
+        <input type="password" maxlength="1" class="pin-d" id="p0" oninput="pNext(0)">
+        <input type="password" maxlength="1" class="pin-d" id="p1" oninput="pNext(1)">
+        <input type="password" maxlength="1" class="pin-d" id="p2" oninput="pNext(2)">
+        <input type="password" maxlength="1" class="pin-d" id="p3" oninput="pNext(3)">
+      </div>
+      <button class="fsave" onclick="savePIN()">PIN সেট করুন</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- FIREBASE CONFIG MODAL -->
+<div class="moverlay" id="firebaseModal">
+  <div class="modal" style="max-height:90vh;overflow-y:auto;">
+    <div class="mhdr" style="background:linear-gradient(135deg,#FF6F00,#F57C00);color:#fff;border-radius:20px 20px 0 0;">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font-size:22px;">🔥</span><h3 style="color:#fff;">Firebase সংযোগ</h3></div>
+      <button class="mclose" style="color:#fff;" onclick="closeM('firebaseModal')">✕</button>
+    </div>
+    <div class="fbody">
+
+      <!-- Status Banner -->
+      <div id="fbStatusBanner" style="display:none;padding:12px 14px;border-radius:10px;margin-bottom:14px;font-size:13px;font-weight:500;"></div>
+
+      <!-- Step 1: Guide -->
+      <div class="pub-step" style="margin-bottom:14px;">
+        <h4 style="font-size:13px;font-weight:600;margin-bottom:8px;">📋 ধাপ ১: Firebase প্রজেক্ট তৈরি করুন</h4>
+        <ol style="font-size:13px;color:var(--tl);line-height:2;padding-left:18px;">
+          <li><a href="https://console.firebase.google.com" target="_blank" style="color:var(--pr);">console.firebase.google.com</a> এ যান</li>
+          <li>নতুন প্রজেক্ট তৈরি করুন → নাম দিন</li>
+          <li>Project Settings → General → <b>Your apps</b> → Web app (<b>&lt;/&gt;</b>) যোগ করুন</li>
+          <li>Config object কপি করুন, নিচে paste করুন</li>
+          <li>Realtime Database → Create database → <b>Start in test mode</b></li>
+        </ol>
+      </div>
+
+      <!-- Config Input -->
+      <div style="margin-bottom:10px;">
+        <label class="flbl">Firebase Config (JSON paste করুন)</label>
+        <textarea id="fbConfigRaw" class="finp" rows="7"
+          style="font-family:monospace;font-size:12px;resize:vertical;line-height:1.5;"
+          placeholder='{
+  "apiKey": "AIzaSy...",
+  "authDomain": "your-app.firebaseapp.com",
+  "databaseURL": "https://your-app-default-rtdb.firebaseio.com",
+  "projectId": "your-app",
+  "storageBucket": "your-app.appspot.com",
+  "messagingSenderId": "123456789",
+  "appId": "1:123456789:web:abc123"
+}'></textarea>
+      </div>
+
+      <!-- OR Manual Input -->
+      <details style="margin-bottom:14px;">
+        <summary style="font-size:13px;color:var(--pr);cursor:pointer;font-weight:500;">অথবা ম্যানুয়ালি দিন ▼</summary>
+        <div style="padding-top:10px;display:flex;flex-direction:column;gap:8px;">
+          <div class="frow"><label class="flbl">API Key</label><input type="text" class="finp" id="fbApiKey" placeholder="AIzaSy..."></div>
+          <div class="frow"><label class="flbl">Database URL</label><input type="text" class="finp" id="fbDbUrl" placeholder="https://xxx-rtdb.firebaseio.com"></div>
+          <div class="frow"><label class="flbl">Project ID</label><input type="text" class="finp" id="fbProjectId" placeholder="your-project-id"></div>
+          <div class="frow"><label class="flbl">App ID</label><input type="text" class="finp" id="fbAppId" placeholder="1:xxx:web:xxx"></div>
+        </div>
+      </details>
+
+      <!-- Sync Options -->
+      <div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:14px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">⚙️ Sync সেটিংস</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="fbAutoSync" checked style="width:16px;height:16px;accent-color:var(--pr);">
+            স্বয়ংক্রিয় sync (ডেটা সেভ হলেই আপলোড)
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="fbSyncOnLoad" checked style="width:16px;height:16px;accent-color:var(--pr);">
+            অ্যাপ খুললে Firebase থেকে লোড করুন
+          </label>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;">
+        <button class="fsave" style="flex:2;" onclick="saveFbConfig()">🔥 সংযোগ করুন</button>
+        <button style="flex:1;padding:12px;border-radius:10px;border:1.5px solid var(--bd);background:transparent;font-family:inherit;font-size:14px;cursor:pointer;color:var(--tl);" onclick="testFbConnection()">🧪 পরীক্ষা করুন</button>
+      </div>
+      <button id="fbDisconnectBtn" style="display:none;width:100%;margin-top:8px;padding:10px;border-radius:10px;border:1.5px solid var(--exp);background:transparent;font-family:inherit;font-size:13px;cursor:pointer;color:var(--exp);" onclick="disconnectFb()">সংযোগ বিচ্ছিন্ন করুন</button>
+
+      <!-- Manual sync buttons -->
+      <div id="fbSyncBtns" style="display:none;margin-top:12px;display:none;gap:8px;">
+        <button onclick="pushToFirebase()" style="flex:1;padding:10px;border-radius:10px;border:none;background:#e8f5e9;color:#2e7d32;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">⬆️ Firebase এ আপলোড</button>
+        <button onclick="pullFromFirebase()" style="flex:1;padding:10px;border-radius:10px;border:none;background:#e3f2fd;color:#1565c0;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">⬇️ Firebase থেকে লোড</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GITHUB MODAL -->
+<div class="moverlay" id="githubModal">
+  <div class="modal">
+    <div class="mhdr"><h3>🌐 GitHub Pages পাবলিশ</h3><button class="mclose" onclick="closeM('githubModal')">✕</button></div>
+    <div class="fbody">
+      <div class="pub-step"><h4>📋 ধাপ ১: HTML ডাউনলোড</h4><button class="copy-btn" onclick="dlHTML()">⬇️ ডাউনলোড করুন</button></div>
+      <div class="pub-step"><h4>🐙 ধাপ ২: GitHub এ আপলোড</h4><p>নতুন repository → index.html → Settings → Pages → Branch: main</p></div>
+      <div class="pub-step"><h4>✅ আপনার লিংক</h4><input type="text" class="finp" id="ghUser" placeholder="GitHub username" oninput="upGhLink()"><div id="ghLink" style="margin-top:8px;font-size:13px;color:var(--pr)"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- EMAIL MODAL -->
+<div class="moverlay" id="emailModal">
+  <div class="modal">
+    <div class="mhdr"><h3>📧 ইমেইলে ব্যাকআপ</h3><button class="mclose" onclick="closeM('emailModal')">✕</button></div>
+    <div class="fbody">
+      <div class="frow"><label class="flbl">ইমেইল ঠিকানা</label><input type="email" class="finp" id="bkEmail" placeholder="example@gmail.com"></div>
+      <button class="fsave" onclick="sendEmail()">ইমেইল তৈরি করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL MODAL -->
+<div class="moverlay" id="adminModal">
+  <div class="modal">
+    <div class="mhdr" style="background:var(--pr);color:#fff;border-radius:20px 20px 0 0">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font-size:20px">👑</span><h3 style="color:#fff">অ্যাডমিন প্যানেল</h3></div>
+      <button class="mclose" style="color:#fff" onclick="closeM('adminModal')">✕</button>
+    </div>
+    <div class="fbody" style="padding-bottom:8px">
+      <!-- User List -->
+      <div style="font-size:13px;font-weight:600;color:var(--tl);margin-bottom:8px">👥 ব্যবহারকারী তালিকা</div>
+      <div id="adminUserList" style="max-height:340px;overflow-y:auto;border:1px solid var(--bd);border-radius:10px;margin-bottom:16px"></div>
+      <!-- Add New User -->
+      <div style="background:var(--bg);border-radius:10px;padding:14px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px">➕ নতুন ব্যবহারকারী যোগ করুন</div>
+        <div class="frow" style="margin-bottom:10px"><label class="flbl">নাম (ইংরেজি)</label><input type="text" class="finp" id="newUserName" placeholder="যেমন: Karim"></div>
+        <div class="frow" style="margin-bottom:10px"><label class="flbl">আইকন (ইমোজি)</label><input type="text" class="finp" id="newUserAvatar" placeholder="👤" maxlength="4"></div>
+        <div class="frow" style="margin-bottom:12px"><label class="flbl">ডিফল্ট PIN (৪ সংখ্যা)</label><input type="number" class="finp" id="newUserPin" placeholder="যেমন: 6666" maxlength="4"></div>
+        <button class="fsave" onclick="addNewUser()">✓ যোগ করুন</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN: CHANGE OTHER USER PIN MODAL -->
+<div class="moverlay" id="adminPinModal">
+  <div class="modal">
+    <div class="mhdr"><h3 id="adminPinTitle">PIN পরিবর্তন</h3><button class="mclose" onclick="closeM('adminPinModal')">✕</button></div>
+    <div class="fbody">
+      <p style="font-size:14px;color:var(--tl);margin-bottom:4px" id="adminPinSub">নতুন ৪ সংখ্যার PIN দিন:</p>
+      <div class="pin-row">
+        <input type="password" maxlength="1" class="pin-d" id="ap0" oninput="if(this.value&&'0'<'4')document.getElementById('ap'+(parseInt('0')+1))?.focus()">
+        <input type="password" maxlength="1" class="pin-d" id="ap1" oninput="if(this.value)document.getElementById('ap2')?.focus()">
+        <input type="password" maxlength="1" class="pin-d" id="ap2" oninput="if(this.value)document.getElementById('ap3')?.focus()">
+        <input type="password" maxlength="1" class="pin-d" id="ap3">
+      </div>
+      <input type="hidden" id="adminPinUid">
+      <button class="fsave" onclick="saveAdminPin()">PIN সেট করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- POPUP -->
+<div class="pop-ov" id="popOv">
+  <div class="pop-box">
+    <div class="pop-ico"><div class="pop-emoji" id="popEmoji">❓</div><div class="pop-title" id="popTitle"></div></div>
+    <div class="pop-msg" id="popMsg"></div>
+    <div class="pop-hl" id="popHL" style="display:none"></div>
+    <div class="pop-acts" id="popActs"></div>
+  </div>
+</div>
+
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(event)">
+<div class="snack" id="snack"></div>
+
+<style>
+.mp-box{background:var(--card);}
+.mp-yr-label{color:var(--text);}
+.mp-month{background:var(--bg);color:var(--text);}
+</style>
+
+<script>
+// ===== USERS CONFIG =====
+// ===== DEFAULT USERS (localStorage থেকে override হবে) =====
+const DEFAULT_USERS = [
+  { id:'masud',   name:'Masud',   avatar:'👑', pin:'0000', color:'#e8533a', isAdmin:true  },
+  { id:'mominur', name:'Mominur', avatar:'👨', pin:'1111', color:'#3498db', isAdmin:false },
+  { id:'nuralam', name:'Nur Alam',avatar:'👤', pin:'2222', color:'#2ecc71', isAdmin:false },
+  { id:'apon',    name:'Apon',    avatar:'🧑', pin:'3333', color:'#9b59b6', isAdmin:false },
+  { id:'malek',   name:'Malek',   avatar:'👦', pin:'4444', color:'#f39c12', isAdmin:false },
+  { id:'rayhan',  name:'Rayhan',  avatar:'🧔', pin:'5555', color:'#e91e63', isAdmin:false },
+];
+const ADMIN_ID = 'masud';
+
+// Dynamic users list — load from localStorage or use defaults
+function loadUsers() {
+  const saved = localStorage.getItem('mf_users');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      // always ensure admin exists
+      if (!parsed.find(u => u.id === ADMIN_ID)) parsed.unshift(DEFAULT_USERS[0]);
+      return parsed;
+    } catch(e) {}
+  }
+  // First run: save defaults
+  localStorage.setItem('mf_users', JSON.stringify(DEFAULT_USERS));
+  return [...DEFAULT_USERS];
+}
+function saveUsers(users) {
+  localStorage.setItem('mf_users', JSON.stringify(users));
+}
+let USERS = loadUsers();
+
+let currentUser = null;
+let pinBuf = '';
+
+// ===== USER SCREEN =====
+function renderUserScreen() {
+  USERS = loadUsers(); // refresh
+  const grid = document.getElementById('userGrid');
+  grid.innerHTML = USERS.map(u => {
+    const data = getUserData(u.id);
+    const txCount = data.transactions.length;
+    const adminBadge = u.isAdmin ? '<div style="position:absolute;top:-6px;right:-6px;background:#f39c12;color:#fff;border-radius:10px;padding:2px 6px;font-size:9px;font-weight:700">ADMIN</div>' : '';
+    return `<div class="us-card" onclick="selectUser('${u.id}')" style="position:relative;border-color:${u.isAdmin?'rgba(255,215,0,0.6)':'rgba(255,255,255,.3)'}">
+      ${adminBadge}
+      <div class="us-avatar">${u.avatar}</div>
+      <div class="us-name">${u.name}</div>
+      <div class="us-info">${txCount > 0 ? toBN(txCount)+'টি লেনদেন' : 'নতুন'}</div>
+    </div>`;
+  }).join('');
+  // Default PIN hint
+  const hint = document.getElementById('adminHint');
+  if(hint) hint.style.display = 'block';
+  document.getElementById('userScreen').style.display = 'flex';
+  document.getElementById('pinScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('bnav').style.display = 'none';
+  document.getElementById('fabBtn').style.display = 'none';
+}
+
+function selectUser(uid) {
+  USERS = loadUsers();
+  const user = USERS.find(u => u.id === uid);
+  if (!user) return;
+  currentUser = user;
+  // PIN from USERS list (saved in localStorage via saveUsers)
+  const pin = user.pin || '';
+  if (pin) {
+    showPinScreen(user, pin);
+  } else {
+    launchApp(user);
+  }
+}
+
+function showPinScreen(user, correctPin) {
+  pinBuf = '';
+  updatePinDots();
+  document.getElementById('psAvatar').textContent = user.avatar;
+  document.getElementById('psName').textContent = user.name;
+  document.getElementById('pinErr').textContent = '';
+  document.getElementById('pinScreen')._correctPin = correctPin;
+  document.getElementById('userScreen').style.display = 'none';
+  document.getElementById('pinScreen').style.display = 'flex';
+}
+
+function pinKey(k) {
+  if (pinBuf.length >= 4) return;
+  pinBuf += k;
+  updatePinDots();
+  if (pinBuf.length === 4) setTimeout(checkUserPin, 200);
+}
+function pinDel() { pinBuf = pinBuf.slice(0,-1); updatePinDots(); }
+function updatePinDots() {
+  for(let i=0;i<4;i++) document.getElementById('pd'+i).classList.toggle('on', i<pinBuf.length);
+}
+function checkUserPin() {
+  const correct = document.getElementById('pinScreen')._correctPin;
+  if (pinBuf === correct) {
+    launchApp(currentUser);
+  } else {
+    document.getElementById('pinErr').textContent = 'ভুল PIN! আবার চেষ্টা করুন';
+    pinBuf = ''; updatePinDots();
+    setTimeout(()=>document.getElementById('pinErr').textContent='', 2000);
+  }
+}
+function skipPin() { backToUsers(); } // PIN bypass disabled
+function backToUsers() { currentUser = null; renderUserScreen(); }
+
+function launchApp(user) {
+  currentUser = user;
+  loadState();
+  applyDark();
+  document.getElementById('userScreen').style.display = 'none';
+  document.getElementById('pinScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+  document.getElementById('bnav').style.display = 'flex';
+  document.getElementById('fabBtn').style.display = 'flex';
+  document.getElementById('layoutToggle').style.display = 'flex';
+  initVoice();
+  initFbOnStartup();
+  updateUserBadge();
+  switchScreen('trans');
+  updateSettingsUI();
+}
+
+function updateUserBadge() {
+  if (!currentUser) return;
+  const badge = document.getElementById('userBadge');
+  const sbadge = document.getElementById('settingsUserBadge');
+  if (badge) badge.textContent = currentUser.avatar + ' ' + currentUser.name;
+  if (sbadge) sbadge.textContent = currentUser.avatar + ' ' + currentUser.name;
+}
+
+function switchUser() {
+  currentUser = null;
+  renderUserScreen();
+}
+
+// ===== PER-USER DATA =====
+function userKey(key) {
+  return 'mf_' + (currentUser ? currentUser.id + '_' : '') + key;
+}
+function getUserData(uid) {
+  return {
+    transactions: JSON.parse(localStorage.getItem('mf_'+uid+'_txs') || '[]'),
+    categories: JSON.parse(localStorage.getItem('mf_'+uid+'_cats') || 'null') || defaultCats(),
+    accounts: JSON.parse(localStorage.getItem('mf_'+uid+'_accs') || 'null') || defaultAccounts(),
+    notes: JSON.parse(localStorage.getItem('mf_'+uid+'_notes') || '[]'),
+    settings: JSON.parse(localStorage.getItem('mf_'+uid+'_settings') || '{}'),
+  };
+}
+
+// ===== STATE =====
+let state = {
+  y: new Date().getFullYear(), m: new Date().getMonth(),
+  txType: 'expense', selCat: null, selSub: null,
+  editTxId: null, editNoteId: null, noteColor: '#e8533a',
+  categories: [], transactions: [], accounts: [], notes: [],
+  settings: { pin:'', darkMode:false }
+};
+
+function loadState() {
+  if (!currentUser) return;
+  const uid = currentUser.id;
+  state.categories = JSON.parse(localStorage.getItem('mf_'+uid+'_cats') || 'null') || defaultCats();
+  state.transactions = JSON.parse(localStorage.getItem('mf_'+uid+'_txs') || '[]');
+  state.accounts = JSON.parse(localStorage.getItem('mf_'+uid+'_accs') || 'null') || defaultAccounts();
+  state.notes = JSON.parse(localStorage.getItem('mf_'+uid+'_notes') || '[]');
+  const s = JSON.parse(localStorage.getItem('mf_'+uid+'_settings') || '{}');
+  state.settings = { pin:'', darkMode:false, ...s };
+}
+
+function saveData() {
+  if (!currentUser) return;
+  const uid = currentUser.id;
+  localStorage.setItem('mf_'+uid+'_cats', JSON.stringify(state.categories));
+  localStorage.setItem('mf_'+uid+'_txs', JSON.stringify(state.transactions));
+  localStorage.setItem('mf_'+uid+'_accs', JSON.stringify(state.accounts));
+  localStorage.setItem('mf_'+uid+'_notes', JSON.stringify(state.notes));
+  localStorage.setItem('mf_'+uid+'_settings', JSON.stringify(state.settings));
+}
+
+// ===== DEFAULT DATA =====
+function defaultCats() {
+  return [
+    {id:'c1',name:'খাদ্যদ্রব্য',type:'expense',icon:'🍚',subs:['মুরগি','মাছ','ফলমূল','বাইরে নাস্তা','সবজি','মুড়ি/বিস্কুট','গাভীর দুধ','গরুর মাংস','নুডলস','আটা','চাল','চিনি']},
+    {id:'c2',name:'মুদিখানা',type:'expense',icon:'🛒',subs:['আটা','তেল','ডিম','সাবান','শ্যাম্পু','পাউডার','ডাল','চিনি','লবণ','মশলা']},
+    {id:'c3',name:'পোষাক',type:'expense',icon:'👕',subs:['সেলাই','কাপড়','জুতা']},
+    {id:'c4',name:'যাতায়াত',type:'expense',icon:'🚌',subs:['Bus','Subway','Taxi','Car','বাইক','রিকশা','CNG']},
+    {id:'c5',name:'ই কমার্স',type:'expense',icon:'🛍️',subs:['Appliances','Furniture','Kitchen','Toiletries']},
+    {id:'c6',name:'ধার কর্জ',type:'expense',icon:'💸',subs:['নিজেকে','অন্যকে']},
+    {id:'c7',name:'চিকিৎসা',type:'expense',icon:'🏥',subs:['ওষুধ','ডাক্তার','হাসপাতাল','Medicine']},
+    {id:'c8',name:'শিক্ষা',type:'expense',icon:'📚',subs:['Schooling','বই','খাতা','Academy','নাস্তা']},
+    {id:'c9',name:'উপহার',type:'expense',icon:'🎁',subs:[]},
+    {id:'c10',name:'অন্যান্য',type:'expense',icon:'📦',subs:[]},
+    {id:'c11',name:'দানসদকা',type:'expense',icon:'🤲',subs:['মার জন্য','আব্বার জন্য','পরিবারের জন্য']},
+    {id:'c12',name:'কেনা কাটা',type:'expense',icon:'🛒',subs:[]},
+    {id:'c13',name:'তানিজল',type:'expense',icon:'🏠',subs:['বাড়ি ভাড়া','বিদ্যুৎ','পানি','গ্যাস']},
+    {id:'c14',name:'বাইক',type:'expense',icon:'🏍️',subs:['তেল','মেরামত','বীমা','পেট্রোল']},
+    {id:'i1',name:'Allowance',type:'income',icon:'💵',subs:[]},
+    {id:'i2',name:'Salary',type:'income',icon:'💼',subs:['মূল বেতন','বোনাস','ওভারটাইম']},
+    {id:'i3',name:'Petty cash',type:'income',icon:'💰',subs:[]},
+    {id:'i4',name:'Bonus',type:'income',icon:'🎉',subs:[]},
+    {id:'i5',name:'Other',type:'income',icon:'📦',subs:[]},
+    {id:'i6',name:'দোকান ভাড়া',type:'income',icon:'🏪',subs:['শাকিল','মহির উদ্দিন মেষার','আবু তাহের বসুনিয়া','আরমান','রবিউল ইসলাম','হাসান আলী','আবিজার রহমান','সোহাগ','আবু বকর সিদ্দিক','বাবু মিস্ত্রি','বাল্কী','ভাই ভাই ওয়ার্কশপ','মোকছেদুল']},
+    {id:'i7',name:'BM payment',type:'income',icon:'💳',subs:['SN','MC','UI']},
+    {id:'i8',name:'পাওনা টাকা আদায়',type:'income',icon:'✅',subs:[]},
+    {id:'i9',name:'গরু বিক্রি (মশিয়ার)',type:'income',icon:'🐄',subs:[]},
+  ];
+}
+function defaultAccounts() {
+  return [
+    {id:'a1',name:'নগদ',balance:0,icon:'💵'},
+    {id:'a2',name:'বিকাশ',balance:0,icon:'📱'},
+    {id:'a3',name:'ব্যাংক',balance:0,icon:'🏦'},
+  ];
+}
+
+// ===== HELPERS =====
+const BNM=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const END=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const toBN = n => String(n).replace(/\d/g,d=>'০১২৩৪৫৬৭৮৯'[d]);
+const fmtAmt = n => '৳ '+toBN(Math.abs(n).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}));
+function fmtMonth(y,m){return BNM[m]+' '+toBN(y);}
+
+// ===== NAVIGATION =====
+function switchScreen(name) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sc-'+name)?.classList.add('active');
+  document.getElementById('nb-'+name)?.classList.add('active');
+  document.getElementById('fabBtn').style.display = name==='trans'?'flex':'none';
+  if(name==='trans') renderTx();
+  if(name==='stats') renderStats();
+  if(name==='cats') renderCatMgmt();
+  if(name==='notes') renderNotes();
+  if(name==='accounts') renderAccounts();
+  if(name==='settings') updateSettingsUI();
+}
+
+// ===== MONTH NAVIGATION =====
+function prevMonth(){state.m--;if(state.m<0){state.m=11;state.y--;}updateLabels();renderTx();renderStats();}
+function nextMonth(){state.m++;if(state.m>11){state.m=0;state.y++;}updateLabels();renderTx();renderStats();}
+function changeYear(d){state.y+=d;updateLabels();renderTx();renderStats();}
+function updateLabels(){
+  document.getElementById('monthLabel').textContent=BNM[state.m];
+  document.getElementById('yearLabel').textContent=toBN(state.y);
+  const sl=document.getElementById('statsMonthLabel');
+  if(sl)sl.textContent=fmtMonth(state.y,state.m);
+}
+
+// ===== MONTH PICKER =====
+let mpTmpY = 0;
+function openMonthPicker(){
+  mpTmpY=state.y;
+  document.getElementById('mpYrLbl').textContent=toBN(mpTmpY);
+  renderMPMonths();
+  document.getElementById('monthPicker').classList.add('show');
+}
+function closeMP(){document.getElementById('monthPicker').classList.remove('show');}
+function mpYear(d){mpTmpY+=d;document.getElementById('mpYrLbl').textContent=toBN(mpTmpY);renderMPMonths();}
+function renderMPMonths(){
+  document.getElementById('mpMonths').innerHTML=BNM.map((m,i)=>
+    `<div class="mp-month${mpTmpY===state.y&&i===state.m?' active':''}" onclick="selectMonth(${i})">${m}</div>`
+  ).join('');
+}
+function selectMonth(m){
+  state.m=m; state.y=mpTmpY;
+  updateLabels(); renderTx(); renderStats();
+  closeMP();
+}
+
+// ===== CURRENT TXS =====
+function curTxs(){return state.transactions.filter(t=>{const d=new Date(t.date);return d.getFullYear()===state.y&&d.getMonth()===state.m;});}
+
+// ===== RENDER TX =====
+function renderTx(){
+  updateLabels();
+  const txs=curTxs();
+  let inc=0,exp=0;
+  txs.forEach(t=>{if(t.type==='income')inc+=t.amount;else if(t.type==='expense')exp+=t.amount;});
+  const bal=inc-exp;
+  document.getElementById('sumInc').textContent=fmtAmt(inc);
+  document.getElementById('sumExp').textContent=fmtAmt(exp);
+  const be=document.getElementById('sumBal');
+  be.textContent=fmtAmt(bal);
+  be.className='sum-amt '+(bal>=0?'c-pos':'c-neg');
+  const list=document.getElementById('txList');
+  if(!txs.length){list.innerHTML='<div class="empty"><div style="font-size:48px">💰</div><p>এই মাসে কোনো লেনদেন নেই</p><p style="font-size:12px;margin-top:6px">+ বাটনে ক্লিক করুন</p></div>';return;}
+  const grp={};
+  txs.forEach(t=>{const d=new Date(t.date);const k=d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate();if(!grp[k])grp[k]={d,txs:[]};grp[k].txs.push(t);});
+  list.innerHTML=Object.keys(grp).sort((a,b)=>grp[b].d-grp[a].d).map(k=>{
+    const g=grp[k];
+    const di=g.txs.reduce((s,t)=>t.type==='income'?s+t.amount:s,0);
+    const de=g.txs.reduce((s,t)=>t.type==='expense'?s+t.amount:s,0);
+    return `<div class="day-group">
+      <div class="day-hdr">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="day-badge">${toBN(g.d.getDate())} <span class="wd">${END[g.d.getDay()]}</span></div>
+          <span style="font-size:11px;color:var(--tl)">${String(g.d.getMonth()+1).padStart(2,'0')}.${g.d.getFullYear()}</span>
+        </div>
+        <div style="display:flex;gap:10px;font-size:13px">
+          ${di>0?`<span style="color:var(--inc)">${fmtAmt(di)}</span>`:''}
+          ${de>0?`<span style="color:var(--exp)">${fmtAmt(de)}</span>`:''}
+        </div>
+      </div>
+      ${g.txs.map(t=>txHTML(t)).join('')}
+    </div>`;
+  }).join('');
+}
+function txHTML(t){
+  const cat=state.categories.find(c=>c.id===t.catId);
+  const icon=cat?cat.icon:'📝';
+  const cn=cat?cat.name:(t.catId||'');
+  const bg={income:'#e8f8f0',expense:'#fef0ed',transfer:'#e8f4fd'};
+  return `<div class="tx-item" onclick="showDetail('${t.id}')">
+    <div class="tx-icon" style="background:${bg[t.type]||'#f5f5f5'}">${icon}</div>
+    <div class="tx-info">
+      <div class="tx-cat">${cn}${t.subCat?' › '+t.subCat:''}</div>
+      <div class="tx-note">${t.note||'—'}</div>
+    </div>
+    <div class="tx-amt" style="color:var(--${t.type==='transfer'?'tr':t.type})">${t.type==='income'?'+':'-'}${fmtAmt(t.amount)}</div>
+  </div>`;
+}
+
+// ===== TX MODAL =====
+function openTxModal(tid){
+  state.editTxId=tid||null;
+  document.getElementById('txDate').value=new Date().toISOString().split('T')[0];
+  document.getElementById('txAmt').value='';
+  document.getElementById('txNote').value='';
+  state.selCat=null;state.selSub=null;
+  document.getElementById('txCatBtn').textContent='ক্যাটাগরি বেছে নিন ›';
+  document.getElementById('txCatBtn').className='catbtn';
+  if(tid){
+    const t=state.transactions.find(x=>x.id===tid);
+    if(t){setType(t.type);document.getElementById('txDate').value=t.date;document.getElementById('txAmt').value=t.amount;document.getElementById('txNote').value=t.note||'';const c=state.categories.find(x=>x.id===t.catId);if(c){state.selCat=c.id;state.selSub=t.subCat;document.getElementById('txCatBtn').textContent=c.name+(t.subCat?' › '+t.subCat:'')+' ›';document.getElementById('txCatBtn').className='catbtn sel';}}
+  }else{setType('expense');}
+  document.getElementById('txAcc').innerHTML=state.accounts.map(a=>`<option value="${a.id}">${a.icon} ${a.name}</option>`).join('');
+  openM('txModal');
+}
+function setType(t){
+  state.txType=t;
+  ['income','expense','transfer'].forEach(x=>{const b=document.getElementById('tab'+{income:'Inc',expense:'Exp',transfer:'Trf'}[x]);b.classList.toggle('active',x===t);});
+  document.getElementById('txAmt').className='finp amt '+(t==='income'?'income':'expense');
+}
+async function saveTx(){
+  const amt=parseFloat(document.getElementById('txAmt').value);
+  if(!amt||amt<=0){await pop('⚠️','পরিমাণ দিন','লেনদেনের পরিমাণ অবশ্যই দিতে হবে।',[{l:'ঠিক আছে',c:'yes'}]);return;}
+  if(!state.selCat){await pop('⚠️','ক্যাটাগরি বাছুন','একটি ক্যাটাগরি বেছে নিন।',[{l:'ঠিক আছে',c:'yes'}]);return;}
+  const date=document.getElementById('txDate').value,note=document.getElementById('txNote').value,accId=document.getElementById('txAcc').value;
+  const cat=state.categories.find(c=>c.id===state.selCat);
+  const tm={income:'আয়',expense:'ব্যয়',transfer:'স্থানান্তর'};
+  if(state.editTxId){
+    const r=await pop('✏️','লেনদেন আপডেট করবেন?',tm[state.txType]+' • '+(cat?cat.name:''),'৳ '+amt.toLocaleString('en',{minimumFractionDigits:2}),[{l:'বাতিল',c:''},{l:'আপডেট',c:'yes'}]);
+    if(r!==1)return;
+    const idx=state.transactions.findIndex(t=>t.id===state.editTxId);
+    if(idx>-1)state.transactions[idx]={...state.transactions[idx],type:state.txType,date,catId:state.selCat,subCat:state.selSub,amount:amt,note,accId};
+    toast('✅ আপডেট হয়েছে','success');
+  }else{
+    const r=await pop('💾','লেনদেন সংরক্ষণ করবেন?',tm[state.txType]+' • '+(cat?cat.name:''),'৳ '+amt.toLocaleString('en',{minimumFractionDigits:2}),[{l:'বাতিল',c:''},{l:'সংরক্ষণ',c:'save'}]);
+    if(r!==1)return;
+    state.transactions.push({id:'tx'+Date.now(),type:state.txType,date,catId:state.selCat,subCat:state.selSub,amount:amt,note,accId});
+    toast('✅ সংরক্ষিত হয়েছে','success');
+  }
+  saveData();closeM('txModal');renderTx();
+}
+
+// ===== CAT PICKER =====
+function openCP(){
+  const type=state.txType==='transfer'?'expense':state.txType;
+  const cats=state.categories.filter(c=>c.type===type);
+  document.getElementById('cpMain').innerHTML=cats.map(c=>`<div class="cp-mitem" id="cpm${c.id}" onclick="selMainCat('${c.id}')">${c.icon} ${c.name}<span>›</span></div>`).join('');
+  document.getElementById('cpSub').innerHTML='';
+  document.getElementById('cpicker').classList.add('open');
+}
+function closeCP(){document.getElementById('cpicker').classList.remove('open');}
+function selMainCat(id){
+  document.querySelectorAll('.cp-mitem').forEach(e=>e.classList.remove('act'));
+  document.getElementById('cpm'+id)?.classList.add('act');
+  state.selCat=id;
+  const cat=state.categories.find(c=>c.id===id);
+  document.getElementById('cpSub').innerHTML=cat&&cat.subs.length
+    ?cat.subs.map(s=>`<div class="cp-sitem" onclick="selSubCat('${s}')">${s}</div>`).join('')
+    :`<div class="cp-sitem" onclick="confirmCat('')">✓ ${cat?.name} বেছে নিন</div>`;
+}
+function selSubCat(s){state.selSub=s;confirmCat(s);}
+function confirmCat(s){
+  const cat=state.categories.find(c=>c.id===state.selCat);
+  if(cat){document.getElementById('txCatBtn').textContent=cat.name+(s?' › '+s:'')+' ›';document.getElementById('txCatBtn').className='catbtn sel';}
+  closeCP();
+}
+
+// ===== DETAIL =====
+function showDetail(id){
+  const t=state.transactions.find(x=>x.id===id);if(!t)return;
+  const cat=state.categories.find(c=>c.id===t.catId);
+  const acc=state.accounts.find(a=>a.id===t.accId);
+  const tm={income:'আয়',expense:'ব্যয়',transfer:'স্থানান্তর'};
+  document.getElementById('detailBody').innerHTML=`
+    <div class="detail-row"><span class="detail-lbl">ধরন</span><span class="detail-val"><span class="tag ${t.type}">${tm[t.type]}</span></span></div>
+    <div class="detail-row"><span class="detail-lbl">তারিখ</span><span class="detail-val">${t.date}</span></div>
+    <div class="detail-row"><span class="detail-lbl">ক্যাটাগরি</span><span class="detail-val">${cat?cat.name:''}${t.subCat?' › '+t.subCat:''}</span></div>
+    <div class="detail-row"><span class="detail-lbl">পরিমাণ</span><span class="detail-val" style="color:var(--${t.type==='transfer'?'tr':t.type})">${fmtAmt(t.amount)}</span></div>
+    <div class="detail-row"><span class="detail-lbl">অ্যাকাউন্ট</span><span class="detail-val">${acc?(acc.icon+' '+acc.name):'-'}</span></div>
+    <div class="detail-row"><span class="detail-lbl">নোট</span><span class="detail-val">${t.note||'-'}</span></div>
+    <div class="detail-acts">
+      <button class="d-del" onclick="delTx('${id}')">🗑️ মুছুন</button>
+      <button class="d-edit" onclick="editTx('${id}')">✏️ সম্পাদনা</button>
+    </div>`;
+  openM('detailModal');
+}
+async function delTx(id){
+  const t=state.transactions.find(x=>x.id===id);if(!t)return;
+  const cat=state.categories.find(c=>c.id===t.catId);
+  const r=await pop('🗑️','লেনদেন মুছবেন?','স্থায়ীভাবে মুছে যাবে।',(cat?cat.name:'')+' • ৳'+t.amount,[{l:'বাতিল',c:''},{l:'মুছুন',c:'danger'}]);
+  if(r!==1)return;
+  state.transactions=state.transactions.filter(x=>x.id!==id);
+  saveData();closeM('detailModal');renderTx();toast('🗑️ মুছে ফেলা হয়েছে','error');
+}
+function editTx(id){closeM('detailModal');openTxModal(id);}
+
+// ===== STATS =====
+let stType='expense';
+const PC=['#e74c3c','#f39c12','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#e67e22','#e91e63','#00bcd4','#8bc34a','#ff5722'];
+function toggleStatsType(t){
+  stType=t;
+  document.getElementById('stExpTab').classList.toggle('active',t==='expense');
+  document.getElementById('stExpTab').classList.toggle('expense',t==='expense');
+  document.getElementById('stIncTab').classList.toggle('active',t==='income');
+  document.getElementById('stIncTab').classList.toggle('income',t==='income');
+  renderStats();
+}
+function renderStats(){
+  const txs=curTxs().filter(t=>t.type===stType);
+  const total=txs.reduce((s,t)=>s+t.amount,0);
+  document.getElementById('stTotal').textContent=`মোট ${stType==='expense'?'ব্যয়':'আয়'}: ৳ ${toBN(total.toLocaleString('en',{minimumFractionDigits:2}))}`;
+  const cm={};
+  txs.forEach(t=>{const c=state.categories.find(x=>x.id===t.catId);const n=c?c.name:'অন্যান্য';cm[n]=(cm[n]||0)+t.amount;});
+  const sorted=Object.entries(cm).sort((a,b)=>b[1]-a[1]);
+  const cv=document.getElementById('pieChart').getContext('2d');
+  cv.clearRect(0,0,200,200);
+  if(total>0){
+    let st=-Math.PI/2;
+    sorted.forEach(([,a],i)=>{const ang=(a/total)*Math.PI*2;cv.beginPath();cv.moveTo(100,100);cv.arc(100,100,90,st,st+ang);cv.closePath();cv.fillStyle=PC[i%PC.length];cv.fill();st+=ang;});
+    cv.beginPath();cv.arc(100,100,45,0,Math.PI*2);cv.fillStyle=document.body.classList.contains('dark')?'#1e1e1e':'white';cv.fill();
+    cv.fillStyle=document.body.classList.contains('dark')?'#f0f0f0':'#333';cv.font='bold 12px sans-serif';cv.textAlign='center';cv.textBaseline='middle';
+    cv.fillText(sorted.length+' টি',100,98);cv.font='10px sans-serif';cv.fillStyle='#888';cv.fillText('ক্যাটাগরি',100,114);
+  }
+  const list=document.getElementById('statsList');
+  if(!sorted.length){list.innerHTML='<div class="empty"><p>কোনো তথ্য নেই</p></div>';return;}
+  list.innerHTML=sorted.map(([n,a],i)=>{
+    const p=total>0?Math.round(a/total*100):0;
+    return `<div class="s-item">
+      <div class="s-pct" style="background:${PC[i%PC.length]}">${p}%</div>
+      <div style="flex:1"><div style="font-size:14px">${n}</div><div class="s-bar-bg"><div class="s-bar-fill" style="width:${p}%;background:${PC[i%PC.length]}"></div></div></div>
+      <div style="font-size:14px;font-weight:600;color:var(--${stType})">৳ ${toBN(a.toLocaleString('en',{minimumFractionDigits:2}))}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===== CAT MGMT =====
+function renderCatMgmt(){
+  const exp=state.categories.filter(c=>c.type==='expense');
+  document.getElementById('catMgmt').innerHTML=`
+    <div style="background:var(--card);margin-bottom:8px">
+      <div style="padding:14px 16px;font-size:15px;font-weight:600;border-bottom:1px solid var(--bd)">ব্যয়ের ক্যাটাগরি (${exp.length})</div>
+      ${exp.map(c=>catItemHTML(c)).join('')}
+    </div>`;
+}
+function catItemHTML(c){
+  return `<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #f5f5f5;background:var(--card)">
+    <button onclick="rmCat('${c.id}')" style="width:28px;height:28px;border-radius:50%;background:var(--exp);color:#fff;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0">−</button>
+    <div style="font-size:22px">${c.icon}</div>
+    <div style="flex:1"><div style="font-size:14px;font-weight:500">${c.name} (${c.subs.length})</div><div style="font-size:12px;color:var(--tl)">${c.subs.slice(0,3).join(', ')}${c.subs.length>3?'...':''}</div></div>
+    <button onclick="openEditCat('${c.id}')" style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px">✏️</button>
+  </div>`;
+}
+async function rmCat(id){
+  const c=state.categories.find(x=>x.id===id);if(!c)return;
+  const used=state.transactions.filter(t=>t.catId===id).length;
+  const r=await pop('🗂️','ক্যাটাগরি মুছবেন?',used>0?`${used}টি লেনদেন আছে!`:'স্থায়ীভাবে মুছে যাবে।',c.icon+' '+c.name,[{l:'বাতিল',c:''},{l:'মুছুন',c:'danger'}]);
+  if(r!==1)return;
+  state.categories=state.categories.filter(x=>x.id!==id);
+  saveData();renderCatMgmt();toast('🗑️ মুছে ফেলা হয়েছে','error');
+}
+function openAddCat(type){
+  document.getElementById('newCatType').value=type==='income'?'income':'expense';
+  document.getElementById('newCatName').value='';document.getElementById('newCatSubs').value='';
+  document.getElementById('addCatTitle').textContent=type==='income'?'নতুন আয় ক্যাটাগরি':'নতুন ক্যাটাগরি';
+  openM('addCatModal');
+}
+async function saveNewCat(){
+  const name=document.getElementById('newCatName').value.trim();
+  if(!name){await pop('⚠️','নাম দিন','','',[{l:'ঠিক আছে',c:'yes'}]);return;}
+  const type=document.getElementById('newCatType').value;
+  const subs=document.getElementById('newCatSubs').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const r=await pop(type==='income'?'💰':'📦','ক্যাটাগরি যোগ করবেন?','ধরন: '+(type==='income'?'আয়':'ব্যয়'),name+(subs.length?` (${subs.length} সাব)`:' '),[{l:'বাতিল',c:''},{l:'যোগ করুন',c:'save'}]);
+  if(r!==1)return;
+  state.categories.push({id:'c'+Date.now(),name,type,icon:type==='income'?'💰':'📦',subs});
+  saveData();closeM('addCatModal');
+  if(type==='income'){renderIncCatList();}else{renderCatMgmt();}
+  toast('✅ ক্যাটাগরি যোগ হয়েছে','success');
+}
+function openEditCat(id){
+  const c=state.categories.find(x=>x.id===id);if(!c)return;
+  document.getElementById('editCatId').value=id;
+  document.getElementById('editCatName').value=c.name;
+  document.getElementById('editCatIcon').value=c.icon;
+  document.getElementById('editCatSubs').value=c.subs.join(', ');
+  document.getElementById('editCatTitle').textContent=(c.type==='income'?'💰':'📦')+' ক্যাটাগরি সম্পাদনা';
+  openM('editCatModal');
+}
+async function saveEditCat(){
+  const id=document.getElementById('editCatId').value;
+  const name=document.getElementById('editCatName').value.trim();
+  const icon=document.getElementById('editCatIcon').value.trim();
+  const subs=document.getElementById('editCatSubs').value.split(',').map(s=>s.trim()).filter(Boolean);
+  if(!name){await pop('⚠️','নাম দিন','','',[{l:'ঠিক আছে',c:'yes'}]);return;}
+  const r=await pop('✏️','পরিবর্তন সংরক্ষণ করবেন?','নাম: '+name,subs.slice(0,3).join(', ')||'কোনো সাব নেই',[{l:'বাতিল',c:''},{l:'সংরক্ষণ',c:'save'}]);
+  if(r!==1)return;
+  const idx=state.categories.findIndex(c=>c.id===id);
+  if(idx>-1){state.categories[idx]={...state.categories[idx],name,icon:icon||state.categories[idx].icon,subs};}
+  saveData();closeM('editCatModal');
+  const im=document.getElementById('incCatModal');
+  if(im.classList.contains('open'))renderIncCatList();else renderCatMgmt();
+  toast('✅ আপডেট হয়েছে','success');
+}
+function openIncCatModal(){renderIncCatList();openM('incCatModal');}
+function renderIncCatList(){
+  const inc=state.categories.filter(c=>c.type==='income');
+  document.getElementById('incCatList').innerHTML=inc.length?inc.map(c=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid #f5f5f5;background:var(--card)">
+      <button onclick="rmIncCat('${c.id}')" style="width:28px;height:28px;border-radius:50%;background:var(--exp);color:#fff;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0">−</button>
+      <div style="font-size:22px">${c.icon}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:500">${c.name} (${c.subs.length})</div><div style="font-size:12px;color:var(--tl);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.subs.slice(0,4).join(', ')}${c.subs.length>4?'...':''}</div></div>
+      <button onclick="openEditCat('${c.id}')" style="background:none;border:none;cursor:pointer;font-size:18px;padding:4px;color:var(--pr)">✏️</button>
+    </div>`).join(''):'<div class="empty" style="padding:30px"><p>কোনো আয় ক্যাটাগরি নেই</p></div>';
+}
+async function rmIncCat(id){
+  const c=state.categories.find(x=>x.id===id);if(!c)return;
+  const r=await pop('💰','আয় ক্যাটাগরি মুছবেন?','',c.icon+' '+c.name,[{l:'বাতিল',c:''},{l:'মুছুন',c:'danger'}]);
+  if(r!==1)return;
+  state.categories=state.categories.filter(x=>x.id!==id);
+  saveData();renderIncCatList();toast('🗑️ মুছে ফেলা হয়েছে','error');
+}
+
+// ===== ACCOUNTS =====
+function renderAccounts(){
+  const total=state.accounts.reduce((s,a)=>s+a.balance,0);
+  document.getElementById('accList').innerHTML=`
+    <div style="background:var(--pr);border-radius:12px;padding:20px;margin-bottom:16px;color:#fff">
+      <div style="font-size:13px;opacity:.8;margin-bottom:6px">মোট ব্যালেন্স</div>
+      <div style="font-size:28px;font-weight:700">${fmtAmt(total)}</div>
+    </div>
+    ${state.accounts.map(a=>`
+    <div class="acc-card">
+      <div><h3 style="font-size:16px;font-weight:600;margin-bottom:4px">${a.icon} ${a.name}</h3><p style="font-size:12px;color:var(--tl)">অ্যাকাউন্ট</p></div>
+      <div class="acc-bal" style="color:${a.balance>=0?'var(--inc)':'var(--exp)'}">${fmtAmt(a.balance)}</div>
+    </div>`).join('')}
+    <button class="acc-add-btn" onclick="openAddAcc()">+ নতুন অ্যাকাউন্ট</button>`;
+}
+function openAddAcc(){openM('addAccModal');}
+async function saveNewAcc(){
+  const name=document.getElementById('newAccName').value.trim();
+  if(!name){await pop('⚠️','নাম দিন','','',[{l:'ঠিক আছে',c:'yes'}]);return;}
+  const bal=parseFloat(document.getElementById('newAccBal').value)||0;
+  const r=await pop('💳','অ্যাকাউন্ট যোগ করবেন?','',name+' • ৳'+bal,[{l:'বাতিল',c:''},{l:'যোগ করুন',c:'save'}]);
+  if(r!==1)return;
+  const icons={'নগদ':'💵','বিকাশ':'📱','ব্যাংক':'🏦'};
+  state.accounts.push({id:'a'+Date.now(),name,balance:bal,icon:icons[name]||'💳'});
+  saveData();closeM('addAccModal');renderAccounts();toast('✅ যোগ হয়েছে','success');
+  document.getElementById('newAccName').value='';document.getElementById('newAccBal').value='';
+}
+
+// ===== NOTES =====
+function renderNotes(){
+  const list=document.getElementById('notesList');
+  if(!state.notes.length){list.innerHTML='<div class="empty"><div style="font-size:48px">📝</div><p>কোনো নোট নেই</p></div>';return;}
+  list.innerHTML=state.notes.map(n=>`<div class="note-card" style="border-color:${n.color||'var(--pr)'}" onclick="openEditNote('${n.id}')"><div class="note-title">${n.title||'(শিরোনাম নেই)'}</div><div class="note-prev">${n.body||'...'}</div><div class="note-date">${n.date}</div></div>`).join('');
+}
+function openNewNote(){
+  state.editNoteId=null;state.noteColor='#e8533a';
+  document.getElementById('noteTitleI').value='';document.getElementById('noteBodyI').value='';
+  document.getElementById('noteEdTitle').textContent='নতুন নোট';
+  document.querySelectorAll('.nc-btn').forEach(b=>b.classList.toggle('act',b.style.background==='rgb(232, 83, 58)'||b.style.background==='#e8533a'));
+  document.getElementById('sc-notes').classList.remove('active');
+  document.getElementById('sc-note-ed').classList.add('active');
+}
+function openEditNote(id){
+  const n=state.notes.find(x=>x.id===id);if(!n)return;
+  state.editNoteId=id;state.noteColor=n.color||'#e8533a';
+  document.getElementById('noteTitleI').value=n.title||'';document.getElementById('noteBodyI').value=n.body||'';
+  document.getElementById('noteEdTitle').textContent='নোট সম্পাদনা';
+  document.getElementById('sc-notes').classList.remove('active');
+  document.getElementById('sc-note-ed').classList.add('active');
+}
+function closeNoteEd(){switchScreen('notes');}
+async function saveNote(){
+  const title=document.getElementById('noteTitleI').value.trim();
+  const body=document.getElementById('noteBodyI').value;
+  if(!title&&!body){await pop('⚠️','নোট খালি','','',[{l:'ঠিক আছে',c:'yes'}]);return;}
+  const r=await pop('📝',state.editNoteId?'নোট আপডেট করবেন?':'নোট সংরক্ষণ করবেন?','',title||'(শিরোনাম নেই)',[{l:'বাতিল',c:''},{l:state.editNoteId?'আপডেট':'সংরক্ষণ',c:'save'}]);
+  if(r!==1)return;
+  if(state.editNoteId){const idx=state.notes.findIndex(n=>n.id===state.editNoteId);if(idx>-1)state.notes[idx]={...state.notes[idx],title,body,color:state.noteColor,date:new Date().toLocaleDateString('bn')};}
+  else{state.notes.unshift({id:'n'+Date.now(),title,body,color:state.noteColor,date:new Date().toLocaleDateString('bn')});}
+  saveData();toast('✅ নোট সংরক্ষিত','success');switchScreen('notes');
+}
+async function deleteNote(){
+  if(!state.editNoteId){switchScreen('notes');return;}
+  const r=await pop('🗑️','নোট মুছবেন?','','',[{l:'বাতিল',c:''},{l:'মুছুন',c:'danger'}]);
+  if(r!==1)return;
+  state.notes=state.notes.filter(n=>n.id!==state.editNoteId);
+  saveData();toast('🗑️ মুছে ফেলা হয়েছে','error');switchScreen('notes');
+}
+function setNC(c,el){state.noteColor=c;document.querySelectorAll('.nc-btn').forEach(b=>b.classList.remove('act'));el.classList.add('act');}
+
+// ===== SETTINGS =====
+function updateSettingsUI(){
+  const s=state.settings;
+  const hasPIN = currentUser && currentUser.pin && currentUser.pin !== '';
+  // Mobile settings sync
+  document.getElementById('pinStatus').textContent = hasPIN ? 'সক্রিয় 🔐 ('+currentUser.pin+')' : 'সেট করুন';
+  document.getElementById('darkToggle').classList.toggle('on',!!s.darkMode);
+  document.getElementById('darkIco').textContent=s.darkMode?'☀️':'🌙';
+  document.getElementById('darkIco').style.background=s.darkMode?'#f39c12':'#1a1a2e';
+  // Desktop settings sync
+  const dPin=document.getElementById('d-pinStatus');
+  if(dPin) dPin.textContent = hasPIN ? 'সক্রিয় 🔐 ('+currentUser.pin+')' : 'সেট করুন';
+  const dDT=document.getElementById('d-darkToggle');
+  if(dDT) dDT.classList.toggle('on',!!s.darkMode);
+  const dDI=document.getElementById('d-darkIco');
+  if(dDI){dDI.textContent=s.darkMode?'☀️':'🌙';dDI.style.background=s.darkMode?'#f39c12':'#1a1a2e';}
+  const dAdmin=document.getElementById('d-adminCard');
+  if(dAdmin) dAdmin.style.display=(currentUser&&currentUser.isAdmin)?'block':'none';
+  const dBadge=document.getElementById('dsk-user-badge');
+  if(dBadge&&currentUser) dBadge.textContent=currentUser.avatar+' '+currentUser.name;
+  updateAdminVisibility();
+}
+function toggleDark(){state.settings.darkMode=!state.settings.darkMode;document.body.classList.toggle('dark',!!state.settings.darkMode);saveData();updateSettingsUI();toast(state.settings.darkMode?'🌙 ডার্ক মোড চালু':'☀️ লাইট মোড চালু','info');}
+function applyDark(){if(state.settings.darkMode)document.body.classList.add('dark');else document.body.classList.remove('dark');}
+function openChangePIN(){openM('pinModal');}
+function pNext(i){if(document.getElementById('p'+i).value&&i<3)document.getElementById('p'+(i+1)).focus();}
+async function savePIN(){
+  const pin=[0,1,2,3].map(i=>document.getElementById('p'+i).value).join('');
+  if(pin.length!==4){await pop('⚠️','PIN অসম্পূর্ণ','৪টি সংখ্যার PIN দিন।','',[{l:'ঠিক আছে',c:'yes'}]);return;}
+  if(!/^\d{4}$/.test(pin)){await pop('⚠️','ভুল ইনপুট','শুধু সংখ্যা দিন।','',[{l:'ঠিক আছে',c:'yes'}]);return;}
+  const r=await pop('🔐','নতুন PIN সেট করবেন?','এই PIN দিয়ে প্রোফাইল লক হবে।','PIN: ****',[{l:'বাতিল',c:''},{l:'সেট করুন',c:'save'}]);
+  if(r!==1)return;
+  // Save PIN in USERS list
+  const idx=USERS.findIndex(u=>u.id===currentUser.id);
+  if(idx>-1){USERS[idx].pin=pin;currentUser.pin=pin;saveUsers(USERS);}
+  state.settings.pin=pin;saveData();closeM('pinModal');updateSettingsUI();
+  [0,1,2,3].forEach(i=>document.getElementById('p'+i).value='');
+  toast('🔐 PIN সেট হয়েছে','success');
+}
+
+// ===== BACKUP =====
+function exportJSON(){
+  const d={transactions:state.transactions,categories:state.categories,accounts:state.accounts,notes:state.notes,user:currentUser?.id};
+  const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download='masud_finance_'+(currentUser?.id||'')+'_'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();toast('📤 JSON ডাউনলোড হচ্ছে','success');
+}
+function exportCSV(){
+  const rows=[['তারিখ','ধরন','ক্যাটাগরি','সাবক্যাটাগরি','পরিমাণ','নোট','অ্যাকাউন্ট']];
+  state.transactions.forEach(t=>{const c=state.categories.find(x=>x.id===t.catId);const a=state.accounts.find(x=>x.id===t.accId);rows.push([t.date,t.type,c?c.name:'',t.subCat||'',t.amount,t.note||'',a?a.name:'']);});
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const b=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='masud_finance_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
+  toast('📊 CSV ডাউনলোড হচ্ছে','success');
+}
+async function importJSON(){
+  const r=await pop('📥','ব্যাকআপ আমদানি করবেন?','JSON ফাইল থেকে ডেটা লোড হবে।','',[{l:'বাতিল',c:''},{l:'ফাইল বাছুন',c:'yes'}]);
+  if(r!==1)return;
+  document.getElementById('importFile').click();
+}
+function handleImport(e){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=async ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.transactions)state.transactions=[...state.transactions,...d.transactions];
+      if(d.categories)state.categories=d.categories;
+      if(d.accounts)state.accounts=d.accounts;
+      if(d.notes)state.notes=[...state.notes,...d.notes];
+      saveData();renderTx();
+      await pop('✅','আমদানি সফল!',`${d.transactions?.length||0}টি লেনদেন আমদানি হয়েছে।`,'',[{l:'✓ ঠিক আছে',c:'save'}]);
+    }catch{await pop('❌','ফাইল ত্রুটি','সঠিক JSON ফাইল নয়।','',[{l:'ঠিক আছে',c:'yes'}]);}
+  };
+  r.readAsText(f);e.target.value='';
+}
+function emailBackup(){openM('emailModal');}
+async function sendEmail(){
+  const em=document.getElementById('bkEmail').value.trim();
+  if(!em){await pop('⚠️','ইমেইল দিন','','',[{l:'ঠিক আছে',c:'yes'}]);return;}
+  const d={transactions:state.transactions,categories:state.categories,accounts:state.accounts};
+  window.open(`mailto:${em}?subject=${encodeURIComponent('মাসউদ ফিন্যান্স ব্যাকআপ '+new Date().toLocaleDateString())}&body=${encodeURIComponent('ব্যাকআপ:\n\n'+JSON.stringify(d).slice(0,2000))}`);
+  closeM('emailModal');toast('📧 ইমেইল অ্যাপ খুলছে...','info');
+}
+async function resetUserData(){
+  if(!currentUser)return;
+  const r1=await pop('⚠️','এই প্রোফাইলের ডেটা মুছবেন?','শুধু '+currentUser.name+'-এর ডেটা মুছে যাবে।','⚠️ পূর্বাবস্থায় ফেরানো যাবে না',[{l:'বাতিল',c:''},{l:'মুছুন',c:'danger'}]);
+  if(r1!==1)return;
+  const r2=await pop('🗑️','শেষবার নিশ্চিত করুন','',currentUser.avatar+' '+currentUser.name,[{l:'না, রাখুন',c:''},{l:'হ্যাঁ, মুছুন',c:'danger'}]);
+  if(r2!==1)return;
+  const uid=currentUser.id;
+  ['txs','cats','accs','notes','settings'].forEach(k=>localStorage.removeItem('mf_'+uid+'_'+k));
+  loadState();renderTx();toast('🗑️ ডেটা মুছে ফেলা হয়েছে','error');
+}
+function openGithub(){openM('githubModal');}
+function upGhLink(){const u=document.getElementById('ghUser').value.trim();document.getElementById('ghLink').textContent=u?`https://${u}.github.io/masud-finance/`:''}
+function dlHTML(){const h=document.documentElement.outerHTML;const b=new Blob([h],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='masud_finance.html';a.click();toast('⬇️ ডাউনলোড হচ্ছে','success');}
+
+// ===== AI =====
+function sendAI(){
+  const inp=document.getElementById('aiInp');
+  const msg=inp.value.trim();if(!msg)return;
+  inp.value='';
+  appendAI(msg,'user');
+  const lid=appendLoading();
+  setTimeout(()=>{removeLoading(lid);appendAI(aiReply(msg),'bot');},500);
+}
+function sendQ(m){document.getElementById('aiInp').value=m;sendAI();}
+function aiKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAI();}}
+function appendAI(txt,role){
+  const c=document.getElementById('aiChat');
+  const d=document.createElement('div');d.className='ai-msg '+role;
+  if(role==='bot')d.innerHTML=`<div class="ai-name">✨ AI উপদেষ্টা</div>${txt.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')}`;
+  else d.textContent=txt;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+function appendLoading(){
+  const c=document.getElementById('aiChat');
+  const d=document.createElement('div');const id='al'+Date.now();d.id=id;d.className='ai-msg bot';
+  d.innerHTML=`<div class="ai-name">✨ AI উপদেষ্টা</div><span class="ai-dot"></span><span class="ai-dot"></span><span class="ai-dot"></span>`;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;return id;
+}
+function removeLoading(id){document.getElementById(id)?.remove();}
+
+function aiReply(msg){
+  const bnToEn=s=>String(s).replace(/[০-৯]/g,d=>'০১২৩৪৫৬৭৮৯'.indexOf(d).toString());
+  const extractNums=str=>[...str.matchAll(/[০-৯\d]+(?:[.,][০-৯\d]+)?/g)].map(x=>parseFloat(bnToEn(x[0]).replace(',','.'))).filter(n=>n>0);
+  const m=msg.toLowerCase();
+  const txs=curTxs();const allTxs=state.transactions;
+  const inc=txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const exp=txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const net=inc-exp;
+  const cm={};txs.filter(t=>t.type==='expense').forEach(t=>{const c=state.categories.find(x=>x.id===t.catId);const n=c?c.name:'অন্যান্য';cm[n]=(cm[n]||0)+t.amount;});
+  const sc=Object.entries(cm).sort((a,b)=>b[1]-a[1]);
+  const top=sc[0];
+
+  // ===== SMART ENTRY =====
+  const expW=['ব্যয়','খরচ','কিনলাম','কিনেছি','কিনছি','দিলাম','দিয়েছি','পরিশোধ','গেছে','লেগেছে','করলাম','করেছি','বাজার','কেনা'];
+  const incW=['আয়','পেলাম','পেয়েছি','আসলো','এলো','পাইলাম','বেতন','পারিশ্রমিক','বিক্রি','পাওয়া','জমা','ইনকাম','রোজগার'];
+  const isExp=expW.some(w=>m.includes(w));
+  const isInc=incW.some(w=>m.includes(w));
+  if(isExp||isInc){
+    const txType=isExp?'expense':'income';
+    const items=msg.split(/[,;،]/);
+    const cats=state.categories.filter(c=>c.type===txType);
+    const catKW={
+      'খাদ্যদ্রব্য':['সেমাই','চাল','ডাল','তেল','আটা','মুরগি','মাছ','মাংস','সবজি','ফল','দুধ','চিনি','লবণ','মশলা','বাজার','নুডলস','বিস্কুট','পেঁয়াজ','রসুন','আদা','ডিম'],
+      'মুদিখানা':['সাবান','শ্যাম্পু','পাউডার','ডিটার্জেন্ট'],
+      'যাতায়াত':['বাস','সিএনজি','রিকশা','ট্যাক্সি','ভাড়া','যাতায়াত','উবার'],
+      'চিকিৎসা':['ওষুধ','ডাক্তার','হাসপাতাল','ক্লিনিক'],
+      'শিক্ষা':['বই','খাতা','স্কুল','কলেজ','টিউশন'],
+      'বাইক':['পেট্রোল','অকটেন','মেরামত'],
+      'বেতন':['বেতন','salary','মাইনে'],
+      'দোকান ভাড়া':['দোকান ভাড়া','ভাড়া','rent'],
+      'পাওনা টাকা আদায়':['পাওনা','আদায়','ফেরত'],
+    };
+    const findCat=note=>{
+      const n=note.toLowerCase();
+      for(const [cn,words] of Object.entries(catKW)){if(words.some(w=>n.includes(w))){const f=cats.find(c=>c.name.includes(cn.split(' ')[0]));if(f)return f;}}
+      return cats[0];
+    };
+    let entries=[];
+    for(let raw of items){
+      raw=raw.trim();if(!raw)continue;
+      const nums=extractNums(raw);if(!nums.length)continue;
+      const hasKore=raw.includes('করে')||raw.includes('হারে');
+      let amt=0;
+      if(nums.length>=2&&hasKore)amt=nums[0]*nums[1];
+      else if(nums.length>=2)amt=nums[nums.length-1];
+      else amt=nums[0];
+      if(amt<=0)continue;
+      let note=raw.replace(/[০-৯\d]+(?:[.,][০-৯\d]+)?/g,' ').replace(/\b(ব্যয়|খরচ|কিনলাম|কিনেছি|কিনছি|দিলাম|দিয়েছি|আয়|পেলাম|পেয়েছি|আসলো|এলো|বেতন|কেজি|kg|পিস|লিটার|টাকা|taka|করে|হারে)\b/gi,' ').replace(/\s+/g,' ').trim();
+      if(!note)note=isExp?'ব্যয়':'আয়';
+      entries.push({amount:Math.round(amt*100)/100,note});
+    }
+    if(entries.length>0){
+      const today=new Date().toISOString().split('T')[0];
+      const accId=(state.accounts[0]||{}).id||'';
+      let lines=[],total=0;
+      for(const e of entries){
+        const cat=findCat(e.note);
+        state.transactions.push({id:'tx'+Date.now()+Math.random().toString(36).slice(2,5),type:txType,date:today,catId:cat?cat.id:'',subCat:'',amount:e.amount,note:e.note.slice(0,50),accId});
+        total+=e.amount;
+        lines.push(`• ${e.note}: ${fmtAmt(e.amount)}${cat?' ('+cat.icon+cat.name+')':''}`);
+      }
+      saveData();renderTx();
+      return `✅ **${entries.length}টি এন্ট্রি সম্পন্ন!**\n\n${lines.join('\n')}\n\n${isExp?'💸 ব্যয়':'💰 আয়'} মোট: **${fmtAmt(total)}**\n📅 ${today}\n\n✔️ লেনদেন ট্যাবে দেখুন।`;
+    }
+  }
+
+  // ===== বিশ্লেষণ =====
+  if(m.includes('বিশ্লেষণ')||m.includes('রিপোর্ট')||m.includes('সারসংক্ষেপ')){
+    if(!txs.length)return '📊 এই মাসে কোনো লেনদেন নেই।';
+    let r=`📊 **${BNM[state.m]} ${toBN(state.y)} বিশ্লেষণ**\n\n💰 আয়: ${fmtAmt(inc)}\n💸 ব্যয়: ${fmtAmt(exp)}\n${net>=0?'✅':'⚠️'} নেট: ${fmtAmt(net)}\n\n`;
+    if(sc.length){r+='📌 শীর্ষ ব্যয়:\n';sc.slice(0,5).forEach(([n,a],i)=>{const p=exp>0?Math.round(a/exp*100):0;r+=`${i+1}. ${n}: ${fmtAmt(a)} (${toBN(p)}%)\n`;});}
+    if(net<0)r+=`\n⚠️ ব্যয় আয়ের চেয়ে ${fmtAmt(Math.abs(net))} বেশি!`;
+    else r+=`\n✅ ${fmtAmt(net)} সাশ্রয় হয়েছে।`;
+    return r;
+  }
+
+  // ===== সাপ্তাহিক =====
+  if(m.includes('সাপ্তাহিক')||m.includes('সপ্তাহ')||m.includes('week')){
+    const now=new Date();const weekAgo=new Date(now-7*24*3600*1000);
+    const wTxs=state.transactions.filter(t=>{const d=new Date(t.date);return d>=weekAgo&&d<=now&&t.type==='expense';});
+    const wExp=wTxs.reduce((s,t)=>s+t.amount,0);
+    const wDays=Math.ceil((now-weekAgo)/(24*3600*1000));
+    if(!wTxs.length)return `📆 গত ৭ দিনে কোনো ব্যয় নেই।`;
+    return `📆 **গত ৭ দিনের খরচ**\n\nমোট ব্যয়: ${fmtAmt(wExp)}\nলেনদেন: ${toBN(wTxs.length)}টি\nদৈনিক গড়: ${fmtAmt(wExp/wDays)}`;
+  }
+
+  // ===== শীর্ষ খরচ =====
+  if(m.includes('শীর্ষ')||m.includes('বেশি খরচ')||m.includes('সর্বোচ্চ')||m.includes('কোথায় খরচ')){
+    if(!sc.length)return '📊 এই মাসে কোনো ব্যয় নেই।';
+    let r=`🔍 **শীর্ষ ব্যয়ের ক্যাটাগরি**\n\n`;
+    sc.slice(0,6).forEach(([n,a],i)=>{const p=exp>0?Math.round(a/exp*100):0;r+=`${i+1}. ${n}: ${fmtAmt(a)} (${toBN(p)}%)\n`;});
+    if(top)r+=`\n💡 "${top[0]}" খাতে সবচেয়ে বেশি। ১০% কমালে ${fmtAmt(top[1]*0.1)} বাঁচবে।`;
+    return r;
+  }
+
+  // ===== সঞ্চয় =====
+  if(m.includes('সঞ্চয়')||m.includes('save')||m.includes('জমা')||m.includes('টিপস')){
+    if(inc===0)return '💡 আয়ের তথ্য যোগ করুন।';
+    const sr=Math.round((net/inc)*100);
+    let r=`💡 **সঞ্চয়ের পরামর্শ**\n\nসঞ্চয়ের হার: ${toBN(Math.max(0,sr))}%\n\n📌 পরামর্শ:\n`;
+    if(sr<10)r+=`• আয়ের ২০% সঞ্চয়ের লক্ষ্য রাখুন\n`;
+    if(top)r+=`• "${top[0]}" খাত কমানোর চেষ্টা করুন\n`;
+    r+=`• জরুরি তহবিল: ৩-৬ মাসের খরচ জমা রাখুন\n• প্রতি মাসে বাজেট নির্ধারণ করুন`;
+    return r;
+  }
+
+  // ===== বাজেট =====
+  if(m.includes('বাজেট')||m.includes('budget')||m.includes('পরিকল্পনা')){
+    if(inc===0)return '📅 আয়ের তথ্য যোগ করুন।';
+    return `📅 **বাজেট পরিকল্পনা (৫০/৩০/২০)**\n\nমাসিক আয়: ${fmtAmt(inc)}\n\n✅ প্রয়োজনীয় (৫০%): ${fmtAmt(inc*.5)}\n🎯 চাওয়া (৩০%): ${fmtAmt(inc*.3)}\n💰 সঞ্চয় (২০%): ${fmtAmt(inc*.2)}\n\n${exp>inc*.8?`⚠️ আয়ের ${toBN(Math.round(exp/inc*100))}% খরচ হচ্ছে!`:'✅ খরচ নিয়ন্ত্রণে আছে।'}`;
+  }
+
+  // ===== ব্যালেন্স =====
+  if(m.includes('মোট')||m.includes('কত')||m.includes('ব্যালেন্স')||m.includes('balance')){
+    if(!txs.length)return `📊 ${BNM[state.m]} মাসে কোনো লেনদেন নেই।`;
+    return `📊 **${BNM[state.m]} ${toBN(state.y)}**\n\nআয়: ${fmtAmt(inc)}\nব্যয়: ${fmtAmt(exp)}\nব্যালেন্স: ${fmtAmt(net)}\nলেনদেন: ${toBN(txs.length)}টি`;
+  }
+
+  // ===== তুলনা (এই মাস vs আগের মাস) =====
+  if(m.includes('তুলনা')||m.includes('আগের মাস')||m.includes('compare')){
+    const pm=state.m===0?11:state.m-1;const py=state.m===0?state.y-1:state.y;
+    const prevTxs=state.transactions.filter(t=>{const d=new Date(t.date);return d.getFullYear()===py&&d.getMonth()===pm;});
+    const prevExp=prevTxs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+    const prevInc=prevTxs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+    return `📊 **মাসিক তুলনা**\n\n${BNM[pm]} ${toBN(py)}:\n  আয়: ${fmtAmt(prevInc)} | ব্যয়: ${fmtAmt(prevExp)}\n\n${BNM[state.m]} ${toBN(state.y)}:\n  আয়: ${fmtAmt(inc)} | ব্যয়: ${fmtAmt(exp)}\n\n${exp>prevExp?`⚠️ ব্যয় ${fmtAmt(exp-prevExp)} বেশি হয়েছে।`:exp<prevExp?`✅ ব্যয় ${fmtAmt(prevExp-exp)} কমেছে।`:'ব্যয় একই আছে।'}`;
+  }
+
+  // ===== সাহায্য =====
+  if(m.includes('কি পারো')||m.includes('কী পারো')||m.includes('সাহায্য')||m.includes('help')||m.includes('হ্যালো')||m.includes('সালাম')){
+    return `আস্সালামু আলাইকুম! 😊\n\n**আমি যা করতে পারি:**\n\n📝 **ডেটা এন্ট্রি:**\n• "ব্যয় চাল ৫কেজি ৬০ টাকা করে"\n• "কিনলাম সেমাই ১০কেজি ১৪০ টাকা করে, চিনি ১০কেজি ১০০ টাকা করে"\n• "আয় বেতন ১৫০০০ টাকা পেলাম"\n\n📊 **বিশ্লেষণ:**\n• "মাসিক বিশ্লেষণ করো"\n• "সাপ্তাহিক খরচ কত"\n• "গত মাসের সাথে তুলনা করো"\n• "শীর্ষ খরচের ক্যাটাগরি"\n\n💡 **পরামর্শ:**\n• "সঞ্চয়ের উপায় বলো"\n• "বাজেট পরিকল্পনা করো"`;
+  }
+
+  if(!txs.length)return `💡 এই মাসে কোনো ডেটা নেই। বলুন:\n• "ব্যয় [পণ্য] [পরিমাণ] টাকা"\n• "আয় [উৎস] [পরিমাণ] টাকা"\n• "সাহায্য" — সব ফিচার দেখতে`;
+  return `📊 ${BNM[state.m]}: আয় ${fmtAmt(inc)} | ব্যয় ${fmtAmt(exp)} | ব্যালেন্স ${fmtAmt(net)}${top?`\nশীর্ষ ব্যয়: ${top[0]} (${fmtAmt(top[1])})`:''}\n\n"সাহায্য" লিখলে সব ফিচার দেখতে পাবেন।`;
+}
+
+// ===== POPUP SYSTEM =====
+let _popRes=null;
+function pop(emoji,title,msg,hl,btns){
+  return new Promise(res=>{
+    _popRes=res;
+    document.getElementById('popEmoji').textContent=emoji;
+    document.getElementById('popTitle').textContent=title;
+    document.getElementById('popMsg').textContent=msg;
+    const hlEl=document.getElementById('popHL');
+    if(hl){hlEl.textContent=hl;hlEl.style.display='block';}else{hlEl.style.display='none';}
+    document.getElementById('popActs').innerHTML=btns.map((b,i)=>`<button class="pop-btn ${b.c}" onclick="_popClick(${i})">${b.l}</button>`).join('');
+    document.getElementById('popOv').classList.add('open');
+  });
+}
+function _popClick(i){document.getElementById('popOv').classList.remove('open');if(_popRes){_popRes(i);_popRes=null;}}
+
+// ===== TOAST =====
+let _snkT=null;
+function toast(msg,type=''){
+  const s=document.getElementById('snack');s.textContent=msg;s.className='snack '+(type||'');
+  s.classList.add('show');clearTimeout(_snkT);_snkT=setTimeout(()=>s.classList.remove('show'),2800);
+}
+
+// ===== MODAL HELPERS =====
+function openM(id){document.getElementById(id).classList.add('open');}
+function closeM(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.moverlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
+document.querySelectorAll('.cpicker').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
+
+// ===== ADMIN PANEL =====
+function showAdminPanel() {
+  // Require Masud's PIN to access admin panel from user screen
+  if (!currentUser) {
+    // Called from user screen — show mini PIN check first
+    adminLoginCheck();
+    return;
+  }
+  if (!currentUser.isAdmin) {
+    toast('⛔ শুধুমাত্র অ্যাডমিন (Masud) প্রবেশ করতে পারবেন','error');
+    return;
+  }
+  openAdminPanel();
+}
+
+function adminLoginCheck() {
+  // Quick admin login from user screen
+  const adminUser = USERS.find(u => u.isAdmin);
+  if (!adminUser) return;
+  currentUser = adminUser;
+  const pin = adminUser.pin || '';
+  if (pin) {
+    showPinScreen(adminUser, pin);
+    // After PIN success, launchApp will run — that's fine
+  } else {
+    launchApp(adminUser);
+  }
+}
+
+function openAdminPanel() {
+  renderAdminUserList();
+  document.getElementById('newUserName').value = '';
+  document.getElementById('newUserAvatar').value = '👤';
+  document.getElementById('newUserPin').value = '';
+  openM('adminModal');
+}
+
+function renderAdminUserList() {
+  USERS = loadUsers();
+  const list = document.getElementById('adminUserList');
+  list.innerHTML = USERS.map(u => {
+    const data = getUserData(u.id);
+    const txCount = data.transactions.length;
+    const isAdmin = u.isAdmin;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--bd)">
+      <div style="font-size:24px;min-width:36px;text-align:center">${u.avatar}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:600">${u.name} ${isAdmin?'<span style=\"background:#f39c12;color:#fff;border-radius:8px;padding:1px 6px;font-size:10px;font-weight:700\">ADMIN</span>':''}</div>
+        <div style="font-size:11px;color:var(--tl)">PIN: ${u.pin||'নেই'} • লেনদেন: ${txCount}টি</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button onclick="openAdminChangePIN('${u.id}')" style="background:#e8f4fd;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px;color:#3498db;font-weight:600">🔐</button>
+        ${!isAdmin ? `<button onclick="deleteUser('${u.id}')" style="background:#fef0ed;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px;color:var(--exp);font-weight:600">🗑️</button>` : '<div style="width:38px"></div>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openAdminChangePIN(uid) {
+  const user = USERS.find(u => u.id === uid);
+  if (!user) return;
+  document.getElementById('adminPinTitle').textContent = user.avatar + ' ' + user.name + ' — PIN পরিবর্তন';
+  document.getElementById('adminPinSub').textContent = 'নতুন ৪ সংখ্যার PIN দিন:';
+  document.getElementById('adminPinUid').value = uid;
+  ['ap0','ap1','ap2','ap3'].forEach(id => document.getElementById(id).value = '');
+  // Fix oninput for sequential focus
+  ['ap0','ap1','ap2'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    el.oninput = () => { if(el.value) document.getElementById('ap'+(i+1)).focus(); };
+  });
+  openM('adminPinModal');
+}
+
+async function saveAdminPin() {
+  const uid = document.getElementById('adminPinUid').value;
+  const pin = ['ap0','ap1','ap2','ap3'].map(id => document.getElementById(id).value).join('');
+  if (pin.length !== 4 || !/^\d{4}$/.test(pin)) {
+    await pop('⚠️','PIN অসম্পূর্ণ','৪টি সংখ্যার PIN দিন।','',[{l:'ঠিক আছে',c:'yes'}]);
+    return;
+  }
+  const user = USERS.find(u => u.id === uid);
+  const r = await pop('🔐','PIN পরিবর্তন করবেন?',user ? user.name+'-এর নতুন PIN:' : '','PIN: '+pin,[{l:'বাতিল',c:''},{l:'সেট করুন',c:'save'}]);
+  if (r !== 1) return;
+  const idx = USERS.findIndex(u => u.id === uid);
+  if (idx > -1) { USERS[idx].pin = pin; saveUsers(USERS); }
+  closeM('adminPinModal');
+  renderAdminUserList();
+  toast('🔐 '+( user ? user.name : '')+'–এর PIN আপডেট হয়েছে','success');
+}
+
+async function addNewUser() {
+  const name = document.getElementById('newUserName').value.trim();
+  const avatar = document.getElementById('newUserAvatar').value.trim() || '👤';
+  const pinVal = document.getElementById('newUserPin').value.trim();
+  if (!name) { await pop('⚠️','নাম দিন','','',[{l:'ঠিক আছে',c:'yes'}]); return; }
+  if (pinVal && (pinVal.length !== 4 || !/^\d{4}$/.test(pinVal))) {
+    await pop('⚠️','PIN ভুল','৪ সংখ্যার PIN দিন অথবা খালি রাখুন।','',[{l:'ঠিক আছে',c:'yes'}]); return;
+  }
+  const id = name.toLowerCase().replace(/\s+/g,'') + Date.now().toString().slice(-4);
+  const colors = ['#3498db','#2ecc71','#9b59b6','#f39c12','#e91e63','#00bcd4','#ff5722'];
+  const color = colors[USERS.length % colors.length];
+  const r = await pop('👤','নতুন ইউজার যোগ করবেন?','',avatar + ' ' + name + (pinVal?' (PIN: '+pinVal+')':' (PIN নেই)'),[{l:'বাতিল',c:''},{l:'যোগ করুন',c:'save'}]);
+  if (r !== 1) return;
+  const newUser = { id, name, avatar, pin: pinVal || '', color, isAdmin: false };
+  USERS.push(newUser);
+  saveUsers(USERS);
+  document.getElementById('newUserName').value = '';
+  document.getElementById('newUserPin').value = '';
+  document.getElementById('newUserAvatar').value = '👤';
+  renderAdminUserList();
+  toast('✅ '+name+' যোগ হয়েছে','success');
+}
+
+async function deleteUser(uid) {
+  const user = USERS.find(u => u.id === uid);
+  if (!user || user.isAdmin) return;
+  const data = getUserData(uid);
+  const txCount = data.transactions.length;
+  const r1 = await pop('🗑️','ইউজার মুছবেন?',
+    txCount > 0 ? `${user.name}-এর ${txCount}টি লেনদেন মুছে যাবে!` : user.name+'-এর প্রোফাইল মুছে যাবে।',
+    user.avatar + ' ' + user.name,
+    [{l:'বাতিল',c:''},{l:'মুছুন',c:'danger'}]);
+  if (r1 !== 1) return;
+  const r2 = await pop('⚠️','শেষবার নিশ্চিত করুন','এই কাজ পূর্বাবস্থায় ফেরানো যাবে না।','',
+    [{l:'না, রাখুন',c:''},{l:'হ্যাঁ, মুছুন',c:'danger'}]);
+  if (r2 !== 1) return;
+  // Remove user data
+  ['txs','cats','accs','notes','settings'].forEach(k => localStorage.removeItem('mf_'+uid+'_'+k));
+  USERS = USERS.filter(u => u.id !== uid);
+  saveUsers(USERS);
+  renderAdminUserList();
+  toast('🗑️ '+user.name+' মুছে ফেলা হয়েছে','error');
+}
+
+// Show/hide admin section in settings
+function updateAdminVisibility() {
+  const isAdmin = currentUser && currentUser.isAdmin;
+  const t = document.getElementById('adminSecTitle');
+  const r = document.getElementById('adminSecRow');
+  if(t) t.style.display = isAdmin ? 'block' : 'none';
+  if(r) r.style.display = isAdmin ? 'block' : 'none';
+}
+
+// ===== INIT =====
+renderUserScreen();
+
+// ===== VOICE INPUT =====
+let recog = null;
+let isListening = false;
+let voiceTarget = 'mob';
+
+function initVoice() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return;
+  recog = new SR();
+  recog.lang = 'bn-BD';
+  recog.continuous = false;
+  recog.interimResults = true;
+
+  recog.onstart = () => {
+    isListening = true;
+    const btn = document.getElementById(voiceTarget==='dsk' ? 'd-voiceBtn' : 'voiceBtn');
+    const stat = document.getElementById(voiceTarget==='dsk' ? 'd-voiceStat' : 'voiceStat');
+    if (btn) btn.classList.add('listening');
+    if (stat) stat.textContent = '🔴 শুনছি... বলুন';
+  };
+  recog.onresult = (e) => {
+    let t = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
+    const id = voiceTarget==='dsk' ? 'd-aiInp' : 'aiInp';
+    const inp = document.getElementById(id);
+    if (inp) inp.value = t;
+  };
+  recog.onend = () => {
+    isListening = false;
+    const btn = document.getElementById(voiceTarget==='dsk' ? 'd-voiceBtn' : 'voiceBtn');
+    const stat = document.getElementById(voiceTarget==='dsk' ? 'd-voiceStat' : 'voiceStat');
+    if (btn) btn.classList.remove('listening');
+    if (stat) stat.textContent = '';
+    const id = voiceTarget==='dsk' ? 'd-aiInp' : 'aiInp';
+    const val = document.getElementById(id)?.value?.trim();
+    if (val) { if (voiceTarget==='dsk') dSendAI(); else sendAI(); }
+  };
+  recog.onerror = () => {
+    isListening = false;
+    const btn = document.getElementById(voiceTarget==='dsk' ? 'd-voiceBtn' : 'voiceBtn');
+    const stat = document.getElementById(voiceTarget==='dsk' ? 'd-voiceStat' : 'voiceStat');
+    if (btn) btn.classList.remove('listening');
+    if (stat) { stat.textContent = '❌ আবার চেষ্টা করুন'; setTimeout(()=>stat.textContent='', 2000); }
+  };
+}
+
+function toggleVoice(target) {
+  voiceTarget = target || 'mob';
+  if (!recog) { toast('এই ব্রাউজারে ভয়েস সমর্থিত নয়', 'error'); return; }
+  if (isListening) { recog.stop(); }
+  else { recog.lang = 'bn-BD'; try { recog.start(); } catch(e){} }
+}
+
+// ===== DESKTOP MODE =====
+let isDsk = false;
+let dCurPanel = 'trans';
+let dStatType = 'expense';
+
+function toggleLayout() {
+  isDsk = !isDsk;
+  document.body.classList.toggle('dmode', isDsk);
+  const wrap = document.getElementById('dskWrap');
+  const txt = document.getElementById('ltText');
+  if (isDsk) {
+    txt.textContent = '📱 মোবাইল ভিউ';
+    dRefresh(dCurPanel);
+    // Init AI chat
+    const dc = document.getElementById('d-aiChat');
+    if (dc && !dc.children.length) {
+      dc.innerHTML = '<div class="ai-msg bot"><div class="ai-name">✨ AI উপদেষ্টা</div>আস্সালামু আলাইকুম! ডেস্কটপ মোডে স্বাগতম।<br>প্রশ্ন লিখুন বা 🎤 চাপুন।</div>';
+    }
+  } else {
+    txt.textContent = '💻 ডেস্কটপ ভিউ';
+  }
+}
+
+function dSwitch(panel) {
+  if(panel === 'cats_exp') { isDsk&&toggleLayout(); switchScreen('cats'); return; }
+  dCurPanel = panel;
+  document.querySelectorAll('[id^="dp-"]').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('[id^="dn-"]').forEach(el => el.classList.remove('act'));
+  const p = document.getElementById('dp-' + panel);
+  if (p) p.style.display = panel === 'ai' ? 'flex' : 'block';
+  const n = document.getElementById('dn-' + panel);
+  if (n) n.classList.add('act');
+  dRefresh(panel);
+}
+
+function dRefresh(panel) {
+  // Month label
+  const ml = document.getElementById('dskMonLbl');
+  if (ml) ml.textContent = monLabel();
+
+  if (panel === 'trans') dRenderTrans();
+  else if (panel === 'stats') dRenderStats();
+  else if (panel === 'notes') dRenderNotes();
+}
+
+function monLabel() {
+  const BNM = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+  return BNM[state.curMonth] + ' ' + toBN(state.curYear);
+}
+
+function dRenderTrans() {
+  const txs = curTxs();
+  let inc = 0, exp = 0;
+  txs.forEach(t => { if (t.type==='income') inc+=t.amount; else if (t.type==='expense') exp+=t.amount; });
+  const bal = inc - exp;
+  const di = document.getElementById('d-inc');
+  const de = document.getElementById('d-exp');
+  const db = document.getElementById('d-bal');
+  const dc = document.getElementById('d-txCnt');
+  if (di) di.textContent = fmtA(inc);
+  if (de) de.textContent = fmtA(exp);
+  if (db) { db.textContent = fmtA(bal); db.style.color = bal>=0?'var(--inc)':'var(--exp)'; }
+  if (dc) dc.textContent = toBN(txs.length) + 'টি';
+
+  const list = document.getElementById('d-txList');
+  if (!list) return;
+  if (!txs.length) { list.innerHTML='<div style="text-align:center;padding:40px;color:var(--tl);font-size:14px;">কোনো লেনদেন নেই</div>'; return; }
+
+  const groups = {};
+  txs.forEach(t => {
+    const d = new Date(t.date);
+    const key = t.date;
+    if (!groups[key]) groups[key] = {date:d, txs:[]};
+    groups[key].txs.push(t);
+  });
+  const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  list.innerHTML = Object.keys(groups).sort((a,b)=>b.localeCompare(a)).map(k => {
+    const g = groups[k];
+    const dInc = g.txs.reduce((s,t)=>t.type==='income'?s+t.amount:s,0);
+    const dExp = g.txs.reduce((s,t)=>t.type==='expense'?s+t.amount:s,0);
+    return '<div class="day-group">' +
+      '<div class="dh"><div class="dh-l"><div class="day-badge">' + toBN(g.date.getDate()) + ' <span class="weekday">' + DAYS[g.date.getDay()] + '</span></div>' +
+      '<span style="font-size:11px">' + k + '</span></div>' +
+      '<div style="display:flex;gap:12px">' +
+      (dInc>0?'<span style="color:var(--inc)">'+fmtA(dInc)+'</span>':'') +
+      (dExp>0?'<span style="color:var(--exp)">'+fmtA(dExp)+'</span>':'') +
+      '</div></div>' +
+      g.txs.map(t => txItemHTML(t)).join('') +
+      '</div>';
+  }).join('');
+}
+
+function dRenderStats() {
+  const PIE = ['#e74c3c','#f39c12','#f1c40f','#2ecc71','#1abc9c','#3498db','#9b59b6','#e67e22','#e91e63','#00bcd4'];
+  const txs = curTxs().filter(t => t.type === dStatType);
+  const total = txs.reduce((s,t)=>s+t.amount,0);
+  const ttl = document.getElementById('d-statTtl');
+  if (ttl) ttl.textContent = 'মোট ' + (dStatType==='expense'?'ব্যয়':'আয়') + ': ৳ ' + toBN(total.toLocaleString('en',{minimumFractionDigits:2}));
+
+  const catMap = {};
+  txs.forEach(t => {
+    const cat = state.categories.find(c=>c.id===t.catId);
+    const n = cat ? cat.name : 'অন্যান্য';
+    catMap[n] = (catMap[n]||0) + t.amount;
+  });
+  const sorted = Object.entries(catMap).sort((a,b)=>b[1]-a[1]);
+
+  // Pie
+  const canvas = document.getElementById('dPie');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,200,200);
+    if (total > 0) {
+      let start = -Math.PI/2;
+      sorted.forEach(([,amt],i) => {
+        const angle = (amt/total)*Math.PI*2;
+        ctx.beginPath(); ctx.moveTo(100,100);
+        ctx.arc(100,100,90,start,start+angle);
+        ctx.closePath(); ctx.fillStyle=PIE[i%PIE.length]; ctx.fill();
+        start += angle;
+      });
+      ctx.beginPath(); ctx.arc(100,100,45,0,Math.PI*2);
+      ctx.fillStyle=document.body.classList.contains('dark')?'#1e1e1e':'white'; ctx.fill();
+    }
+  }
+
+  const list = document.getElementById('d-statList');
+  if (!list) return;
+  if (!sorted.length) { list.innerHTML='<p style="color:var(--tl);font-size:14px;padding:12px 0">কোনো তথ্য নেই</p>'; return; }
+  list.innerHTML = sorted.map(([name,amt],i) => {
+    const pct = total>0?Math.round(amt/total*100):0;
+    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bd);">' +
+      '<div style="background:'+PIE[i%PIE.length]+';color:#fff;border-radius:6px;padding:3px 8px;font-size:12px;font-weight:600;min-width:42px;text-align:center;">' + pct + '%</div>' +
+      '<div style="flex:1;"><div style="font-size:14px;">' + name + '</div>' +
+      '<div style="height:5px;background:var(--bd);border-radius:3px;margin-top:4px;overflow:hidden;"><div style="height:100%;border-radius:3px;background:'+PIE[i%PIE.length]+';width:'+pct+'%;"></div></div></div>' +
+      '<div style="font-size:14px;font-weight:600;color:var(--' + dStatType + ');">৳ ' + toBN(amt.toLocaleString('en',{minimumFractionDigits:2})) + '</div></div>';
+  }).join('');
+
+  const side = document.getElementById('d-statSide');
+  if (side) {
+    const txsAll = curTxs();
+    const inc2 = txsAll.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+    const exp2 = txsAll.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+    side.innerHTML = '<div style="display:flex;flex-direction:column;gap:12px;">' +
+      '<div style="background:var(--bg);border-radius:10px;padding:14px;"><div style="font-size:12px;color:var(--tl);margin-bottom:4px;">মোট আয়</div><div style="font-size:20px;font-weight:700;color:var(--inc);">' + fmtA(inc2) + '</div></div>' +
+      '<div style="background:var(--bg);border-radius:10px;padding:14px;"><div style="font-size:12px;color:var(--tl);margin-bottom:4px;">মোট ব্যয়</div><div style="font-size:20px;font-weight:700;color:var(--exp);">' + fmtA(exp2) + '</div></div>' +
+      '<div style="background:var(--bg);border-radius:10px;padding:14px;"><div style="font-size:12px;color:var(--tl);margin-bottom:4px;">নেট ব্যালেন্স</div><div style="font-size:20px;font-weight:700;color:'+(inc2-exp2>=0?'var(--inc)':'var(--exp)')+';">' + fmtA(inc2-exp2) + '</div></div>' +
+      '</div>';
+  }
+}
+
+function toggleStats(type) {
+  dStatType = type;
+  if (isDsk) dRenderStats();
+  else {
+    // mobile stats toggle
+    const expTab = document.getElementById('sExpTab');
+    const incTab = document.getElementById('sIncTab');
+    if (expTab) expTab.classList.toggle('active', type==='expense');
+    if (incTab) incTab.classList.toggle('active', type==='income');
+    renderStats && renderStats();
+  }
+}
+
+function dRenderNotes() {
+  const list = document.getElementById('d-notesList');
+  if (!list) return;
+  if (!state.notes.length) { list.innerHTML='<div style="text-align:center;padding:40px;color:var(--tl);">কোনো নোট নেই</div>'; return; }
+  list.innerHTML = state.notes.map(n =>
+    '<div style="background:var(--card);border-radius:var(--r);padding:14px;box-shadow:var(--sh);cursor:pointer;border-left:4px solid '+(n.color||'var(--pr)')+'" onclick="openEditNote(\''+n.id+'\')">' +
+    '<div style="font-size:15px;font-weight:600;margin-bottom:6px;">'+(n.title||'(শিরোনাম নেই)')+'</div>' +
+    '<div style="font-size:13px;color:var(--tl);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(n.body||'...')+'</div>' +
+    '<div style="font-size:11px;color:var(--tl);margin-top:8px;">'+(n.date||'')+'</div></div>'
+  ).join('');
+}
+
+// Desktop AI
+function dSendAI() {
+  const inp = document.getElementById('d-aiInp');
+  const msg = inp?.value?.trim();
+  if (!msg) return;
+  inp.value = '';
+  dAppend(msg, 'user');
+  const lid = dLoading();
+  setTimeout(() => { dRemove(lid); dAppend(aiReply(msg), 'bot'); }, 500);
+}
+function dAppend(txt, role) {
+  const c = document.getElementById('d-aiChat');
+  if (!c) return;
+  const d = document.createElement('div');
+  d.className = 'ai-msg ' + role;
+  if (role==='bot') d.innerHTML = '<div class="ai-name">✨ AI উপদেষ্টা</div>' + txt.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+  else d.textContent = txt;
+  c.appendChild(d); c.scrollTop = c.scrollHeight;
+}
+function dLoading() {
+  const c = document.getElementById('d-aiChat');
+  if (!c) return '';
+  const d = document.createElement('div');
+  const id = 'dl'+Date.now(); d.id=id; d.className='ai-msg bot';
+  d.innerHTML='<div class="ai-name">✨ AI উপদেষ্টা</div><span class="ai-dot"></span><span class="ai-dot"></span><span class="ai-dot"></span>';
+  c.appendChild(d); c.scrollTop=c.scrollHeight; return id;
+}
+function dRemove(id) { document.getElementById(id)?.remove(); }
+function dAiKey(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();dSendAI();} }
+
+// Month nav (desktop)
+function prevMon() {
+  state.curMonth--;
+  if (state.curMonth<0){state.curMonth=11;state.curYear--;}
+  saveState(); dRefresh(dCurPanel); renderTx && renderTx();
+}
+function nextMon() {
+  state.curMonth++;
+  if (state.curMonth>11){state.curMonth=0;state.curYear++;}
+  saveState(); dRefresh(dCurPanel); renderTx && renderTx();
+}
+
+// Override renderTx to also update desktop
+const _origRenderTx = typeof renderTx !== 'undefined' ? renderTx : null;
+
+
+// ===== TEXT IMPROVE =====
+let impLang = 'auto';
+let impStyle = 'formal';
+let lastImproved = '';
+
+function switchAiTab(tab) {
+  document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('act'));
+  document.querySelectorAll('.ai-panel').forEach(p => p.classList.remove('act'));
+  document.getElementById('tab-' + tab).classList.add('act');
+  document.getElementById('aipanel-' + tab).classList.add('act');
+}
+
+function setImpLang(lang) {
+  impLang = lang;
+  document.querySelectorAll('.imp-lang-btn').forEach(b => b.classList.remove('act'));
+  document.getElementById('lang-' + lang).classList.add('act');
+}
+
+function setImpStyle(el) {
+  impStyle = el.dataset.style;
+  document.querySelectorAll('.imp-style-btn').forEach(b => b.classList.remove('act'));
+  el.classList.add('act');
+}
+
+function getLangInstruction(lang, text) {
+  if (lang === 'auto') {
+    const isBn = /[\u0980-\u09FF]/.test(text);
+    return isBn ? 'বাংলায় লিখুন।' : 'Write in English.';
+  }
+  if (lang === 'bn') return 'অবশ্যই বাংলায় লিখুন।';
+  if (lang === 'en') return 'Write in English only.';
+  return '';
+}
+
+function getStyleInstruction(style, text) {
+  const isBn = /[\u0980-\u09FF]/.test(text);
+  const lang = isBn ? 'বাংলায়' : 'in English';
+  const styles = {
+    formal: isBn
+      ? 'টেক্সটটি আনুষ্ঠানিক ও শিষ্টাচারপূর্ণভাবে পুনরায় লিখুন।'
+      : 'Rewrite this text in a formal, polished manner.',
+    casual: isBn
+      ? 'টেক্সটটি সহজ, স্বাভাবিক ও বন্ধুত্বপূর্ণ ভাষায় লিখুন।'
+      : 'Rewrite this in a casual, friendly, and natural tone.',
+    professional: isBn
+      ? 'টেক্সটটি পেশাদার ও ব্যবসায়িক ভাষায় লিখুন।'
+      : 'Rewrite this professionally, suitable for business communication.',
+    concise: isBn
+      ? 'টেক্সটটি সংক্ষিপ্ত ও স্পষ্ট করুন, মূল অর্থ রেখে।'
+      : 'Make this text concise and clear while keeping the main meaning.',
+    detailed: isBn
+      ? 'টেক্সটটি আরও বিস্তারিত ও ব্যাখ্যাসহ লিখুন।'
+      : 'Expand this text with more details and explanations.',
+    fix: isBn
+      ? 'বানান, ব্যাকরণ ও句子 গঠনের ভুলগুলো ঠিক করুন, শুধু সংশোধিত টেক্সট দিন।'
+      : 'Fix spelling, grammar, and sentence structure errors. Return only the corrected text.',
+    translate_bn: 'এই টেক্সটটি সুন্দর বাংলায় অনুবাদ করুন।',
+    translate_en: 'Translate this text into clear, natural English.',
+  };
+  return styles[style] || styles.formal;
+}
+
+async function runImprove() {
+  const input = document.getElementById('impInput').value.trim();
+  if (!input) { toast('টেক্সট লিখুন', 'error'); return; }
+
+  const btn = document.getElementById('impGoBtn');
+  const txt = document.getElementById('impGoTxt');
+  btn.disabled = true;
+  txt.textContent = '⏳ উন্নত করা হচ্ছে...';
+
+  const result = await improveText(input, impStyle, impLang);
+  lastImproved = result;
+
+  const res = document.getElementById('impResult');
+  res.innerHTML = result.replace(/\n/g, '<br>') +
+    '<button class="imp-copy-btn" onclick="copyImproved()">📋 কপি</button>';
+  res.classList.add('has-text');
+
+  document.getElementById('impUseBtn').classList.add('show');
+  btn.disabled = false;
+  txt.textContent = '✨ আবার উন্নত করুন';
+}
+
+async function improveText(text, style, lang) {
+  // Build prompt
+  const styleInstr = getStyleInstruction(style, text);
+  const langInstr = getLangInstruction(lang, text);
+  const prompt = `${styleInstr} ${langInstr}\n\nটেক্সট:\n${text}\n\nশুধু উন্নত টেক্সটটি দিন, কোনো ব্যাখ্যা বা prefix ছাড়া।`;
+
+  // Use local smart improvement (offline — no API needed)
+  return localImprove(text, style, lang);
+}
+
+function localImprove(text, style, lang) {
+  const isBn = /[\u0980-\u09FF]/.test(text);
+
+  // Fix common bangla typos/patterns
+  const fixBn = t => t
+    .replace(/\bআমি\s+কি\b/g, 'আমি কি')
+    .replace(/\s+([।,!?])/g, '$1')
+    .replace(/([।])\s*([^\s])/g, '$1 $2')
+    .replace(/  +/g, ' ')
+    .trim();
+
+  // Fix common english typos
+  const fixEn = t => t
+    .replace(/\bi\b/g, 'I')
+    .replace(/([.!?])\s*([a-z])/g, (m, p, c) => p + ' ' + c.toUpperCase())
+    .replace(/  +/g, ' ')
+    .trim();
+
+  if (style === 'translate_bn') {
+    if (isBn) return text + '\n\n[ইতিমধ্যে বাংলায় আছে]';
+    return localTranslateEN2BN(text);
+  }
+
+  if (style === 'translate_en') {
+    if (!isBn) return text + '\n\n[Already in English]';
+    return localTranslateBN2EN(text);
+  }
+
+  if (style === 'fix') {
+    return isBn ? fixBn(text) : fixEn(text);
+  }
+
+  if (style === 'concise') {
+    // Split into sentences, keep key ones
+    const seps = isBn ? /[।!?]+/g : /[.!?]+/g;
+    const sentences = text.split(seps).map(s => s.trim()).filter(s => s.length > 10);
+    if (sentences.length <= 2) return isBn ? fixBn(text) : fixEn(text);
+    // Keep first, last, and longest
+    const longest = [...sentences].sort((a, b) => b.length - a.length)[0];
+    const kept = [sentences[0]];
+    if (longest !== sentences[0] && longest !== sentences[sentences.length-1]) kept.push(longest);
+    kept.push(sentences[sentences.length-1]);
+    const joiner = isBn ? '। ' : '. ';
+    return kept.join(joiner) + (isBn ? '।' : '.');
+  }
+
+  if (style === 'detailed') {
+    // Add connective phrases and expand
+    if (isBn) {
+      return fixBn(text) + '\n\nউল্লেখ্য যে, উপরোক্ত বিষয়টি অত্যন্ত গুরুত্বপূর্ণ এবং এটি সুষ্ঠুভাবে বাস্তবায়ন করা প্রয়োজন।';
+    } else {
+      return fixEn(text) + '\n\nIt is worth noting that the above points are significant and require careful consideration for effective implementation.';
+    }
+  }
+
+  if (style === 'casual') {
+    if (isBn) {
+      return fixBn(text)
+        .replace(/করিতেছি/g, 'করছি')
+        .replace(/করিয়াছি/g, 'করেছি')
+        .replace(/হইয়াছে/g, 'হয়েছে')
+        .replace(/\bআপনি\b/g, 'তুমি')
+        .replace(/\bআপনার\b/g, 'তোমার');
+    } else {
+      return fixEn(text).replace(/\bI am\b/g, "I'm").replace(/\bdo not\b/g, "don't").replace(/\bcannot\b/g, "can't");
+    }
+  }
+
+  if (style === 'professional' || style === 'formal') {
+    if (isBn) {
+      return fixBn(text)
+        .replace(/\bতুমি\b/g, 'আপনি')
+        .replace(/\bতোমার\b/g, 'আপনার')
+        .replace(/\bতোমাকে\b/g, 'আপনাকে')
+        .replace(/করছি/g, 'করছি')
+        .replace(/([^।])$/, '$1।');
+    } else {
+      const f = fixEn(text).replace(/\bI'm\b/g, 'I am').replace(/\bdon't\b/g, 'do not').replace(/\bcan't\b/g, 'cannot');
+      return f.charAt(0).toUpperCase() + f.slice(1);
+    }
+  }
+
+  return isBn ? fixBn(text) : fixEn(text);
+}
+
+function localTranslateBN2EN(text) {
+  // Basic word mapping for common phrases
+  const map = {
+    'আস্সালামু আলাইকুম': 'Assalamu Alaikum (Peace be upon you)',
+    'ধন্যবাদ': 'Thank you',
+    'শুভেচ্ছা': 'Best regards',
+    'আমি': 'I',
+    'আপনি': 'you',
+    'আমার': 'my',
+    'আপনার': 'your',
+    'হ্যাঁ': 'yes',
+    'না': 'no',
+    'ভালো': 'good',
+    'খারাপ': 'bad',
+    'টাকা': 'Taka (BDT)',
+    'আয়': 'income',
+    'ব্যয়': 'expense',
+    'সঞ্চয়': 'savings',
+  };
+  let result = text;
+  for (const [bn, en] of Object.entries(map)) {
+    result = result.replace(new RegExp(bn, 'g'), en);
+  }
+  if (/[\u0980-\u09FF]/.test(result)) {
+    result += '\n\n[Note: Full translation requires internet connection. Key terms translated above.]';
+  }
+  return result;
+}
+
+function localTranslateEN2BN(text) {
+  const map = {
+    'thank you': 'ধন্যবাদ',
+    'hello': 'হ্যালো',
+    'income': 'আয়',
+    'expense': 'ব্যয়',
+    'savings': 'সঞ্চয়',
+    'budget': 'বাজেট',
+    'money': 'অর্থ',
+    'good': 'ভালো',
+    'bad': 'খারাপ',
+    'yes': 'হ্যাঁ',
+    'no': 'না',
+  };
+  let result = text.toLowerCase();
+  for (const [en, bn] of Object.entries(map)) {
+    result = result.replace(new RegExp('\\b'+en+'\\b', 'gi'), bn);
+  }
+  if (!/[\u0980-\u09FF]/.test(result) || result === text.toLowerCase()) {
+    result += '\n\n[দ্রষ্টব্য: সম্পূর্ণ অনুবাদের জন্য ইন্টারনেট সংযোগ প্রয়োজন। উপরে মূল শব্দগুলি অনুবাদ করা হয়েছে।]';
+  }
+  return result;
+}
+
+function copyImproved() {
+  if (!lastImproved) return;
+  navigator.clipboard.writeText(lastImproved).then(() => toast('📋 কপি হয়েছে', 'success')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = lastImproved; document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta); toast('📋 কপি হয়েছে', 'success');
+  });
+}
+
+function useImprovedInNote() {
+  if (!lastImproved) return;
+  // Switch to notes screen or fill current note
+  const noteBody = document.getElementById('noteBodyI');
+  if (noteBody && document.getElementById('sc-note-ed').classList.contains('active')) {
+    noteBody.value = lastImproved;
+    toast('✅ নোটে প্রয়োগ হয়েছে', 'success');
+  } else {
+    // Open new note with the improved text
+    openNewNote();
+    setTimeout(() => {
+      document.getElementById('noteBodyI').value = lastImproved;
+      toast('✅ নতুন নোটে টেক্সট যোগ হয়েছে', 'success');
+    }, 100);
+  }
+}
+
+// ===== NOTE AI QUICK IMPROVE =====
+let noteAiLastResult = '';
+
+function toggleNoteAI() {
+  const panel = document.getElementById('noteAiPanel');
+  panel.classList.toggle('show');
+}
+
+async function quickImpNote(style) {
+  const body = document.getElementById('noteBodyI').value.trim();
+  const title = document.getElementById('noteTitleI').value.trim();
+  const text = body || title;
+  if (!text) { toast('নোটে কিছু লিখুন প্রথমে', 'error'); return; }
+
+  // Show loading
+  const res = document.getElementById('noteAiResult');
+  res.style.display = 'block';
+  res.textContent = '⏳ উন্নত করা হচ্ছে...';
+
+  const improved = localImprove(text, style, 'auto');
+  noteAiLastResult = improved;
+
+  res.textContent = improved;
+
+  const applyBtn = document.getElementById('noteAiApplyBtn');
+  const copyBtn = document.getElementById('noteAiCopyBtn');
+  applyBtn.style.display = 'block';
+  copyBtn.style.display = 'block';
+}
+
+function applyNoteAI() {
+  if (!noteAiLastResult) return;
+  const body = document.getElementById('noteBodyI');
+  if (body.value.trim()) {
+    body.value = noteAiLastResult;
+  } else {
+    document.getElementById('noteTitleI').value = noteAiLastResult.split('\n')[0].slice(0, 60);
+    body.value = noteAiLastResult;
+  }
+  toast('✅ নোটে প্রয়োগ হয়েছে', 'success');
+  document.getElementById('noteAiPanel').classList.remove('show');
+  document.getElementById('noteAiResult').style.display = 'none';
+  document.getElementById('noteAiApplyBtn').style.display = 'none';
+  document.getElementById('noteAiCopyBtn').style.display = 'none';
+}
+
+function copyNoteAI() {
+  if (!noteAiLastResult) return;
+  navigator.clipboard.writeText(noteAiLastResult)
+    .then(() => toast('📋 কপি হয়েছে', 'success'))
+    .catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = noteAiLastResult; document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta); toast('📋 কপি হয়েছে', 'success');
+    });
+}
+
+
+// ===== FIREBASE INTEGRATION =====
+let fbApp = null;
+let fbDb = null;
+let fbConfig = null;
+
+function loadFbConfig() {
+  const saved = localStorage.getItem('mf_firebase_config');
+  if (saved) {
+    try { fbConfig = JSON.parse(saved); } catch(e) { fbConfig = null; }
+  }
+  return fbConfig;
+}
+
+function initFirebase(config) {
+  try {
+    let app;
+    try {
+      // Use existing named app if available
+      app = firebase.app('masud-finance');
+    } catch(e) {
+      app = firebase.initializeApp(config, 'masud-finance');
+    }
+    fbApp = app;
+    fbDb = firebase.database(app);
+    fbConfig = config;
+    localStorage.setItem('mf_firebase_config', JSON.stringify(config));
+    updateFbStatusUI(true, '✅ সংযুক্ত');
+    return true;
+  } catch(e) {
+    console.error('Firebase init error:', e);
+    updateFbStatusUI(false, '❌ সংযোগ ব্যর্থ');
+    return false;
+  }
+}
+
+function updateFbStatusUI(connected, msg) {
+  const els = [
+    document.getElementById('fbConnStatus'),
+    document.getElementById('d-fbConnStatus')
+  ];
+  const txts = [
+    document.getElementById('fbStatusTxt'),
+    document.getElementById('d-fbStatusTxt')
+  ];
+  els.forEach(el => {
+    if (!el) return;
+    el.textContent = connected ? '✅ সংযুক্ত' : '🔴 বন্ধ';
+    el.style.color = connected ? 'var(--inc)' : 'var(--tl)';
+  });
+  txts.forEach(el => {
+    if (!el) return;
+    el.textContent = connected ? 'Firebase sync চালু' : 'ক্লাউড ব্যাকআপ সেটআপ করুন';
+  });
+  const disconnBtn = document.getElementById('fbDisconnectBtn');
+  const syncBtns = document.getElementById('fbSyncBtns');
+  if (disconnBtn) disconnBtn.style.display = connected ? 'block' : 'none';
+  if (syncBtns) syncBtns.style.display = connected ? 'flex' : 'none';
+}
+
+function openFbConfig() {
+  openM('firebaseModal');
+  // Use baked config or saved config
+  const cfg = window._FB_CONFIG || loadFbConfig();
+  if (cfg) {
+    document.getElementById('fbApiKey').value = cfg.apiKey || '';
+    document.getElementById('fbDbUrl').value = cfg.databaseURL || '';
+    document.getElementById('fbProjectId').value = cfg.projectId || '';
+    document.getElementById('fbAppId').value = cfg.appId || '';
+    try {
+      document.getElementById('fbConfigRaw').value = JSON.stringify(cfg, null, 2);
+    } catch(e) {}
+  }
+  if (window.fbDb) updateFbStatusUI(true, '✅ সংযুক্ত');
+  const autoSync = localStorage.getItem('mf_fb_autosync');
+  const syncOnLoad = localStorage.getItem('mf_fb_synconload');
+  document.getElementById('fbAutoSync').checked = autoSync !== 'false';
+  document.getElementById('fbSyncOnLoad').checked = syncOnLoad !== 'false';
+}
+
+async function saveFbConfig() {
+  let config = null;
+
+  // Try JSON paste first
+  const raw = document.getElementById('fbConfigRaw').value.trim();
+  if (raw) {
+    try {
+      // Extract JSON from firebaseConfig = {...} format or raw object
+      let jsonStr = raw;
+      const match = raw.match(/\{[\s\S]*\}/);
+      if (match) jsonStr = match[0];
+      config = JSON.parse(jsonStr);
+    } catch(e) {
+      showFbBanner('❌ JSON ফরম্যাট ভুল। আবার চেষ্টা করুন।', 'error');
+      return;
+    }
+  } else {
+    // Manual fields
+    const apiKey = document.getElementById('fbApiKey').value.trim();
+    const dbUrl = document.getElementById('fbDbUrl').value.trim();
+    const projectId = document.getElementById('fbProjectId').value.trim();
+    const appId = document.getElementById('fbAppId').value.trim();
+    if (!apiKey || !dbUrl) {
+      showFbBanner('❌ API Key ও Database URL দেওয়া আবশ্যক।', 'error');
+      return;
+    }
+    config = {
+      apiKey,
+      databaseURL: dbUrl,
+      projectId,
+      appId,
+      authDomain: projectId + '.firebaseapp.com',
+      storageBucket: projectId + '.appspot.com',
+    };
+  }
+
+  // Save sync preferences
+  localStorage.setItem('mf_fb_autosync', document.getElementById('fbAutoSync').checked);
+  localStorage.setItem('mf_fb_synconload', document.getElementById('fbSyncOnLoad').checked);
+
+  showFbBanner('⏳ সংযোগ করা হচ্ছে...', 'info');
+
+  const ok = initFirebase(config);
+  if (ok) {
+    showFbBanner('✅ Firebase সফলভাবে সংযুক্ত হয়েছে!', 'success');
+    // Auto push current data
+    setTimeout(async () => {
+      await pushToFirebase();
+      showFbBanner('✅ সংযুক্ত এবং ডেটা আপলোড হয়েছে!', 'success');
+    }, 500);
+  } else {
+    showFbBanner('❌ সংযোগ ব্যর্থ। Config চেক করুন।', 'error');
+  }
+}
+
+async function testFbConnection() {
+  const raw = document.getElementById('fbConfigRaw').value.trim();
+  if (!raw && !document.getElementById('fbApiKey').value.trim()) {
+    showFbBanner('⚠️ আগে Config দিন।', 'warning');
+    return;
+  }
+  showFbBanner('⏳ পরীক্ষা করা হচ্ছে...', 'info');
+  await saveFbConfig();
+}
+
+function disconnectFb() {
+  fbApp = null; fbDb = null; fbConfig = null;
+  localStorage.removeItem('mf_firebase_config');
+  updateFbStatusUI(false, 'বন্ধ');
+  showFbBanner('Firebase সংযোগ বিচ্ছিন্ন হয়েছে।', 'info');
+}
+
+function showFbBanner(msg, type) {
+  const banner = document.getElementById('fbStatusBanner');
+  if (!banner) return;
+  const colors = {
+    success: { bg: '#e8f5e9', color: '#2e7d32', border: '#a5d6a7' },
+    error: { bg: '#ffebee', color: '#c62828', border: '#ef9a9a' },
+    info: { bg: '#e3f2fd', color: '#1565c0', border: '#90caf9' },
+    warning: { bg: '#fff8e1', color: '#e65100', border: '#ffcc02' },
+  };
+  const c = colors[type] || colors.info;
+  banner.style.display = 'block';
+  banner.style.background = c.bg;
+  banner.style.color = c.color;
+  banner.style.border = '1px solid ' + c.border;
+  banner.textContent = msg;
+}
+
+// Firebase push (সব ডেটা আপলোড)
+async function pushToFirebase() {
+  if (!fbDb || !currentUser) {
+    toast('Firebase সংযুক্ত নেই', 'error'); return;
+  }
+  try {
+    const uid = currentUser.id;
+    const data = {
+      transactions: state.transactions,
+      categories: state.categories,
+      accounts: state.accounts,
+      notes: state.notes,
+      settings: state.settings,
+      lastUpdated: new Date().toISOString(),
+      deviceInfo: navigator.userAgent.slice(0, 50),
+    };
+    await fbDb.ref('users/' + uid).set(data);
+    toast('☁️ Firebase এ আপলোড হয়েছে ✓', 'success');
+    updateFbLastSync();
+  } catch(e) {
+    console.error('Firebase push error:', e);
+    toast('❌ আপলোড ব্যর্থ: ' + e.message, 'error');
+  }
+}
+
+// Firebase pull (ডেটা লোড)
+async function pullFromFirebase() {
+  if (!fbDb || !currentUser) {
+    toast('Firebase সংযুক্ত নেই', 'error'); return;
+  }
+  try {
+    const uid = currentUser.id;
+    const snapshot = await fbDb.ref('users/' + uid).once('value');
+    const data = snapshot.val();
+    if (!data) {
+      toast('Firebase এ কোনো ডেটা নেই', 'info'); return;
+    }
+    if (data.transactions) state.transactions = data.transactions;
+    if (data.categories) state.categories = data.categories;
+    if (data.accounts) state.accounts = data.accounts;
+    if (data.notes) state.notes = data.notes;
+    if (data.settings) state.settings = { ...state.settings, ...data.settings };
+    saveData(); // localStorage-ও আপডেট করো
+    renderTx();
+    toast('⬇️ Firebase থেকে লোড হয়েছে ✓', 'success');
+    updateFbLastSync(data.lastUpdated);
+  } catch(e) {
+    console.error('Firebase pull error:', e);
+    toast('❌ লোড ব্যর্থ: ' + e.message, 'error');
+  }
+}
+
+function updateFbLastSync(ts) {
+  const timeStr = ts ? new Date(ts).toLocaleString('bn-BD') : new Date().toLocaleString('bn-BD');
+  localStorage.setItem('mf_fb_lastsync', timeStr);
+}
+
+// Override saveData to also push to Firebase if auto-sync enabled
+const _origSaveData = saveData;
+function saveData() {
+  if (!currentUser) return;
+  const uid = currentUser.id;
+  localStorage.setItem('mf_'+uid+'_cats', JSON.stringify(state.categories));
+  localStorage.setItem('mf_'+uid+'_txs', JSON.stringify(state.transactions));
+  localStorage.setItem('mf_'+uid+'_accs', JSON.stringify(state.accounts));
+  localStorage.setItem('mf_'+uid+'_notes', JSON.stringify(state.notes));
+  localStorage.setItem('mf_'+uid+'_settings', JSON.stringify(state.settings));
+  // Firebase auto-sync
+  const autoSync = localStorage.getItem('mf_fb_autosync') !== 'false';
+  if (fbDb && autoSync) {
+    pushToFirebase().catch(e => console.log('Auto-sync error:', e));
+  }
+}
+
+// Override loadState to also pull from Firebase if sync-on-load enabled
+const _origLoadState = loadState;
+function loadState() {
+  if (!currentUser) return;
+  const uid = currentUser.id;
+  state.categories = JSON.parse(localStorage.getItem('mf_'+uid+'_cats') || 'null') || defaultCats();
+  state.transactions = JSON.parse(localStorage.getItem('mf_'+uid+'_txs') || '[]');
+  state.accounts = JSON.parse(localStorage.getItem('mf_'+uid+'_accs') || 'null') || defaultAccounts();
+  state.notes = JSON.parse(localStorage.getItem('mf_'+uid+'_notes') || '[]');
+  const s = JSON.parse(localStorage.getItem('mf_'+uid+'_settings') || '{}');
+  state.settings = { pin:'', darkMode:false, ...s };
+  // Pull from Firebase if configured and sync-on-load enabled
+  const syncOnLoad = localStorage.getItem('mf_fb_synconload') !== 'false';
+  if (fbDb && syncOnLoad) {
+    pullFromFirebase().catch(e => console.log('Load-sync error:', e));
+  }
+}
+
+// Init Firebase on page load if config exists
+function initFbOnStartup() {
+  // Use baked config (window._FB_CONFIG) first, then localStorage
+  const cfg = window._FB_CONFIG || loadFbConfig();
+  if (cfg) {
+    try {
+      const ok = initFirebase(cfg);
+      if (ok) {
+        console.log('✅ Firebase connected on startup');
+        updateFbStatusUI(true, '✅ সংযুক্ত');
+      }
+    } catch(e) {
+      console.log('Firebase startup init failed:', e);
+    }
+  }
+}
+
+// ===== GITHUB PAGES DOWNLOAD =====
+// Override dlHTML to add Firebase config injection
+const _origDlHTML = typeof dlHTML !== 'undefined' ? dlHTML : null;
+function dlHTML() {
+  let html = document.documentElement.outerHTML;
+  if (fbConfig) {
+    const s1 = '\x3cscript\x3e';
+    const s2 = '\x3c/script\x3e';
+    const h = '\x3c/head\x3e';
+    const configScript = s1 + 'window._FB_CONFIG=' + JSON.stringify(fbConfig) + ';' + s2;
+    html = html.replace(h, configScript + h);
+  }
+  const b = new Blob([html], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(b);
+  a.download = 'masud_finance.html';
+  a.click();
+  toast('\u2b07\ufe0f HTML \u09a1\u09be\u0989\u09a8\u09b2\u09cb\u09a1 \u09b9\u099a\u09cd\u099b\u09c7', 'success');
+}
+
+
+// Auto-init Firebase if config was baked into HTML (after GitHub Pages download)
+// ===== BAKED FIREBASE CONFIG =====
+(function() {
+  try {
+    window._FB_CONFIG = {
+    apiKey: "AIzaSyDwb66h1oXt2K0PNQqbeAdkOQ7JGJnKfT0",
+    authDomain: "masud-finance.firebaseapp.com",
+    databaseURL: "https://masud-finance-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "masud-finance",
+    storageBucket: "masud-finance.firebasestorage.app",
+    messagingSenderId: "160001518069",
+    appId: "1:160001518069:web:0d5f73bec90cdda8d058bc"
+};
+    const baked = window._FB_CONFIG;
+    if (baked) {
+      // Check if already initialized
+      let app;
+      try {
+        app = firebase.app('masud-finance');
+      } catch(e) {
+        app = firebase.initializeApp(baked, 'masud-finance');
+      }
+      window.fbApp = app;
+      window.fbDb = firebase.database(app);
+      window.fbConfig = baked;
+      localStorage.setItem('mf_firebase_config', JSON.stringify(baked));
+      console.log('✅ Firebase auto-initialized from baked config');
+    }
+  } catch(e) { console.log('Baked FB init error:', e); }
+})();
+</script>
+</body>
+</html>
