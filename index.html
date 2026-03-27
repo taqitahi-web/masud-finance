@@ -1242,9 +1242,11 @@ function checkUserPin() {
 function skipPin() { backToUsers(); } // PIN bypass disabled
 function backToUsers() { currentUser = null; renderUserScreen(); }
 
-function launchApp(user) {
+async function launchApp(user) {
   currentUser = user;
-  loadState();
+  // First: init Firebase
+  initFbOnStartup();
+  // Show app skeleton immediately
   applyDark();
   document.getElementById('userScreen').style.display = 'none';
   document.getElementById('pinScreen').style.display = 'none';
@@ -1253,10 +1255,21 @@ function launchApp(user) {
   document.getElementById('fabBtn').style.display = 'flex';
   document.getElementById('layoutToggle').style.display = 'flex';
   initVoice();
-  initFbOnStartup();
   updateUserBadge();
+  // Load local data first (instant)
+  loadStateLocal();
   switchScreen('trans');
   updateSettingsUI();
+  // Then try Firebase pull (async)
+  if (window.fbDb) {
+    try {
+      await pullFromFirebase();
+      switchScreen('trans'); // re-render after pull
+      updateSettingsUI();
+    } catch(e) {
+      console.log('Firebase pull on launch failed:', e);
+    }
+  }
 }
 
 function updateUserBadge() {
@@ -2953,16 +2966,22 @@ async function pushToFirebase() {
   }
   try {
     const uid = currentUser.id;
+    // Include current PIN in settings
+    const settingsWithPin = {
+      ...state.settings,
+      pin: currentUser.pin || state.settings.pin || '',
+    };
     const data = {
       transactions: state.transactions,
       categories: state.categories,
       accounts: state.accounts,
       notes: state.notes,
-      settings: state.settings,
+      settings: settingsWithPin,
+      userInfo: { name: currentUser.name, avatar: currentUser.avatar, id: currentUser.id },
       lastUpdated: new Date().toISOString(),
       deviceInfo: navigator.userAgent.slice(0, 50),
     };
-    await fbDb.ref('users/' + uid).set(data);
+    await window.fbDb.ref('users/' + uid).set(data);
     toast('☁️ Firebase এ আপলোড হয়েছে ✓', 'success');
     updateFbLastSync();
   } catch(e) {
@@ -2972,29 +2991,44 @@ async function pushToFirebase() {
 }
 
 // Firebase pull (ডেটা লোড)
-async function pullFromFirebase() {
-  if (!fbDb || !currentUser) {
-    toast('Firebase সংযুক্ত নেই', 'error'); return;
+async function pullFromFirebase(silent) {
+  if (!window.fbDb || !currentUser) {
+    if (!silent) toast('Firebase সংযুক্ত নেই', 'error');
+    return;
   }
   try {
     const uid = currentUser.id;
-    const snapshot = await fbDb.ref('users/' + uid).once('value');
+    const snapshot = await window.fbDb.ref('users/' + uid).once('value');
     const data = snapshot.val();
     if (!data) {
-      toast('Firebase এ কোনো ডেটা নেই', 'info'); return;
+      if (!silent) toast('Firebase এ কোনো ডেটা নেই', 'info');
+      return;
     }
     if (data.transactions) state.transactions = data.transactions;
     if (data.categories) state.categories = data.categories;
     if (data.accounts) state.accounts = data.accounts;
     if (data.notes) state.notes = data.notes;
     if (data.settings) state.settings = { ...state.settings, ...data.settings };
-    saveData(); // localStorage-ও আপডেট করো
-    renderTx();
-    toast('⬇️ Firebase থেকে লোড হয়েছে ✓', 'success');
+    // Restore PIN from Firebase
+    if (data.settings && data.settings.pin) {
+      currentUser.pin = data.settings.pin;
+      // Update USERS list
+      const USERS = loadUsers();
+      const idx = USERS.findIndex(u => u.id === uid);
+      if (idx > -1) { USERS[idx].pin = data.settings.pin; saveUsers(USERS); }
+    }
+    // Save to localStorage
+    const uidKey = uid;
+    localStorage.setItem('mf_'+uidKey+'_cats', JSON.stringify(state.categories));
+    localStorage.setItem('mf_'+uidKey+'_txs', JSON.stringify(state.transactions));
+    localStorage.setItem('mf_'+uidKey+'_accs', JSON.stringify(state.accounts));
+    localStorage.setItem('mf_'+uidKey+'_notes', JSON.stringify(state.notes));
+    localStorage.setItem('mf_'+uidKey+'_settings', JSON.stringify(state.settings));
+    if (!silent) toast('☁️ Firebase থেকে সব ডেটা লোড হয়েছে ✓', 'success');
     updateFbLastSync(data.lastUpdated);
   } catch(e) {
     console.error('Firebase pull error:', e);
-    toast('❌ লোড ব্যর্থ: ' + e.message, 'error');
+    if (!silent) toast('❌ লোড ব্যর্থ: ' + e.message, 'error');
   }
 }
 
@@ -3015,7 +3049,7 @@ function saveData() {
   localStorage.setItem('mf_'+uid+'_settings', JSON.stringify(state.settings));
   // Firebase auto-sync
   const autoSync = localStorage.getItem('mf_fb_autosync') !== 'false';
-  if (fbDb && autoSync) {
+  if (window.fbDb && autoSync) {
     pushToFirebase().catch(e => console.log('Auto-sync error:', e));
   }
 }
@@ -3037,6 +3071,18 @@ function loadState() {
     pullFromFirebase().catch(e => console.log('Load-sync error:', e));
   }
 }
+// Pure localStorage load (no Firebase)
+function loadStateLocal() {
+  if (!currentUser) return;
+  const uid = currentUser.id;
+  state.categories = JSON.parse(localStorage.getItem('mf_'+uid+'_cats') || 'null') || defaultCats();
+  state.transactions = JSON.parse(localStorage.getItem('mf_'+uid+'_txs') || '[]');
+  state.accounts = JSON.parse(localStorage.getItem('mf_'+uid+'_accs') || 'null') || defaultAccounts();
+  state.notes = JSON.parse(localStorage.getItem('mf_'+uid+'_notes') || '[]');
+  const s = JSON.parse(localStorage.getItem('mf_'+uid+'_settings') || '{}');
+  state.settings = { pin:'', darkMode:false, ...s };
+}
+
 
 // Init Firebase on page load if config exists
 function initFbOnStartup() {
