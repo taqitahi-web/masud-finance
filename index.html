@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="manifest" href="data:application/json,{'name':'মাসউদ ফিন্যান্স','short_name':'FinanceApp','start_url':'./','display':'standalone','background_color':'#e8533a','theme_color':'#e8533a','icons':[{'src':'https://raw.githubusercontent.com/twitter/twemoji/master/assets/72x72/1f4b0.png','sizes':'72x72','type':'image/png'}]}">
+<meta name="theme-color" content="#e8533a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="মাসউদ ফিন্যান্স">
 <title>মাসউদ ফিন্যান্সিয়াল অ্যাপস</title>
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -351,6 +357,212 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
 .note-ai-btn{background:linear-gradient(135deg,var(--pr),#9b59b6);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;}
 .note-ai-panel{display:none;background:var(--bg);border-top:1px solid var(--bd);padding:12px;}
 .note-ai-panel.show{display:block;}
+
+/* ===== LOADING SPINNER ===== */
+.fb-loading-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--pr), #f39c12, var(--pr));
+  background-size: 200% 100%;
+  animation: fbLoad 1.2s linear infinite;
+  z-index: 9998; display: none;
+}
+.fb-loading-bar.show { display: block; }
+@keyframes fbLoad { 0%{background-position:100% 0} 100%{background-position:-100% 0} }
+
+.spinner-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.35);
+  z-index: 9997; display: none; align-items: center; justify-content: center;
+  flex-direction: column; gap: 14px;
+}
+.spinner-overlay.show { display: flex; }
+.spinner {
+  width: 44px; height: 44px; border: 4px solid rgba(255,255,255,.3);
+  border-top-color: white; border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner-text { color: white; font-size: 14px; font-weight: 500; }
+
+/* ===== UNDO SNACK ===== */
+.undo-snack {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: #333; color: white; padding: 12px 16px; border-radius: 24px;
+  font-size: 14px; z-index: 9999; opacity: 0;
+  transition: all .35s cubic-bezier(.34,1.56,.64,1);
+  display: flex; align-items: center; gap: 12px; white-space: nowrap;
+  box-shadow: 0 6px 24px rgba(0,0,0,.25); pointer-events: none; max-width: 90vw;
+}
+.undo-snack.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: all; }
+.undo-snack button {
+  background: var(--pr); color: white; border: none; border-radius: 12px;
+  padding: 5px 12px; font-family: inherit; font-size: 13px;
+  font-weight: 600; cursor: pointer;
+}
+
+/* ===== SEARCH BAR ===== */
+.search-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; background: var(--card);
+  border-bottom: 1px solid var(--bd);
+}
+.search-inp {
+  flex: 1; border: 1.5px solid var(--bd); border-radius: 22px;
+  padding: 8px 14px; font-family: inherit; font-size: 14px;
+  outline: none; background: var(--bg); color: var(--text);
+  transition: border-color .2s;
+}
+.search-inp:focus { border-color: var(--pr); }
+.search-clear {
+  background: none; border: none; cursor: pointer;
+  font-size: 18px; color: var(--tl); padding: 4px; display: none;
+}
+.search-clear.show { display: block; }
+.filter-chip {
+  padding: 5px 12px; border-radius: 16px; border: 1.5px solid var(--bd);
+  background: var(--bg); font-family: inherit; font-size: 12px;
+  font-weight: 500; cursor: pointer; color: var(--tl); white-space: nowrap;
+  transition: all .15s;
+}
+.filter-chip.active { background: var(--pr); color: white; border-color: var(--pr); }
+.filter-row {
+  display: flex; gap: 6px; padding: 6px 14px 8px;
+  overflow-x: auto; background: var(--card);
+  border-bottom: 1px solid var(--bd);
+}
+.filter-row::-webkit-scrollbar { display: none; }
+
+/* ===== BUDGET TRACKER ===== */
+.budget-bar-wrap{background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+.budget-bar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.budget-bar-name{font-size:14px;font-weight:500;color:var(--text);}
+.budget-bar-amt{font-size:12px;color:var(--tl);}
+.budget-bar-bg{height:8px;background:var(--bd);border-radius:4px;overflow:hidden;}
+.budget-bar-fill{height:100%;border-radius:4px;transition:width .4s ease;}
+.budget-bar-fill.ok{background:var(--inc);}
+.budget-bar-fill.warn{background:#f39c12;}
+.budget-bar-fill.over{background:var(--exp);}
+.budget-pct{font-size:11px;font-weight:600;margin-top:4px;text-align:right;}
+.budget-pct.ok{color:var(--inc);}
+.budget-pct.warn{color:#f39c12;}
+.budget-pct.over{color:var(--exp);}
+
+/* ===== RECURRING ===== */
+.rec-badge{display:inline-flex;align-items:center;gap:4px;background:#e8f0fd;color:#1a56a0;
+  border-radius:10px;padding:2px 8px;font-size:11px;font-weight:600;}
+.rec-item{display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-bottom:1px solid var(--bd);background:var(--card);}
+.rec-next{font-size:11px;color:var(--tl);margin-top:2px;}
+
+/* ===== SAVINGS GOAL ===== */
+.goal-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);
+  padding:16px;margin-bottom:12px;position:relative;overflow:hidden;}
+.goal-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;}
+.goal-card.blue::before{background:linear-gradient(90deg,#3498db,#2980b9);}
+.goal-card.green::before{background:linear-gradient(90deg,var(--inc),#27ae60);}
+.goal-card.orange::before{background:linear-gradient(90deg,#f39c12,#e67e22);}
+.goal-card.red::before{background:linear-gradient(90deg,var(--exp),#c0392b);}
+.goal-title{font-size:15px;font-weight:600;margin-bottom:4px;}
+.goal-progress{font-size:13px;color:var(--tl);margin-bottom:8px;}
+.goal-bar-bg{height:10px;background:var(--bd);border-radius:5px;overflow:hidden;margin-bottom:6px;}
+.goal-bar-fill{height:100%;border-radius:5px;background:var(--pr);transition:width .5s ease;}
+.goal-footer{display:flex;justify-content:space-between;font-size:12px;color:var(--tl);}
+
+/* ===== NEW SCREENS NAV ===== */
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;}
+.feature-card{background:var(--card);border-radius:var(--r);padding:16px;
+  box-shadow:var(--sh);cursor:pointer;transition:transform .15s;}
+.feature-card:hover{transform:scale(1.02);}
+.feature-card-ico{font-size:28px;margin-bottom:8px;}
+.feature-card-title{font-size:14px;font-weight:600;color:var(--text);}
+.feature-card-sub{font-size:12px;color:var(--tl);margin-top:2px;}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .bnav,.fab,.hdr-btn,.layout-toggle,.undo-snack,.spinner-overlay,
+  .fb-loading-bar,.search-bar,.filter-row,.ai-irow,.moverlay { display:none!important; }
+  body { max-width:100%; background:white!important; color:black!important; }
+  .screen { display:block!important; min-height:auto; }
+  .screen:not(.active) { display:none!important; }
+  .hdr { background:#e8533a!important; -webkit-print-color-adjust:exact; }
+  .tx-item { break-inside:avoid; border-bottom:1px solid #eee; }
+  @page { margin:1cm; }
+}
+
+/* ===== PWA INSTALL BANNER ===== */
+.pwa-banner{
+  display:none;position:fixed;bottom:72px;left:50%;transform:translateX(-50%);
+  background:var(--card);border:1px solid var(--bd);border-radius:16px;
+  padding:12px 16px;box-shadow:0 8px 30px rgba(0,0,0,.15);
+  z-index:800;width:calc(100% - 32px);max-width:398px;
+  animation:slideUp .3s ease;
+}
+.pwa-banner.show{display:flex;align-items:center;gap:12px;}
+.pwa-banner-ico{font-size:32px;flex-shrink:0;}
+.pwa-banner-info h4{font-size:14px;font-weight:600;margin-bottom:2px;}
+.pwa-banner-info p{font-size:12px;color:var(--tl);}
+.pwa-install-btn{margin-left:auto;background:var(--pr);color:white;border:none;
+  border-radius:10px;padding:8px 14px;font-family:inherit;font-size:13px;
+  font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.pwa-dismiss{position:absolute;top:8px;right:8px;background:none;border:none;
+  font-size:16px;cursor:pointer;color:var(--tl);}
+
+/* ===== BUDGET TRACKER ===== */
+.budget-bar-wrap{padding:12px 16px;border-bottom:1px solid var(--bd);}
+.budget-bar-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;}
+.budget-bar-label span:first-child{font-weight:500;color:var(--text);}
+.budget-bar-label span:last-child{font-weight:600;}
+.budget-bar-bg{height:8px;background:var(--bd);border-radius:4px;overflow:hidden;}
+.budget-bar-fill{height:100%;border-radius:4px;transition:width .4s ease;}
+.budget-bar-fill.ok{background:var(--inc);}
+.budget-bar-fill.warn{background:#f39c12;}
+.budget-bar-fill.over{background:var(--exp);}
+
+/* ===== RECURRING ===== */
+.rec-badge{display:inline-block;background:#e8f4fd;color:#1565c0;font-size:10px;font-weight:600;padding:2px 6px;border-radius:8px;margin-left:4px;vertical-align:middle;}
+.rec-item{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--bd);background:var(--card);}
+.rec-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:#e8f4fd;}
+.rec-info{flex:1;min-width:0;}
+.rec-name{font-size:14px;font-weight:500;}
+.rec-sub{font-size:12px;color:var(--tl);margin-top:2px;}
+.rec-amt{font-size:15px;font-weight:700;}
+
+/* ===== SAVINGS GOAL ===== */
+.goal-card{background:var(--card);border-radius:var(--r);padding:16px;margin:10px 12px;box-shadow:var(--sh);border-left:4px solid var(--pr);}
+.goal-title{font-size:15px;font-weight:600;margin-bottom:4px;}
+.goal-sub{font-size:12px;color:var(--tl);margin-bottom:10px;}
+.goal-progress{height:10px;background:var(--bd);border-radius:5px;overflow:hidden;margin-bottom:8px;}
+.goal-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--pr),#f39c12);transition:width .5s ease;}
+.goal-stats{display:flex;justify-content:space-between;font-size:12px;color:var(--tl);}
+.goal-stats strong{color:var(--text);}
+
+/* ===== PWA INSTALL BANNER ===== */
+.pwa-banner{
+  position:fixed;bottom:68px;left:0;right:0;max-width:430px;margin:0 auto;
+  background:linear-gradient(135deg,var(--pr),#c43d26);color:#fff;
+  padding:12px 16px;display:flex;align-items:center;gap:12px;
+  z-index:400;transform:translateY(100%);transition:transform .35s ease;
+  box-shadow:0 -4px 20px rgba(0,0,0,.2);
+}
+.pwa-banner.show{transform:translateY(0);}
+.pwa-banner-text{flex:1;}
+.pwa-banner-text h4{font-size:14px;font-weight:600;margin-bottom:2px;}
+.pwa-banner-text p{font-size:12px;opacity:.85;}
+.pwa-install-btn{background:#fff;color:var(--pr);border:none;border-radius:20px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.pwa-banner-close{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0 4px;opacity:.8;}
+
+/* ===== PDF / PRINT ===== */
+@media print {
+  .bnav,.fab,.hdr,.search-bar,.filter-row,.pwa-banner,.undo-snack,
+  .fb-loading-bar,.spinner-overlay,[id$="Screen"]{display:none!important;}
+  body{max-width:100%;background:#fff;color:#000;}
+  .screen{display:block!important;min-height:auto;}
+  #sc-trans{display:block!important;}
+  .tx-item{break-inside:avoid;border-bottom:1px solid #ddd;}
+  .print-header{display:block!important;}
+}
+.print-header{display:none;text-align:center;padding:16px 0 8px;border-bottom:2px solid #333;margin-bottom:12px;}
+.print-header h2{font-size:18px;font-weight:700;}
+.print-header p{font-size:13px;color:#666;}
 </style>
 
 <!-- Firebase SDK -->
@@ -428,7 +640,21 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
     <div class="sum-item"><div class="sum-lbl">ব্যয়</div><div class="sum-amt c-exp" id="sumExp">৳ ০</div></div>
     <div class="sum-item"><div class="sum-lbl">মোট</div><div class="sum-amt" id="sumBal">৳ ০</div></div>
   </div>
-  <div class="tx-content" id="txList"></div>
+  
+<div class="search-bar">
+  <input type="text" class="search-inp" id="searchInp" placeholder="🔍 লেনদেন খুঁজুন..." oninput="searchTx(this.value)">
+  <button class="search-clear" id="searchClear" onclick="clearSearch()">✕</button>
+</div>
+<div class="filter-row" id="filterRow">
+  <button class="filter-chip active" data-filter="all" onclick="filterTx('all',this)">সব</button>
+  <button class="filter-chip" data-filter="income" onclick="filterTx('income',this)">💰 আয়</button>
+  <button class="filter-chip" data-filter="expense" onclick="filterTx('expense',this)">💸 ব্যয়</button>
+  <button class="filter-chip" data-filter="today" onclick="filterTx('today',this)">আজ</button>
+  <button class="filter-chip" data-filter="week" onclick="filterTx('week',this)">এই সপ্তাহ</button>
+  <button class="filter-chip" data-filter="month" onclick="filterTx('month',this)">এই মাস</button>
+</div>
+<div id="budgetSummary"></div>
+<div class="tx-content" id="txList"></div>
 </div>
 
 <!-- STATS SCREEN -->
@@ -594,6 +820,22 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
   <div class="settings-content">
     <div class="s-sec-title">ক্যাটাগরি</div>
     <div class="s-sec">
+      <div class="s-row" onclick="openM('budgetModal');renderBudgetList()">
+        <div class="s-row-l"><div class="s-ico" style="background:#e8f8f0">💰</div><div class="s-row-info"><h4>বাজেট লিমিট</h4><p>ক্যাটাগরি অনুযায়ী সীমা নির্ধারণ করুন</p></div></div>
+        <span style="color:var(--tl)">›</span>
+      </div>
+      <div class="s-row" onclick="openM('recurringModal');renderRecList()">
+        <div class="s-row-l"><div class="s-ico" style="background:#e8f4fd">🔄</div><div class="s-row-info"><h4>নিয়মিত লেনদেন</h4><p>মাসিক ভাড়া, বেতন, বিল auto-entry</p></div></div>
+        <span style="color:var(--tl)">›</span>
+      </div>
+      <div class="s-row" onclick="openM('goalModal');renderGoalList()">
+        <div class="s-row-l"><div class="s-ico" style="background:#f5eef8">🎯</div><div class="s-row-info"><h4>সঞ্চয় লক্ষ্যমাত্রা</h4><p>লক্ষ্য নির্ধারণ করুন ও অগ্রগতি দেখুন</p></div></div>
+        <span style="color:var(--tl)">›</span>
+      </div>
+      <div class="s-row" onclick="printReport()">
+        <div class="s-row-l"><div class="s-ico" style="background:#f0f0f0">🖨️</div><div class="s-row-info"><h4>রিপোর্ট প্রিন্ট করুন</h4><p>মাসিক লেনদেনের প্রিন্ট</p></div></div>
+        <span style="color:var(--tl)">›</span>
+      </div>
       <div class="s-row" onclick="switchScreen('cats')">
         <div class="s-row-l"><div class="s-ico" style="background:#fff5f3">🗂️</div><div class="s-row-info"><h4>ব্যয়ের ক্যাটাগরি</h4><p>যোগ, সম্পাদনা ও মুছুন</p></div></div>
         <span style="color:var(--tl)">›</span>
@@ -624,7 +866,19 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
     </div>
     <div class="s-sec-title">অনলাইন</div>
     <div class="s-sec">
-      <div class="s-row" onclick="openFbConfig()"><div class="s-row-l"><div class="s-ico" style="background:#fff3e0">🔥</div><div class="s-row-info"><h4>Firebase সংযোগ</h4><p id="fbStatusTxt">ক্লাউড ব্যাকআপ সেটআপ করুন</p></div></div><span class="s-val" id="fbConnStatus">বন্ধ</span></div>
+      <div class="s-sec-title" style="margin-top:0">স্মার্ট ফিচার</div>
+      <div class="s-sec" style="margin-bottom:8px;">
+        <div class="s-row" onclick="switchScreen('budget')"><div class="s-row-l"><div class="s-ico" style="background:#e8f8f0">📊</div><div class="s-row-info"><h4>বাজেট ট্র্যাকার</h4><p>ক্যাটাগরিভিত্তিক সীমা নির্ধারণ</p></div></div><span style="color:var(--tl)">›</span></div>
+        <div class="s-row" onclick="switchScreen('recurring')"><div class="s-row-l"><div class="s-ico" style="background:#e8f0fd">🔄</div><div class="s-row-info"><h4>নিয়মিত লেনদেন</h4><p>মাসিক ভাড়া, বেতন auto-entry</p></div></div><span style="color:var(--tl)">›</span></div>
+        <div class="s-row" onclick="switchScreen('goals')"><div class="s-row-l"><div class="s-ico" style="background:#fff3e0">🎯</div><div class="s-row-info"><h4>সঞ্চয় লক্ষ্যমাত্রা</h4><p>লক্ষ্য নির্ধারণ ও অগ্রগতি</p></div></div><span style="color:var(--tl)">›</span></div>
+        <div class="s-row" onclick="printReport()"><div class="s-row-l"><div class="s-ico" style="background:#f3f0ff">🖨️</div><div class="s-row-info"><h4>রিপোর্ট প্রিন্ট করুন</h4><p>বর্তমান মাসের লেনদেন</p></div></div><span style="color:var(--tl)">›</span></div>
+      </div>
+      <div class="s-sec-title">অনলাইন</div>
+      <div class="s-sec">
+      <div class="s-row" onclick="openFbConfig()"><div class="s-row-l"><div class="s-ico" style="background:#fff3e0">🔥</div><div class="s-row-info"><h4>Firebase সংযোগ</h4><p id="fbStatusTxt">ক্লাউড ব্যাকআপ সেটআপ করুন</p></div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
+          <span class="s-val" id="fbConnStatus">বন্ধ</span>
+          <span id="queueBadge" style="display:none;font-size:10px;background:#f39c12;color:#fff;padding:1px 6px;border-radius:8px;font-weight:600;"></span>
+        </div></div>
       <div class="s-row" onclick="openGithub()"><div class="s-row-l"><div class="s-ico" style="background:#f0f0f0">🌐</div><div class="s-row-info"><h4>GitHub Pages পাবলিশ</h4><p>অনলাইনে শেয়ার করুন</p></div></div><span style="color:var(--tl)">›</span></div>
     </div>
     <div class="s-sec-title">অ্যাকাউন্ট ম্যানেজমেন্ট</div>
@@ -746,6 +1000,18 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
           <div class="dsk-card">
             <div class="dsk-card-hdr"><h3>🗂️ ক্যাটাগরি</h3></div>
             <div>
+              <div onclick="openM('budgetModal');renderBudgetList()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bd);">
+                <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#e8f8f0;border-radius:8px;display:flex;align-items:center;justify-content:center;">💰</div><div><div style="font-size:14px;font-weight:500;">বাজেট লিমিট</div><div style="font-size:12px;color:var(--tl);">ক্যাটাগরি ভিত্তিক সীমা</div></div></div><span style="color:var(--tl);">›</span>
+              </div>
+              <div onclick="openM('recurringModal');renderRecList()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bd);">
+                <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#e8f4fd;border-radius:8px;display:flex;align-items:center;justify-content:center;">🔄</div><div><div style="font-size:14px;font-weight:500;">নিয়মিত লেনদেন</div><div style="font-size:12px;color:var(--tl);">Auto recurring entry</div></div></div><span style="color:var(--tl);">›</span>
+              </div>
+              <div onclick="openM('goalModal');renderGoalList()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bd);">
+                <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#f5eef8;border-radius:8px;display:flex;align-items:center;justify-content:center;">🎯</div><div><div style="font-size:14px;font-weight:500;">সঞ্চয় লক্ষ্যমাত্রা</div><div style="font-size:12px;color:var(--tl);">Goal tracking</div></div></div><span style="color:var(--tl);">›</span>
+              </div>
+              <div onclick="printReport()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bd);">
+                <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#f0f0f0;border-radius:8px;display:flex;align-items:center;justify-content:center;">🖨️</div><div><div style="font-size:14px;font-weight:500;">রিপোর্ট প্রিন্ট</div><div style="font-size:12px;color:var(--tl);">মাসিক লেনদেন প্রিন্ট</div></div></div><span style="color:var(--tl);">›</span>
+              </div>
               <div class="s-row" onclick="dSwitch('cats_exp')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bd);">
                 <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#fff5f3;border-radius:8px;display:flex;align-items:center;justify-content:center;">🗂️</div><div><div style="font-size:14px;font-weight:500;">ব্যয়ের ক্যাটাগরি</div><div style="font-size:12px;color:var(--tl);">যোগ, সম্পাদনা ও মুছুন</div></div></div>
                 <span style="color:var(--tl);">›</span>
@@ -791,6 +1057,15 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
                 <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#1a1a2e;border-radius:8px;display:flex;align-items:center;justify-content:center;" id="d-darkIco">🌙</div><div><div style="font-size:14px;font-weight:500;">ডার্ক মোড</div><div style="font-size:12px;color:var(--tl);">রাতের থিম</div></div></div>
                 <div class="toggle" id="d-darkToggle"></div>
               </div>
+                            <div onclick="switchScreen('budget')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bd);">
+                <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#e8f8f0;border-radius:8px;display:flex;align-items:center;justify-content:center;">📊</div><div><div style="font-size:14px;font-weight:500;">বাজেট ট্র্যাকার</div></div></div><span style="color:var(--tl);">›</span>
+              </div>
+              <div onclick="switchScreen('recurring')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bd);">
+                <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#e8f0fd;border-radius:8px;display:flex;align-items:center;justify-content:center;">🔄</div><div><div style="font-size:14px;font-weight:500;">নিয়মিত লেনদেন</div></div></div><span style="color:var(--tl);">›</span>
+              </div>
+              <div onclick="switchScreen('goals')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bd);">
+                <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#fff3e0;border-radius:8px;display:flex;align-items:center;justify-content:center;">🎯</div><div><div style="font-size:14px;font-weight:500;">সঞ্চয় লক্ষ্যমাত্রা</div></div></div><span style="color:var(--tl);">›</span>
+              </div>
               <div onclick="openFbConfig()" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--bd);">
                 <div style="display:flex;align-items:center;gap:10px;"><div style="width:34px;height:34px;background:#fff3e0;border-radius:8px;display:flex;align-items:center;justify-content:center;">🔥</div><div><div style="font-size:14px;font-weight:500;">Firebase সংযোগ</div><div style="font-size:12px;color:var(--tl);" id="d-fbStatusTxt">ক্লাউড ব্যাকআপ সেটআপ করুন</div></div></div>
                 <span class="s-val" id="d-fbConnStatus" style="font-size:13px;color:var(--pr);">বন্ধ</span>
@@ -822,6 +1097,137 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
     </div>
 
   </div>
+</div>
+
+
+<!-- ===== BUDGET SCREEN ===== -->
+<div id="sc-budget" class="screen">
+  <div class="hdr">
+    <button class="hdr-btn" onclick="switchScreen('settings')">←</button>
+    <h1>📊 বাজেট ট্র্যাকার</h1>
+    <button class="hdr-btn" onclick="openAddBudget()">+</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding-bottom:80px;">
+    <div style="padding:14px 16px 0;">
+      <div id="budgetSummaryBanner" style="background:var(--bg);border-radius:10px;padding:12px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-size:12px;color:var(--tl)">এই মাসের বাজেট</div><div id="budgetTotalAmt" style="font-size:20px;font-weight:700;color:var(--text)">৳ ০</div></div>
+        <div style="text-align:right"><div style="font-size:12px;color:var(--tl)">ব্যবহৃত</div><div id="budgetUsedAmt" style="font-size:20px;font-weight:700;color:var(--exp)">৳ ০</div></div>
+      </div>
+    </div>
+    <div id="budgetList" style="padding:0 16px 16px;"></div>
+  </div>
+</div>
+
+<!-- ===== RECURRING SCREEN ===== -->
+<div id="sc-recurring" class="screen">
+  <div class="hdr">
+    <button class="hdr-btn" onclick="switchScreen('settings')">←</button>
+    <h1>🔄 নিয়মিত লেনদেন</h1>
+    <button class="hdr-btn" onclick="openAddRecurring()">+</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding-bottom:80px;">
+    <div style="padding:12px 16px;background:var(--bg);margin-bottom:2px;">
+      <div style="font-size:13px;color:var(--tl);line-height:1.6;">
+        🔄 নিয়মিত লেনদেন স্বয়ংক্রিয়ভাবে যোগ হবে — যেমন বাড়ি ভাড়া, বেতন, কিস্তি।
+      </div>
+    </div>
+    <div id="recurringList"></div>
+    <div style="padding:16px;">
+      <button onclick="processRecurring()" style="width:100%;padding:12px;border-radius:10px;border:none;background:var(--pr);color:white;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;">
+        ⚡ এখনই প্রসেস করুন
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SAVINGS GOALS SCREEN ===== -->
+<div id="sc-goals" class="screen">
+  <div class="hdr">
+    <button class="hdr-btn" onclick="switchScreen('settings')">←</button>
+    <h1>🎯 সঞ্চয় লক্ষ্যমাত্রা</h1>
+    <button class="hdr-btn" onclick="openAddGoal()">+</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding-bottom:80px;">
+    <div id="goalsList" style="padding:16px;"></div>
+  </div>
+</div>
+
+<!-- ADD BUDGET MODAL -->
+<div class="moverlay" id="addBudgetModal">
+  <div class="modal">
+    <div class="mhdr"><h3>📊 বাজেট যোগ করুন</h3><button class="mclose" onclick="closeM('addBudgetModal')">✕</button></div>
+    <div class="fbody">
+      <div class="frow"><label class="flbl">ক্যাটাগরি</label>
+        <select class="finp" id="budgetCat"></select>
+      </div>
+      <div class="frow"><label class="flbl">মাসিক সীমা (৳)</label>
+        <input type="tel" inputmode="decimal" class="finp" id="budgetLimit" placeholder="৫,০০০"></div>
+      <button class="fsave" onclick="saveBudget()">সংরক্ষণ করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD RECURRING MODAL -->
+<div class="moverlay" id="addRecurringModal">
+  <div class="modal">
+    <div class="mhdr"><h3>🔄 নিয়মিত লেনদেন যোগ</h3><button class="mclose" onclick="closeM('addRecurringModal')">✕</button></div>
+    <div class="fbody">
+      <div class="frow"><label class="flbl">নাম</label>
+        <input type="text" class="finp" id="recName" placeholder="যেমন: বাড়ি ভাড়া"></div>
+      <div class="frow"><label class="flbl">ধরন</label>
+        <select class="finp" id="recType" onchange="renderRecList()"><option value="expense">ব্যয়</option><option value="income">আয়</option></select></div>
+      <div class="frow"><label class="flbl">পরিমাণ (৳)</label>
+        <input type="tel" inputmode="decimal" class="finp" id="recAmt" placeholder="০.০০"></div>
+      <div class="frow"><label class="flbl">ক্যাটাগরি</label>
+        <select class="finp" id="recCat"></select></div>
+      <div class="frow"><label class="flbl">পুনরাবৃত্তি</label>
+        <select class="finp" id="recFreq">
+          <option value="monthly">মাসিক</option>
+          <option value="weekly">সাপ্তাহিক</option>
+          <option value="daily">দৈনিক</option>
+          <option value="yearly">বার্ষিক</option>
+        </select></div>
+      <div class="frow"><label class="flbl">পরবর্তী তারিখ</label>
+        <input type="date" class="finp" id="recNextDate"></div>
+      <button class="fsave" onclick="saveRecurring()">সংরক্ষণ করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD GOAL MODAL -->
+<div class="moverlay" id="addGoalModal">
+  <div class="modal">
+    <div class="mhdr"><h3>🎯 সঞ্চয় লক্ষ্য যোগ</h3><button class="mclose" onclick="closeM('addGoalModal')">✕</button></div>
+    <div class="fbody">
+      <div class="frow"><label class="flbl">লক্ষ্যের নাম</label>
+        <input type="text" class="finp" id="goalName" placeholder="যেমন: হজ্জ, বাড়ি কেনা, ঈদ"></div>
+      <div class="frow"><label class="flbl">লক্ষ্য পরিমাণ (৳)</label>
+        <input type="tel" inputmode="decimal" class="finp" id="goalTarget" placeholder="১,০০,০০০"></div>
+      <div class="frow"><label class="flbl">ইতোমধ্যে জমা (৳)</label>
+        <input type="tel" inputmode="decimal" class="finp" id="goalSaved" placeholder="০"></div>
+      <div class="frow"><label class="flbl">লক্ষ্য তারিখ</label>
+        <input type="date" class="finp" id="goalDeadline"></div>
+      <div class="frow"><label class="flbl">রঙ</label>
+        <select class="finp" id="goalColor">
+          <option value="blue">🔵 নীল</option>
+          <option value="green">🟢 সবুজ</option>
+          <option value="orange">🟠 কমলা</option>
+          <option value="red">🔴 লাল</option>
+        </select></div>
+      <button class="fsave" onclick="saveGoal()">সংরক্ষণ করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- PWA INSTALL BANNER -->
+<div class="pwa-banner" id="pwaBanner">
+  <div class="pwa-banner-ico">📱</div>
+  <div class="pwa-banner-info">
+    <h4>অ্যাপ ইনস্টল করুন</h4>
+    <p>Home Screen এ যোগ করুন</p>
+  </div>
+  <button class="pwa-install-btn" onclick="installPWA()">ইনস্টল</button>
+  <button class="pwa-dismiss" onclick="dismissPWA()">✕</button>
 </div>
 
 <nav class="bnav" id="bnav" style="display:none">
@@ -863,6 +1269,32 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
 </div>
 
 <!-- TX MODAL -->
+
+<!-- LOADING BAR + SPINNER -->
+<div class="undo-snack" id="undoSnack"><span id="undoMsg">মুছে ফেলা হয়েছে</span><button onclick="undoDelete()">↩ Undo</button></div>
+<div class="fb-loading-bar" id="fbLoadBar"></div>
+<div class="spinner-overlay" id="spinnerOverlay">
+  <div class="spinner"></div>
+  <div class="spinner-text" id="spinnerText">লোড হচ্ছে...</div>
+</div>
+
+<!-- PWA INSTALL BANNER -->
+<div class="pwa-banner" id="pwaBanner">
+  <div style="font-size:28px;">📱</div>
+  <div class="pwa-banner-text">
+    <h4>অ্যাপ হিসেবে ইনস্টল করুন</h4>
+    <p>হোম স্ক্রিনে যোগ করুন — ইন্টারনেট ছাড়াও চলবে</p>
+  </div>
+  <button class="pwa-install-btn" onclick="installPWA()">ইনস্টল</button>
+  <button class="pwa-banner-close" onclick="dismissPWA()">✕</button>
+</div>
+
+<!-- PRINT HEADER (hidden normally) -->
+<div class="print-header" id="printHeader">
+  <h2>💰 মাসউদ ফিন্যান্স — লেনদেনের রিপোর্ট</h2>
+  <p id="printMeta"></p>
+</div>
+
 <div class="moverlay" id="txModal">
   <div class="modal">
     <div class="tx-tabs">
@@ -874,7 +1306,7 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
       <div class="frow"><label class="flbl">তারিখ</label><input type="date" class="finp" id="txDate"></div>
       <div class="frow"><label class="flbl">অ্যাকাউন্ট</label><select class="fsel" id="txAcc"></select></div>
       <div class="frow"><label class="flbl">ক্যাটাগরি</label><button class="catbtn" id="txCatBtn" onclick="openCP()">ক্যাটাগরি বেছে নিন ›</button></div>
-      <div class="frow"><label class="flbl">পরিমাণ (৳)</label><input type="number" class="finp amt expense" id="txAmt" placeholder="০.০০"></div>
+      <div class="frow"><label class="flbl">পরিমাণ (৳)</label><input type="tel" class="finp amt expense" id="txAmt" placeholder="০.০০" inputmode="decimal" oninput="liveFormatAmt(this)"></div>
       <div class="frow"><label class="flbl">নোট</label><input type="text" class="finp" id="txNote" placeholder="ঐচ্ছিক"></div>
       <button class="fsave" onclick="saveTx()">সংরক্ষণ করুন</button>
     </div>
@@ -991,6 +1423,10 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
           <li>Config object কপি করুন, নিচে paste করুন</li>
           <li>Realtime Database → Create database → <b>Start in test mode</b></li>
         </ol>
+        <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:10px 12px;margin-top:8px;font-size:12px;color:#856404;">
+          ⚠️ <b>নিরাপত্তা:</b> Realtime Database → Rules এ যান এবং rules পরিবর্তন করুন:<br>
+          <code style="display:block;margin-top:6px;background:#f8f9fa;padding:6px;border-radius:4px;font-size:11px;">{"rules":{".read":"auth != null",".write":"auth != null"}}</code>
+        </div>
       </div>
 
       <!-- Config Input -->
@@ -1045,6 +1481,80 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
       <div id="fbSyncBtns" style="display:none;margin-top:12px;display:none;gap:8px;">
         <button onclick="pushToFirebase()" style="flex:1;padding:10px;border-radius:10px;border:none;background:#e8f5e9;color:#2e7d32;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">⬆️ Firebase এ আপলোড</button>
         <button onclick="pullFromFirebase()" style="flex:1;padding:10px;border-radius:10px;border:none;background:#e3f2fd;color:#1565c0;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">⬇️ Firebase থেকে লোড</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- BUDGET MODAL -->
+<div class="moverlay" id="budgetModal">
+  <div class="modal">
+    <div class="mhdr" style="background:linear-gradient(135deg,#1a6b3a,#2ecc71);color:#fff;border-radius:20px 20px 0 0;">
+      <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">💰</span><h3 style="color:#fff;">বাজেট লিমিট</h3></div>
+      <button class="mclose" style="color:#fff;" onclick="closeM('budgetModal')">✕</button>
+    </div>
+    <div class="fbody">
+      <p style="font-size:13px;color:var(--tl);margin-bottom:14px;">প্রতিটি ক্যাটাগরিতে মাসিক সর্বোচ্চ খরচের সীমা নির্ধারণ করুন।</p>
+      <div id="budgetCatList" style="max-height:55vh;overflow-y:auto;"></div>
+      <button class="fsave" onclick="saveBudgets()" style="margin-top:14px;">💾 সংরক্ষণ করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECURRING MODAL -->
+<div class="moverlay" id="recurringModal">
+  <div class="modal">
+    <div class="mhdr" style="background:linear-gradient(135deg,#1565c0,#3498db);color:#fff;border-radius:20px 20px 0 0;">
+      <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">🔄</span><h3 style="color:#fff;">নিয়মিত লেনদেন</h3></div>
+      <button class="mclose" style="color:#fff;" onclick="closeM('recurringModal')">✕</button>
+    </div>
+    <div class="fbody">
+      <div id="recList" style="max-height:35vh;overflow-y:auto;margin-bottom:14px;"></div>
+      <div style="background:var(--bg);border-radius:10px;padding:14px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">➕ নতুন যোগ করুন</div>
+        <div class="frow"><label class="flbl">নাম</label><input type="text" class="finp" id="recName" placeholder="যেমন: বাসা ভাড়া"></div>
+        <div class="frow"><label class="flbl">পরিমাণ (৳)</label><input type="number" class="finp" id="recAmt" placeholder="০.০০" inputmode="decimal"></div>
+        <div class="frow"><label class="flbl">ধরন</label>
+          <select class="finp" id="recType" onchange="renderRecList()"><option value="expense">ব্যয়</option><option value="income">আয়</option></select>
+        </div>
+        <div class="frow"><label class="flbl">ক্যাটাগরি</label>
+          <select class="finp" id="recCat"></select>
+        </div>
+        <div class="frow"><label class="flbl">পুনরাবৃত্তি</label>
+          <select class="finp" id="recFreq">
+            <option value="daily">প্রতিদিন</option>
+            <option value="weekly">প্রতি সপ্তাহ</option>
+            <option value="monthly" selected>প্রতি মাস</option>
+            <option value="yearly">প্রতি বছর</option>
+          </select>
+        </div>
+        <div class="frow"><label class="flbl">প্রতি মাসের কত তারিখ</label>
+          <input type="number" class="finp" id="recDay" placeholder="১" min="1" max="28" value="1">
+        </div>
+        <button class="fsave" onclick="addRecurring()">যোগ করুন</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SAVINGS GOAL MODAL -->
+<div class="moverlay" id="goalModal">
+  <div class="modal">
+    <div class="mhdr" style="background:linear-gradient(135deg,#6a1b9a,#9b59b6);color:#fff;border-radius:20px 20px 0 0;">
+      <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:20px;">🎯</span><h3 style="color:#fff;">সঞ্চয় লক্ষ্যমাত্রা</h3></div>
+      <button class="mclose" style="color:#fff;" onclick="closeM('goalModal')">✕</button>
+    </div>
+    <div class="fbody">
+      <div id="goalList" style="max-height:35vh;overflow-y:auto;margin-bottom:14px;"></div>
+      <div style="background:var(--bg);border-radius:10px;padding:14px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">➕ নতুন লক্ষ্য যোগ করুন</div>
+        <div class="frow"><label class="flbl">লক্ষ্যের নাম</label><input type="text" class="finp" id="goalName" placeholder="যেমন: হজ্জ, ফ্রিজ কেনা"></div>
+        <div class="frow"><label class="flbl">লক্ষ্য পরিমাণ (৳)</label><input type="number" class="finp" id="goalTarget" placeholder="৫০,০০০" inputmode="decimal"></div>
+        <div class="frow"><label class="flbl">ইতিমধ্যে জমা (৳)</label><input type="number" class="finp" id="goalSaved" placeholder="০" inputmode="decimal"></div>
+        <div class="frow"><label class="flbl">আইকন (ইমোজি)</label><input type="text" class="finp" id="goalIcon" placeholder="🏠" maxlength="4"></div>
+        <div class="frow"><label class="flbl">লক্ষ্য তারিখ</label><input type="date" class="finp" id="goalDate"></div>
+        <button class="fsave" onclick="addGoal()">যোগ করুন</button>
       </div>
     </div>
   </div>
@@ -1134,15 +1644,20 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
 </style>
 
 <script>
+
+// Production: suppress console.log
+if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+  console.log = function(){};
+}
 // ===== USERS CONFIG =====
 // ===== DEFAULT USERS (localStorage থেকে override হবে) =====
 const DEFAULT_USERS = [
-  { id:'masud',   name:'Masud',   avatar:'👑', pin:'0000', color:'#e8533a', isAdmin:true  },
-  { id:'mominur', name:'Mominur', avatar:'👨', pin:'1111', color:'#3498db', isAdmin:false },
-  { id:'nuralam', name:'Nur Alam',avatar:'👤', pin:'2222', color:'#2ecc71', isAdmin:false },
-  { id:'apon',    name:'Apon',    avatar:'🧑', pin:'3333', color:'#9b59b6', isAdmin:false },
-  { id:'malek',   name:'Malek',   avatar:'👦', pin:'4444', color:'#f39c12', isAdmin:false },
-  { id:'rayhan',  name:'Rayhan',  avatar:'🧔', pin:'5555', color:'#e91e63', isAdmin:false },
+  { id:'masud',   name:'Masud',   avatar:'👑', pin:'0000', color:'#e8533a', isAdmin:true,  mustChangePIN:true },
+  { id:'mominur', name:'Mominur', avatar:'👨', pin:'1111', color:'#3498db', isAdmin:false, mustChangePIN:true },
+  { id:'nuralam', name:'Nur Alam',avatar:'👤', pin:'2222', color:'#2ecc71', isAdmin:false, mustChangePIN:true },
+  { id:'apon',    name:'Apon',    avatar:'🧑', pin:'3333', color:'#9b59b6', isAdmin:false, mustChangePIN:true },
+  { id:'malek',   name:'Malek',   avatar:'👦', pin:'4444', color:'#f39c12', isAdmin:false, mustChangePIN:true },
+  { id:'rayhan',  name:'Rayhan',  avatar:'🧔', pin:'5555', color:'#e91e63', isAdmin:false, mustChangePIN:true },
 ];
 const ADMIN_ID = 'masud';
 
@@ -1239,7 +1754,7 @@ function checkUserPin() {
     setTimeout(()=>document.getElementById('pinErr').textContent='', 2000);
   }
 }
-function skipPin() { backToUsers(); } // PIN bypass disabled
+// skipPin removed for security // PIN bypass disabled
 function backToUsers() { currentUser = null; renderUserScreen(); }
 
 async function launchApp(user) {
@@ -1263,12 +1778,24 @@ async function launchApp(user) {
   // Then try Firebase pull (async)
   if (window.fbDb) {
     try {
-      await pullFromFirebase();
-      switchScreen('trans'); // re-render after pull
+      await pullFromFirebase(true);
+      switchScreen('trans');
       updateSettingsUI();
     } catch(e) {
       console.log('Firebase pull on launch failed:', e);
     }
+  }
+  // Check recurring transactions due today
+  checkRecurringDue();
+  // Register service worker for PWA
+  registerSW();
+  // Init online/offline status
+  initOnlineStatus();
+  // Prompt PIN change if using default PIN
+  if (currentUser.mustChangePIN) {
+    setTimeout(() => {
+      showPinChangeWarning();
+    }, 1000);
   }
 }
 
@@ -1305,29 +1832,9 @@ let state = {
   txType: 'expense', selCat: null, selSub: null,
   editTxId: null, editNoteId: null, noteColor: '#e8533a',
   categories: [], transactions: [], accounts: [], notes: [],
+  budgets: [], recurring: [], goals: [],
   settings: { pin:'', darkMode:false }
 };
-
-function loadState() {
-  if (!currentUser) return;
-  const uid = currentUser.id;
-  state.categories = JSON.parse(localStorage.getItem('mf_'+uid+'_cats') || 'null') || defaultCats();
-  state.transactions = JSON.parse(localStorage.getItem('mf_'+uid+'_txs') || '[]');
-  state.accounts = JSON.parse(localStorage.getItem('mf_'+uid+'_accs') || 'null') || defaultAccounts();
-  state.notes = JSON.parse(localStorage.getItem('mf_'+uid+'_notes') || '[]');
-  const s = JSON.parse(localStorage.getItem('mf_'+uid+'_settings') || '{}');
-  state.settings = { pin:'', darkMode:false, ...s };
-}
-
-function saveData() {
-  if (!currentUser) return;
-  const uid = currentUser.id;
-  localStorage.setItem('mf_'+uid+'_cats', JSON.stringify(state.categories));
-  localStorage.setItem('mf_'+uid+'_txs', JSON.stringify(state.transactions));
-  localStorage.setItem('mf_'+uid+'_accs', JSON.stringify(state.accounts));
-  localStorage.setItem('mf_'+uid+'_notes', JSON.stringify(state.notes));
-  localStorage.setItem('mf_'+uid+'_settings', JSON.stringify(state.settings));
-}
 
 // ===== DEFAULT DATA =====
 function defaultCats() {
@@ -1369,11 +1876,42 @@ function defaultAccounts() {
 const BNM=['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
 const END=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const toBN = n => String(n).replace(/\d/g,d=>'০১২৩৪৫৬৭৮৯'[d]);
-const fmtAmt = n => '৳ '+toBN(Math.abs(n).toLocaleString('en',{minimumFractionDigits:2,maximumFractionDigits:2}));
+// Format amount: ৳ ১,০০,০০০.০০ (Bangladesh format)
+const fmtAmt = n => {
+  const abs = Math.abs(n);
+  const parts = abs.toFixed(2).split('.');
+  // Bangladesh: 2,3,3 grouping (e.g. 1,00,000)
+  let int = parts[0];
+  if (int.length > 3) {
+    const last3 = int.slice(-3);
+    const rest = int.slice(0, -3);
+    int = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + last3;
+  }
+  return '৳ ' + toBN(int + '.' + parts[1]);
+};
+// Format for input display (with live comma)
+function fmtInputAmt(val) {
+  const num = parseFloat(String(val).replace(/,/g,''));
+  if (isNaN(num)) return val;
+  return num.toLocaleString('en', {minimumFractionDigits:0, maximumFractionDigits:2});
+}
 function fmtMonth(y,m){return BNM[m]+' '+toBN(y);}
 
 // ===== NAVIGATION =====
 function switchScreen(name) {
+  // Handle new feature screens
+  const newScreens = ['budget','recurring','goals'];
+  if (newScreens.includes(name)) {
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    const sc = document.getElementById('sc-'+name);
+    if (sc) {
+      sc.classList.add('active');
+      if (name==='budget') renderBudget();
+      else if (name==='recurring') renderRecurring();
+      else if (name==='goals') renderGoals();
+    }
+    return;
+  }
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('sc-'+name)?.classList.add('active');
@@ -1425,7 +1963,10 @@ function curTxs(){return state.transactions.filter(t=>{const d=new Date(t.date);
 // ===== RENDER TX =====
 function renderTx(){
   updateLabels();
-  const txs=curTxs();
+  const txs=applySearchFilter(curTxs());
+  // Budget + Goal summary
+  const bsEl=document.getElementById('budgetSummary');
+  if(bsEl)bsEl.innerHTML=renderBudgetSummary()+renderGoalSummary();
   let inc=0,exp=0;
   txs.forEach(t=>{if(t.type==='income')inc+=t.amount;else if(t.type==='expense')exp+=t.amount;});
   const bal=inc-exp;
@@ -1564,8 +2105,15 @@ async function delTx(id){
   const cat=state.categories.find(c=>c.id===t.catId);
   const r=await pop('🗑️','লেনদেন মুছবেন?','স্থায়ীভাবে মুছে যাবে।',(cat?cat.name:'')+' • ৳'+t.amount,[{l:'বাতিল',c:''},{l:'মুছুন',c:'danger'}]);
   if(r!==1)return;
+  const backup=JSON.parse(JSON.stringify(t));
+  const backupIdx=state.transactions.findIndex(x=>x.id===id);
   state.transactions=state.transactions.filter(x=>x.id!==id);
-  saveData();closeM('detailModal');renderTx();toast('🗑️ মুছে ফেলা হয়েছে','error');
+  saveData();closeM('detailModal');renderTx();
+  haptic('medium');
+  showUndoSnack('লেনদেন মুছে ফেলা হয়েছে', ()=>{
+    state.transactions.splice(backupIdx,0,backup);
+    saveData();renderTx();toast('↩ পূর্বাবস্থায় ফিরেছে','success');
+  });
 }
 function editTx(id){closeM('detailModal');openTxModal(id);}
 
@@ -1759,8 +2307,15 @@ async function deleteNote(){
   if(!state.editNoteId){switchScreen('notes');return;}
   const r=await pop('🗑️','নোট মুছবেন?','','',[{l:'বাতিল',c:''},{l:'মুছুন',c:'danger'}]);
   if(r!==1)return;
+  const backup=state.notes.find(n=>n.id===state.editNoteId);
+  const backupIdx=state.notes.findIndex(n=>n.id===state.editNoteId);
   state.notes=state.notes.filter(n=>n.id!==state.editNoteId);
-  saveData();toast('🗑️ মুছে ফেলা হয়েছে','error');switchScreen('notes');
+  saveData();haptic('medium');
+  showUndoSnack('নোট মুছে ফেলা হয়েছে', ()=>{
+    state.notes.splice(backupIdx,0,backup);
+    saveData();renderNotes();toast('↩ পূর্বাবস্থায় ফিরেছে','success');
+  });
+  switchScreen('notes');
 }
 function setNC(c,el){state.noteColor=c;document.querySelectorAll('.nc-btn').forEach(b=>b.classList.remove('act'));el.classList.add('act');}
 
@@ -1861,8 +2416,6 @@ async function resetUserData(){
 }
 function openGithub(){openM('githubModal');}
 function upGhLink(){const u=document.getElementById('ghUser').value.trim();document.getElementById('ghLink').textContent=u?`https://${u}.github.io/masud-finance/`:''}
-function dlHTML(){const h=document.documentElement.outerHTML;const b=new Blob([h],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='masud_finance.html';a.click();toast('⬇️ ডাউনলোড হচ্ছে','success');}
-
 // ===== AI =====
 function sendAI(){
   const inp=document.getElementById('aiInp');
@@ -2196,6 +2749,960 @@ function updateAdminVisibility() {
   if(t) t.style.display = isAdmin ? 'block' : 'none';
   if(r) r.style.display = isAdmin ? 'block' : 'none';
 }
+
+
+// ===== PIN CHANGE WARNING =====
+function showPinChangeWarning() {
+  if (!currentUser || !currentUser.mustChangePIN) return;
+  const defaultPins = {'masud':'0000','mominur':'1111','nuralam':'2222','apon':'3333','malek':'4444','rayhan':'5555'};
+  const isDefault = defaultPins[currentUser.id] === currentUser.pin;
+  if (!isDefault) {
+    // User already changed PIN — clear flag
+    currentUser.mustChangePIN = false;
+    const USERS = loadUsers();
+    const idx = USERS.findIndex(u => u.id === currentUser.id);
+    if (idx > -1) { USERS[idx].mustChangePIN = false; saveUsers(USERS); }
+    return;
+  }
+  pop('🔐', 'PIN পরিবর্তন করুন!',
+    'আপনি এখনো ডিফল্ট PIN ব্যবহার করছেন। নিরাপত্তার জন্য এখনই পরিবর্তন করুন।',
+    'ডিফল্ট PIN নিরাপদ নয়!',
+    [{l:'পরে করব', c:''}, {l:'এখনই করি 🔐', c:'change'}]
+  ).then(res => {
+    if (res === 1) openChangePIN();
+  });
+}
+
+
+// ===== LOADING SPINNER =====
+function showSpinner(msg) {
+  const o=document.getElementById('spinnerOverlay');
+  const t=document.getElementById('spinnerText');
+  const b=document.getElementById('fbLoadBar');
+  if(o)o.classList.add('show');
+  if(t&&msg)t.textContent=msg;
+  if(b)b.classList.add('show');
+}
+function hideSpinner(){
+  document.getElementById('spinnerOverlay')?.classList.remove('show');
+  document.getElementById('fbLoadBar')?.classList.remove('show');
+}
+
+// ===== UNDO DELETE =====
+let _undoFn=null,_undoTimer=null;
+function showUndoSnack(msg,fn){
+  _undoFn=fn;
+  const s=document.getElementById('undoSnack');
+  const m=document.getElementById('undoMsg');
+  if(!s)return;
+  if(m)m.textContent=msg;
+  s.classList.add('show');
+  clearTimeout(_undoTimer);
+  _undoTimer=setTimeout(()=>{s.classList.remove('show');_undoFn=null;},5000);
+}
+function undoDelete(){
+  if(_undoFn){_undoFn();_undoFn=null;}
+  clearTimeout(_undoTimer);
+  document.getElementById('undoSnack')?.classList.remove('show');
+}
+
+// ===== LIVE AMOUNT FORMAT =====
+function liveFormatAmt(inp){
+  let v=inp.value.replace(/[^0-9.]/g,'');
+  const p=v.split('.');
+  if(p.length>2)v=p[0]+'.'+p.slice(1).join('');
+  if(p[1]&&p[1].length>2)v=p[0]+'.'+p[1].slice(0,2);
+  inp.value=v;
+}
+
+// ===== HAPTIC FEEDBACK =====
+function haptic(type){
+  if(!navigator.vibrate)return;
+  const p={light:10,medium:30,heavy:[30,10,30],success:[10,5,10]};
+  navigator.vibrate(p[type]||10);
+}
+
+// ===== SEARCH & FILTER =====
+let _sq='',_ft='all';
+function searchTx(q){
+  _sq=q.toLowerCase().trim();
+  document.getElementById('searchClear')?.classList.toggle('show',q.length>0);
+  renderTx();
+}
+function clearSearch(){
+  _sq='';
+  const i=document.getElementById('searchInp');
+  if(i)i.value='';
+  document.getElementById('searchClear')?.classList.remove('show');
+  renderTx();
+}
+function filterTx(type,btn){
+  _ft=type;
+  document.querySelectorAll('.filter-chip').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderTx();
+}
+function applySearchFilter(txs){
+  let r=txs;
+  if(_ft==='income')r=r.filter(t=>t.type==='income');
+  else if(_ft==='expense')r=r.filter(t=>t.type==='expense');
+  else if(_ft==='today'){const d=new Date().toISOString().split('T')[0];r=r.filter(t=>t.date===d);}
+  else if(_ft==='week'){const w=new Date(Date.now()-7*864e5).toISOString().split('T')[0];r=r.filter(t=>t.date>=w);}
+  else if(_ft==='month'){const y=state.curYear,m=String(state.curMonth+1).padStart(2,'0');r=r.filter(t=>t.date&&t.date.startsWith(y+'-'+m));}
+  if(_sq)r=r.filter(t=>{
+    const cat=state.categories.find(c=>c.id===t.catId);
+    return [(cat?cat.name:''),t.note||'',String(t.amount),t.subCat||''].some(s=>s.toLowerCase().includes(_sq));
+  });
+  return r;
+}
+
+// ===== SWIPE GESTURE =====
+let _sx=0,_sy=0;
+const SCRS=['trans','stats','ai','notes','settings'];
+document.addEventListener('touchstart',e=>{_sx=e.touches[0].clientX;_sy=e.touches[0].clientY;},{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=e.changedTouches[0].clientX-_sx;
+  const dy=e.changedTouches[0].clientY-_sy;
+  if(Math.abs(dx)<60||Math.abs(dy)>80)return;
+  if(document.querySelector('.moverlay.show'))return;
+  const nb=document.querySelector('.nav-btn.active');
+  if(!nb)return;
+  const ci=SCRS.indexOf(nb.id.replace('nb-',''));
+  if(ci===-1)return;
+  if(dx<-60&&ci<SCRS.length-1)switchScreen(SCRS[ci+1]);
+  else if(dx>60&&ci>0)switchScreen(SCRS[ci-1]);
+},{passive:true});
+
+
+
+// ===== BUDGET TRACKER =====
+function getBudgets() {
+  if (!currentUser) return {};
+  return JSON.parse(localStorage.getItem('mf_' + currentUser.id + '_budgets') || '{}');
+}
+function saveBudgets() {
+  if (!currentUser) return;
+  const inputs = document.querySelectorAll('.budget-inp');
+  const budgets = {};
+  inputs.forEach(inp => {
+    const catId = inp.dataset.cat;
+    const val = parseFloat(inp.value);
+    if (val > 0) budgets[catId] = val;
+  });
+  localStorage.setItem('mf_' + currentUser.id + '_budgets', JSON.stringify(budgets));
+  if (window.fbDb) {
+    window.fbDb.ref('users/' + currentUser.id + '/budgets').set(budgets);
+  }
+  closeM('budgetModal');
+  toast('✅ বাজেট সংরক্ষিত হয়েছে', 'success');
+  renderTx();
+}
+function renderBudgetList() {
+  const expCats = state.categories.filter(c => c.type === 'expense');
+  const budgets = getBudgets();
+  const txs = curTxs().filter(t => t.type === 'expense');
+  const spent = {};
+  txs.forEach(t => { spent[t.catId] = (spent[t.catId] || 0) + t.amount; });
+  document.getElementById('budgetCatList').innerHTML = expCats.map(cat => {
+    const budget = budgets[cat.id] || '';
+    const s = spent[cat.id] || 0;
+    const pct = budget ? Math.min(Math.round(s / budget * 100), 100) : 0;
+    const cls = pct >= 100 ? 'over' : pct >= 80 ? 'warn' : 'ok';
+    return `<div class="budget-bar-wrap">
+      <div class="budget-bar-label">
+        <span>${cat.icon} ${cat.name}</span>
+        <span style="color:var(--${cls==='ok'?'inc':cls==='warn'?'text':'exp'})">
+          ${budget ? fmtAmt(s) + ' / ' + fmtAmt(budget) : 'সীমা নেই'}
+        </span>
+      </div>
+      ${budget ? `<div class="budget-bar-bg"><div class="budget-bar-fill ${cls}" style="width:${pct}%"></div></div>` : ''}
+      <input type="number" class="finp budget-inp" data-cat="${cat.id}"
+        value="${budget || ''}" placeholder="বাজেট সীমা লিখুন (৳)"
+        style="margin-top:6px;font-size:13px;" inputmode="decimal">
+    </div>`;
+  }).join('');
+}
+function renderBudgetSummary() {
+  const budgets = getBudgets();
+  const txs = curTxs().filter(t => t.type === 'expense');
+  const spent = {};
+  txs.forEach(t => { spent[t.catId] = (spent[t.catId] || 0) + t.amount; });
+  const rows = Object.entries(budgets).map(([catId, budget]) => {
+    const cat = state.categories.find(c => c.id === catId);
+    if (!cat) return '';
+    const s = spent[catId] || 0;
+    const pct = Math.min(Math.round(s / budget * 100), 100);
+    const cls = pct >= 100 ? 'over' : pct >= 80 ? 'warn' : 'ok';
+    return `<div class="budget-bar-wrap" onclick="openM('budgetModal');renderBudgetList()" style="cursor:pointer">
+      <div class="budget-bar-label">
+        <span>${cat.icon} ${cat.name}</span>
+        <span style="color:var(--${cls==='ok'?'inc':cls==='warn'?'text':'exp'})">${pct}%</span>
+      </div>
+      <div class="budget-bar-bg"><div class="budget-bar-fill ${cls}" style="width:${pct}%"></div></div>
+    </div>`;
+  }).filter(Boolean);
+  return rows.length ? `<div style="background:var(--card);margin-bottom:6px;">${rows.join('')}</div>` : '';
+}
+
+// ===== RECURRING TRANSACTIONS =====
+function getRecurring() {
+  if (!currentUser) return [];
+  return JSON.parse(localStorage.getItem('mf_' + currentUser.id + '_recurring') || '[]');
+}
+function renderRecList() {
+  const list = getRecurring();
+  // Populate category select
+  const sel = document.getElementById('recCat');
+  if (sel) {
+    const type = document.getElementById('recType')?.value || 'expense';
+    sel.innerHTML = state.categories.filter(c => c.type === type)
+      .map(c => `<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  }
+  const el = document.getElementById('recList');
+  if (!el) return;
+  if (!list.length) { el.innerHTML = '<p style="color:var(--tl);font-size:13px;padding:8px 0;">কোনো নিয়মিত লেনদেন নেই।</p>'; return; }
+  const freqMap = {daily:'প্রতিদিন',weekly:'সাপ্তাহিক',monthly:'মাসিক',yearly:'বার্ষিক'};
+  el.innerHTML = list.map((r,i) => {
+    const cat = state.categories.find(c => c.id === r.catId);
+    return `<div class="rec-item">
+      <div class="rec-icon">${cat?.icon || '🔄'}</div>
+      <div class="rec-info">
+        <div class="rec-name">${r.name} <span class="rec-badge">${freqMap[r.freq]||r.freq}</span></div>
+        <div class="rec-sub">${cat?.name || ''} • ${r.day ? toBN(r.day) + ' তারিখ' : ''}</div>
+      </div>
+      <div>
+        <div class="rec-amt" style="color:var(--${r.type})">${fmtAmt(r.amount)}</div>
+        <div style="display:flex;gap:4px;margin-top:4px;">
+          <button onclick="applyRecurring(${i})" style="padding:3px 8px;border-radius:6px;border:none;background:var(--pr);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;">▶ এন্ট্রি</button>
+          <button onclick="deleteRecurring(${i})" style="padding:3px 8px;border-radius:6px;border:none;background:var(--exp);color:#fff;font-size:11px;cursor:pointer;font-family:inherit;">✕</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function addRecurring() {
+  const name = document.getElementById('recName')?.value.trim();
+  const amt = parseFloat(document.getElementById('recAmt')?.value);
+  const type = document.getElementById('recType')?.value;
+  const catId = document.getElementById('recCat')?.value;
+  const freq = document.getElementById('recFreq')?.value;
+  const day = parseInt(document.getElementById('recDay')?.value) || 1;
+  if (!name || !amt || amt <= 0) { toast('নাম ও পরিমাণ দিন', 'error'); return; }
+  const list = getRecurring();
+  list.push({ id: 'rec' + Date.now(), name, amount: amt, type, catId, freq, day });
+  saveRecurring(list);
+  renderRecList();
+  document.getElementById('recName').value = '';
+  document.getElementById('recAmt').value = '';
+  toast('✅ নিয়মিত লেনদেন যোগ হয়েছে', 'success');
+}
+function deleteRecurring(idx) {
+  const list = getRecurring();
+  list.splice(idx, 1);
+  saveRecurring(list);
+  renderRecList();
+  toast('মুছে ফেলা হয়েছে', 'error');
+}
+function applyRecurring(idx) {
+  const list = getRecurring();
+  const r = list[idx];
+  if (!r) return;
+  const today = new Date().toISOString().split('T')[0];
+  state.transactions.push({
+    id: 'tx' + Date.now(),
+    type: r.type,
+    date: today,
+    catId: r.catId,
+    subCat: '',
+    amount: r.amount,
+    note: r.name + ' (নিয়মিত)',
+    accId: state.accounts[0]?.id || '',
+  });
+  saveData();
+  renderTx();
+  toast('✅ ' + r.name + ' এন্ট্রি হয়েছে', 'success');
+  haptic('success');
+}
+function checkRecurringDue() {
+  // Auto-check on launch if any recurring is due today
+  if (!currentUser) return;
+  const list = getRecurring();
+  if (!list.length) return;
+  const today = new Date();
+  const todayDay = today.getDate();
+  const todayStr = today.toISOString().split('T')[0];
+  const lastCheck = localStorage.getItem('mf_' + currentUser.id + '_rec_check');
+  if (lastCheck === todayStr) return; // already checked today
+  const due = list.filter(r => {
+    if (r.freq === 'daily') return true;
+    if (r.freq === 'monthly' && r.day === todayDay) return true;
+    if (r.freq === 'weekly' && today.getDay() === 1) return true; // Monday
+    return false;
+  });
+  if (due.length) {
+    localStorage.setItem('mf_' + currentUser.id + '_rec_check', todayStr);
+    setTimeout(() => {
+      toast('🔄 ' + due.length + 'টি নিয়মিত লেনদেন আজকের জন্য বাকি আছে', 'info');
+    }, 2000);
+  }
+}
+
+// ===== SAVINGS GOALS =====
+function getGoals() {
+  if (!currentUser) return [];
+  return JSON.parse(localStorage.getItem('mf_' + currentUser.id + '_goals') || '[]');
+}
+function saveGoals(list) {
+  if (!currentUser) return;
+  localStorage.setItem('mf_' + currentUser.id + '_goals', JSON.stringify(list));
+  if (window.fbDb) {
+    window.fbDb.ref('users/' + currentUser.id + '/goals').set(list);
+  }
+}
+function renderGoalList() {
+  const goals = getGoals();
+  const el = document.getElementById('goalList');
+  if (!el) return;
+  if (!goals.length) { el.innerHTML = '<p style="color:var(--tl);font-size:13px;padding:8px 0;">কোনো লক্ষ্য নেই।</p>'; return; }
+  el.innerHTML = goals.map((g, i) => {
+    const pct = Math.min(Math.round((g.saved / g.target) * 100), 100);
+    const remaining = Math.max(g.target - g.saved, 0);
+    const daysLeft = g.date ? Math.ceil((new Date(g.date) - new Date()) / 864e5) : null;
+    return `<div class="goal-card" style="margin:0 0 10px;">
+      <div style="display:flex;justify-content:space-between;align-items:start">
+        <div>
+          <div class="goal-title">${g.icon||'🎯'} ${g.name}</div>
+          <div class="goal-sub">${daysLeft !== null ? (daysLeft > 0 ? toBN(daysLeft) + ' দিন বাকি' : '⏰ সময় শেষ') : ''}</div>
+        </div>
+        <div style="display:flex;gap:4px;">
+          <button onclick="addToGoal(${i})" style="padding:4px 10px;border-radius:8px;border:none;background:var(--pr);color:#fff;font-size:12px;cursor:pointer;font-family:inherit;">+ জমা</button>
+          <button onclick="deleteGoal(${i})" style="padding:4px 8px;border-radius:8px;border:none;background:var(--exp);color:#fff;font-size:12px;cursor:pointer;font-family:inherit;">✕</button>
+        </div>
+      </div>
+      <div class="goal-progress"><div class="goal-fill" style="width:${pct}%"></div></div>
+      <div class="goal-stats">
+        <span>জমা: <strong>${fmtAmt(g.saved)}</strong></span>
+        <span>${toBN(pct)}%</span>
+        <span>বাকি: <strong>${fmtAmt(remaining)}</strong></span>
+      </div>
+    </div>`;
+  }).join('');
+}
+function addGoal() {
+  const name = document.getElementById('goalName')?.value.trim();
+  const target = parseFloat(document.getElementById('goalTarget')?.value);
+  const saved = parseFloat(document.getElementById('goalSaved')?.value) || 0;
+  const icon = document.getElementById('goalIcon')?.value || '🎯';
+  const date = document.getElementById('goalDate')?.value;
+  if (!name || !target || target <= 0) { toast('নাম ও লক্ষ্য পরিমাণ দিন', 'error'); return; }
+  const goals = getGoals();
+  goals.push({ id: 'g' + Date.now(), name, target, saved, icon, date });
+  saveGoals(goals);
+  renderGoalList();
+  ['goalName','goalTarget','goalSaved','goalIcon','goalDate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  toast('✅ লক্ষ্য যোগ হয়েছে', 'success');
+}
+async function addToGoal(idx) {
+  const goals = getGoals();
+  const g = goals[idx];
+  const res = await pop('💰', g.name + ' — জমা যোগ করুন', '', '', [
+    {l:'বাতিল',c:''},{l:'✓ যোগ করুন',c:'save'}
+  ]);
+  if (res !== 1) return;
+  // Simple prompt via inline input
+  const amt = parseFloat(prompt('কত টাকা জমা করলেন?'));
+  if (!amt || amt <= 0) return;
+  goals[idx].saved = (goals[idx].saved || 0) + amt;
+  saveGoals(goals);
+  renderGoalList();
+  if (goals[idx].saved >= goals[idx].target) {
+    toast('🎉 অভিনন্দন! লক্ষ্য পূরণ হয়েছে!', 'success');
+  } else {
+    toast('✅ জমা যোগ হয়েছে', 'success');
+  }
+}
+function deleteGoal(idx) {
+  const goals = getGoals();
+  goals.splice(idx, 1);
+  saveGoals(goals);
+  renderGoalList();
+}
+function renderGoalSummary() {
+  const goals = getGoals();
+  if (!goals.length) return '';
+  return `<div style="background:var(--card);padding:0 12px 8px;margin-bottom:6px;">
+    <div style="font-size:13px;font-weight:600;padding:10px 4px 6px;color:var(--text);">🎯 সঞ্চয় লক্ষ্যমাত্রা</div>
+    ${goals.slice(0,3).map(g => {
+      const pct = Math.min(Math.round((g.saved/g.target)*100), 100);
+      const cls = pct >= 100 ? 'ok' : pct >= 60 ? 'warn' : 'over';
+      return `<div onclick="openM('goalModal');renderGoalList()" style="margin-bottom:8px;cursor:pointer;">
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+          <span>${g.icon||'🎯'} ${g.name}</span><span>${toBN(pct)}%</span>
+        </div>
+        <div class="budget-bar-bg"><div class="budget-bar-fill ${cls}" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// ===== PRINT REPORT =====
+// ===== PWA INSTALL =====
+let _pwaPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  const dismissed = localStorage.getItem('pwa_dismissed');
+  if (!dismissed) {
+    setTimeout(() => {
+      document.getElementById('pwaBanner')?.classList.add('show');
+    }, 3000);
+  }
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('pwaBanner')?.classList.remove('show');
+  toast('✅ অ্যাপ সফলভাবে ইনস্টল হয়েছে!', 'success');
+});
+
+// ===== SERVICE WORKER (PWA offline) =====
+function registerSW() {
+  if ('serviceWorker' in navigator) {
+    // Inline SW as blob
+    const swCode = `
+const CACHE='masud-v1';
+const ASSETS=['/masud-finance/','./'];
+self.addEventListener('install',e=>e.waitUntil(
+  caches.open(CACHE).then(c=>c.addAll(ASSETS).catch(()=>{}))
+));
+self.addEventListener('fetch',e=>e.respondWith(
+  caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{
+    const clone=res.clone();
+    caches.open(CACHE).then(c=>c.put(e.request,clone));
+    return res;
+  }).catch(()=>caches.match('/')))
+));
+self.addEventListener('activate',e=>e.waitUntil(
+  caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))
+));`;
+    const blob = new Blob([swCode], {type:'application/javascript'});
+    const url = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(url).catch(()=>{});
+  }
+}
+
+
+
+// ============================================================
+// ===== BUDGET TRACKER =====
+// ============================================================
+
+
+function openAddBudget() {
+  // Populate category select
+  const sel = document.getElementById('budgetCat');
+  if (!sel) return;
+  const expCats = state.categories.filter(c => c.type === 'expense');
+  sel.innerHTML = expCats.map(c => `<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  document.getElementById('budgetLimit').value = '';
+  openM('addBudgetModal');
+}
+
+async function saveBudget() {
+  const catId = document.getElementById('budgetCat').value;
+  const limit = parseFloat(document.getElementById('budgetLimit').value.replace(/,/g,''));
+  if (!catId || !limit || limit <= 0) { toast('ক্যাটাগরি ও পরিমাণ দিন','error'); return; }
+  const existing = state.budgets.findIndex(b => b.catId === catId);
+  if (existing > -1) state.budgets[existing].limit = limit;
+  else state.budgets.push({ id:'b'+Date.now(), catId, limit });
+  saveData(); closeM('addBudgetModal'); renderBudget();
+  toast('✅ বাজেট সংরক্ষিত','success');
+}
+
+function renderBudget() {
+  const list = document.getElementById('budgetList');
+  if (!list) return;
+  if (!state.budgets.length) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--tl);"><div style="font-size:40px;margin-bottom:8px;">📊</div><p style="font-size:14px;">কোনো বাজেট নেই<br>+ চাপুন</p></div>';
+    return;
+  }
+  // Get current month spending per category
+  const uid = currentUser ? currentUser.id : '';
+  const now = new Date();
+  const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0');
+  const monthTxs = state.transactions.filter(t => t.date && t.date.startsWith(y+'-'+m) && t.type==='expense');
+  const spent = {};
+  monthTxs.forEach(t => { spent[t.catId] = (spent[t.catId]||0) + t.amount; });
+
+  let totalBudget = 0, totalSpent = 0;
+  const html = state.budgets.map(b => {
+    const cat = state.categories.find(c => c.id === b.catId);
+    const catName = cat ? cat.icon+' '+cat.name : b.catId;
+    const s = spent[b.catId] || 0;
+    const pct = Math.min(Math.round(s / b.limit * 100), 100);
+    const cls = pct >= 100 ? 'over' : pct >= 80 ? 'warn' : 'ok';
+    totalBudget += b.limit; totalSpent += s;
+    return `<div class="budget-bar-wrap">
+      <div class="budget-bar-top">
+        <span class="budget-bar-name">${catName}</span>
+        <span class="budget-bar-amt">${fmtAmt(s)} / ${fmtAmt(b.limit)}</span>
+      </div>
+      <div class="budget-bar-bg"><div class="budget-bar-fill ${cls}" style="width:${pct}%"></div></div>
+      <div class="budget-pct ${cls}">${pct >= 100 ? '⚠️ সীমা অতিক্রান্ত!' : pct+'% ব্যবহৃত'}</div>
+    </div>`;
+  }).join('');
+
+  list.innerHTML = html + `<button onclick="openAddBudget()" style="width:100%;padding:12px;border-radius:10px;border:2px dashed var(--bd);background:transparent;font-family:inherit;font-size:14px;color:var(--tl);cursor:pointer;margin-top:8px;">+ আরো বাজেট যোগ করুন</button>`;
+
+  const t = document.getElementById('budgetTotalAmt');
+  const u = document.getElementById('budgetUsedAmt');
+  if (t) t.textContent = fmtAmt(totalBudget);
+  if (u) { u.textContent = fmtAmt(totalSpent); u.style.color = totalSpent > totalBudget ? 'var(--exp)' : 'var(--inc)'; }
+}
+
+// Budget alert check — runs after renderTx
+function checkBudgetAlerts() {
+  if (!state.budgets.length) return;
+  const now = new Date();
+  const y = now.getFullYear(), m = String(now.getMonth()+1).padStart(2,'0');
+  const monthTxs = state.transactions.filter(t => t.date && t.date.startsWith(y+'-'+m) && t.type==='expense');
+  const spent = {};
+  monthTxs.forEach(t => { spent[t.catId] = (spent[t.catId]||0) + t.amount; });
+  state.budgets.forEach(b => {
+    const s = spent[b.catId] || 0;
+    const pct = s / b.limit * 100;
+    const cat = state.categories.find(c => c.id === b.catId);
+    const name = cat ? cat.name : '';
+    if (pct >= 100 && !b._alerted100) {
+      b._alerted100 = true;
+      toast(`⚠️ ${name} বাজেট শেষ!`, 'error');
+    } else if (pct >= 80 && !b._alerted80) {
+      b._alerted80 = true;
+      toast(`⚠️ ${name} বাজেটের ৮০% ব্যবহৃত`, 'info');
+    }
+  });
+}
+
+// ============================================================
+// ===== RECURRING TRANSACTIONS =====
+// ============================================================
+function openAddRecurring() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('recNextDate').value = today;
+  document.getElementById('recName').value = '';
+  document.getElementById('recAmt').value = '';
+  // Populate category select dynamically
+  const sel = document.getElementById('recCat');
+  if (sel) {
+    sel.innerHTML = state.categories.map(c => `<option value="${c.id}">${c.type==='income'?'💰':'💸'} ${c.icon} ${c.name}</option>`).join('');
+  }
+  openM('addRecurringModal');
+}
+
+async function saveRecurring() {
+  const name = document.getElementById('recName').value.trim();
+  const amt = parseFloat(document.getElementById('recAmt').value.replace(/,/g,''));
+  const type = document.getElementById('recType').value;
+  const catId = document.getElementById('recCat').value;
+  const freq = document.getElementById('recFreq').value;
+  const nextDate = document.getElementById('recNextDate').value;
+  if (!name || !amt || !nextDate) { toast('সব তথ্য দিন','error'); return; }
+  state.recurring.push({ id:'r'+Date.now(), name, amount:amt, type, catId, freq, nextDate, active:true });
+  saveData(); closeM('addRecurringModal'); renderRecurring();
+  toast('✅ নিয়মিত লেনদেন যোগ হয়েছে','success');
+}
+
+function renderRecurring() {
+  const list = document.getElementById('recurringList');
+  if (!list) return;
+  if (!state.recurring.length) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--tl);"><div style="font-size:40px;margin-bottom:8px;">🔄</div><p style="font-size:14px;">কোনো নিয়মিত লেনদেন নেই<br>+ চাপুন</p></div>';
+    return;
+  }
+  list.innerHTML = state.recurring.map(r => {
+    const cat = state.categories.find(c => c.id === r.catId);
+    const freqMap = { monthly:'মাসিক', weekly:'সাপ্তাহিক', daily:'দৈনিক', yearly:'বার্ষিক' };
+    return `<div class="rec-item">
+      <div style="font-size:24px;">${r.type==='income'?'💰':'💸'}</div>
+      <div style="flex:1;">
+        <div style="font-size:14px;font-weight:500;">${r.name}</div>
+        <div class="rec-next">${freqMap[r.freq]||r.freq} • পরবর্তী: ${r.nextDate} • ${cat?cat.icon+cat.name:''}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:14px;font-weight:700;color:${r.type==='income'?'var(--inc)':'var(--exp)'};">${fmtAmt(r.amount)}</div>
+        <button onclick="deleteRecurring('${r.id}')" style="background:none;border:none;cursor:pointer;font-size:18px;color:var(--tl);margin-top:4px;">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function deleteRecurring(id) {
+  const r = await pop('🗑️','নিয়মিত লেনদেন মুছবেন?','','',[{l:'বাতিল',c:''},{l:'মুছুন',c:'danger'}]);
+  if (r !== 1) return;
+  state.recurring = state.recurring.filter(x => x.id !== id);
+  saveData(); renderRecurring(); toast('মুছে ফেলা হয়েছে','error');
+}
+
+function processRecurring() {
+  if (!state.recurring.length) { toast('কোনো নিয়মিত লেনদেন নেই','info'); return; }
+  const today = new Date().toISOString().split('T')[0];
+  let added = 0;
+  state.recurring.forEach(r => {
+    if (!r.active || r.nextDate > today) return;
+    // Add transaction
+    state.transactions.push({
+      id: 'tx'+Date.now()+Math.random().toString(36).slice(2,5),
+      type: r.type, date: r.nextDate,
+      catId: r.catId, subCat: '', amount: r.amount,
+      note: r.name+' (স্বয়ংক্রিয়)',
+      accId: state.accounts[0]?.id || ''
+    });
+    added++;
+    // Update next date
+    const d = new Date(r.nextDate);
+    if (r.freq === 'monthly') d.setMonth(d.getMonth()+1);
+    else if (r.freq === 'weekly') d.setDate(d.getDate()+7);
+    else if (r.freq === 'daily') d.setDate(d.getDate()+1);
+    else if (r.freq === 'yearly') d.setFullYear(d.getFullYear()+1);
+    r.nextDate = d.toISOString().split('T')[0];
+  });
+  if (added > 0) {
+    saveData(); renderTx();
+    toast(`✅ ${added}টি লেনদেন স্বয়ংক্রিয়ভাবে যোগ হয়েছে`,'success');
+  } else {
+    toast('আজকের জন্য কোনো pending লেনদেন নেই','info');
+  }
+}
+
+// Auto-check recurring on app launch
+function autoProcessRecurring() {
+  if (!state.recurring || !state.recurring.length) return;
+  const today = new Date().toISOString().split('T')[0];
+  const due = state.recurring.filter(r => r.active && r.nextDate <= today);
+  if (due.length > 0) {
+    setTimeout(() => {
+      pop('🔄', `${due.length}টি নিয়মিত লেনদেন due`, 'স্বয়ংক্রিয়ভাবে যোগ করবেন?',
+        due.map(r=>r.name+' '+fmtAmt(r.amount)).join('\n'),
+        [{l:'পরে',c:''},{l:'যোগ করুন',c:'save'}]
+      ).then(res => { if (res===1) processRecurring(); });
+    }, 2000);
+  }
+}
+
+// ============================================================
+// ===== SAVINGS GOALS =====
+// ============================================================
+function openAddGoal() {
+  document.getElementById('goalName').value='';
+  document.getElementById('goalTarget').value='';
+  document.getElementById('goalSaved').value='0';
+  document.getElementById('goalDeadline').value='';
+  openM('addGoalModal');
+}
+
+async function saveGoal() {
+  const name = document.getElementById('goalName').value.trim();
+  const target = parseFloat(document.getElementById('goalTarget').value.replace(/,/g,''));
+  const saved = parseFloat(document.getElementById('goalSaved').value.replace(/,/g,'')||'0');
+  const deadline = document.getElementById('goalDeadline').value;
+  const color = document.getElementById('goalColor').value;
+  if (!name || !target) { toast('নাম ও লক্ষ্য পরিমাণ দিন','error'); return; }
+  state.goals.push({ id:'g'+Date.now(), name, target, saved, deadline, color, createdAt: new Date().toISOString() });
+  saveData(); closeM('addGoalModal'); renderGoals();
+  toast('✅ লক্ষ্য যোগ হয়েছে','success');
+}
+
+function renderGoals() {
+  const list = document.getElementById('goalsList');
+  if (!list) return;
+  if (!state.goals.length) {
+    list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--tl);"><div style="font-size:40px;margin-bottom:8px;">🎯</div><p style="font-size:14px;">কোনো লক্ষ্য নেই<br>+ চাপুন</p></div>';
+    return;
+  }
+  list.innerHTML = state.goals.map(g => {
+    const pct = Math.min(Math.round(g.saved/g.target*100),100);
+    const remaining = Math.max(g.target - g.saved, 0);
+    let daysLeft = '';
+    if (g.deadline) {
+      const diff = Math.ceil((new Date(g.deadline) - new Date()) / 864e5);
+      daysLeft = diff > 0 ? `${diff} দিন বাকি` : '⚠️ সময় শেষ';
+    }
+    return `<div class="goal-card ${g.color||'blue'}">
+      <div class="goal-title">${g.name}</div>
+      <div class="goal-progress">জমা: ${fmtAmt(g.saved)} / লক্ষ্য: ${fmtAmt(g.target)}</div>
+      <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${pct}%;background:${g.color==='green'?'var(--inc)':g.color==='red'?'var(--exp)':g.color==='orange'?'#f39c12':'#3498db'}"></div></div>
+      <div class="goal-footer">
+        <span>${pct}% সম্পন্ন</span>
+        <span>${daysLeft}</span>
+        <span>বাকি: ${fmtAmt(remaining)}</span>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <input type="number" placeholder="জমা যোগ করুন (৳)" id="gamt_${g.id}"
+          style="flex:1;border:1px solid var(--bd);border-radius:8px;padding:7px 10px;font-family:inherit;font-size:13px;background:var(--bg);color:var(--text);">
+        <button onclick="addGoalSaving('${g.id}')" style="padding:7px 14px;border-radius:8px;border:none;background:var(--pr);color:white;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">+ যোগ</button>
+        <button onclick="deleteGoal('${g.id}')" style="padding:7px 10px;border-radius:8px;border:1px solid var(--bd);background:transparent;font-size:16px;cursor:pointer;">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function addGoalSaving(id) {
+  const inp = document.getElementById('gamt_'+id);
+  const amt = parseFloat(inp?.value||'0');
+  if (!amt || amt <= 0) { toast('পরিমাণ দিন','error'); return; }
+  const g = state.goals.find(x => x.id === id);
+  if (!g) return;
+  g.saved = (g.saved||0) + amt;
+  if (g.saved >= g.target) toast('🎉 লক্ষ্য অর্জিত! অভিনন্দন!','success');
+  else toast(`✅ ${fmtAmt(amt)} জমা হয়েছে`,'success');
+  inp.value = '';
+  saveData(); renderGoals();
+}
+
+async function deleteGoal(id) {
+  const r = await pop('🗑️','লক্ষ্য মুছবেন?','','',[{l:'বাতিল',c:''},{l:'মুছুন',c:'danger'}]);
+  if (r!==1) return;
+  state.goals = state.goals.filter(g => g.id !== id);
+  saveData(); renderGoals(); toast('মুছে ফেলা হয়েছে','error');
+}
+
+// ============================================================
+// ===== PRINT REPORT =====
+// ============================================================
+function printReport() {
+  window.print();
+}
+
+// ============================================================
+// ===== PWA — Progressive Web App =====
+// ============================================================
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _pwaPrompt = e;
+  // Show banner after 3 seconds
+  const dismissed = localStorage.getItem('pwa_dismissed');
+  if (!dismissed) {
+    setTimeout(() => {
+      document.getElementById('pwaBanner')?.classList.add('show');
+    }, 3000);
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('pwaBanner')?.classList.remove('show');
+  toast('✅ অ্যাপ ইনস্টল হয়েছে!','success');
+  _pwaPrompt = null;
+});
+
+async function installPWA() {
+  if (!_pwaPrompt) {
+    // iOS guide
+    pop('📱','iOS তে ইনস্টল করুন','Safari ব্রাউজারে খুলুন → Share বাটন → "Add to Home Screen" চাপুন','',
+      [{l:'ঠিক আছে',c:'ok'}]);
+    return;
+  }
+  _pwaPrompt.prompt();
+  const { outcome } = await _pwaPrompt.userChoice;
+  if (outcome === 'accepted') {
+    document.getElementById('pwaBanner')?.classList.remove('show');
+  }
+  _pwaPrompt = null;
+}
+
+function dismissPWA() {
+  document.getElementById('pwaBanner')?.classList.remove('show');
+  localStorage.setItem('pwa_dismissed', '1');
+}
+
+// Service Worker registration
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    // Inline SW via blob for GitHub Pages (no separate file needed)
+    const swCode = [
+      "const CACHE='masud-finance-v1';",
+      "const ASSETS=[self.location.pathname];",
+      "self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting();});",
+      "self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim();});",
+      "self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(cached=>{const fresh=fetch(e.request).then(res=>{if(res.ok)caches.open(CACHE).then(c=>c.put(e.request,res.clone()));return res;}).catch(()=>cached);return cached||fresh;}));});"
+    ].join('\n');
+    const blob = new Blob([swCode], {type:'application/javascript'});
+    const swUrl = URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl)
+      .then(() => console.log('SW registered'))
+      .catch(e => console.log('SW error:', e));
+  });
+}
+
+// Add PWA manifest dynamically
+(function addManifest() {
+  const manifest = {
+    name: 'মাসউদ ফিন্যান্সিয়াল অ্যাপস',
+    short_name: 'মাসউদ ফিন্যান্স',
+    description: 'আর্থিক ব্যবস্থাপনা অ্যাপ',
+    start_url: window.location.pathname,
+    display: 'standalone',
+    background_color: '#f5f5f5',
+    theme_color: '#e8533a',
+    icons: [{
+      src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💰</text></svg>',
+      sizes: '192x192', type: 'image/svg+xml'
+    }]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('link');
+  link.rel = 'manifest'; link.href = url;
+  document.head.appendChild(link);
+  // Theme color meta
+  const meta = document.createElement('meta');
+  meta.name = 'theme-color'; meta.content = '#e8533a';
+  document.head.appendChild(meta);
+})();
+
+
+
+// ===== OFFLINE QUEUE & SYNC =====
+const QUEUE_KEY = 'mf_offline_queue';
+
+function getQueue() {
+  return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]');
+}
+function addToQueue(uid, data) {
+  const q = getQueue();
+  // Remove old entry for same user (keep latest)
+  const filtered = q.filter(item => item.uid !== uid);
+  filtered.push({ uid, data, ts: Date.now() });
+  localStorage.setItem(QUEUE_KEY, JSON.stringify(filtered));
+  updateQueueBadge();
+}
+function clearQueueFor(uid) {
+  const q = getQueue().filter(item => item.uid !== uid);
+  localStorage.setItem(QUEUE_KEY, JSON.stringify(q));
+}
+
+// Process queue — push all pending to Firebase
+async function processOfflineQueue() {
+  if (!window.fbDb) return;
+  if (!navigator.onLine) return;
+  const q = getQueue();
+  if (!q.length) return;
+  let synced = 0;
+  for (const item of q) {
+    try {
+      await window.fbDb.ref('users/' + item.uid).set(item.data);
+      clearQueueFor(item.uid);
+      synced++;
+    } catch(e) {
+      // Keep in queue if still failing
+    }
+  }
+  if (synced > 0) {
+    toast('☁️ অফলাইন ডেটা sync হয়েছে (' + synced + 'টি)', 'success');
+  }
+  updateQueueBadge();
+}
+
+// Override saveData — queue if offline
+const _baseSaveData = saveData;
+function saveData() {
+  if (!currentUser) return;
+  const uid = currentUser.id;
+  // Always save to localStorage first (instant, offline-safe)
+  localStorage.setItem('mf_'+uid+'_cats', JSON.stringify(state.categories));
+  localStorage.setItem('mf_'+uid+'_txs', JSON.stringify(state.transactions));
+  localStorage.setItem('mf_'+uid+'_accs', JSON.stringify(state.accounts));
+  localStorage.setItem('mf_'+uid+'_notes', JSON.stringify(state.notes));
+  localStorage.setItem('mf_'+uid+'_settings', JSON.stringify(state.settings));
+
+  const autoSync = localStorage.getItem('mf_fb_autosync') !== 'false';
+  if (!autoSync) return;
+
+  if (!navigator.onLine) {
+    // Offline — add to queue
+    const data = {
+      transactions: state.transactions,
+      categories: state.categories,
+      accounts: state.accounts,
+      notes: state.notes,
+      settings: { ...state.settings, pin: currentUser.pin || '' },
+      lastUpdated: new Date().toISOString(),
+    };
+    addToQueue(uid, data);
+    // Show offline indicator
+    showOfflineIndicator();
+    return;
+  }
+
+  // Online — push directly
+  if (window.fbDb) {
+    pushToFirebase().catch(() => {
+      // If push fails, queue it
+      const data = {
+        transactions: state.transactions,
+        categories: state.categories,
+        accounts: state.accounts,
+        notes: state.notes,
+        settings: { ...state.settings, pin: currentUser.pin || '' },
+        lastUpdated: new Date().toISOString(),
+      };
+      addToQueue(uid, data);
+    });
+  }
+}
+
+// Online/Offline status indicator
+function showOfflineIndicator() {
+  let el = document.getElementById('offlineBar');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'offlineBar';
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9990;background:#f39c12;color:#fff;text-align:center;padding:5px;font-size:12px;font-weight:600;max-width:430px;margin:0 auto;';
+    document.body.appendChild(el);
+  }
+  el.textContent = '📡 অফলাইন — ডেটা লোকালি সেভ হচ্ছে, ইন্টারনেট এলে sync হবে';
+  el.style.display = 'block';
+}
+function hideOfflineIndicator() {
+  const el = document.getElementById('offlineBar');
+  if (el) el.style.display = 'none';
+}
+
+// Listen to online/offline events
+window.addEventListener('online', async () => {
+  hideOfflineIndicator();
+  toast('🌐 ইন্টারনেট সংযোগ হয়েছে', 'success');
+  // Process any queued data
+  await processOfflineQueue();
+});
+window.addEventListener('offline', () => {
+  showOfflineIndicator();
+  toast('📡 ইন্টারনেট নেই — অফলাইন মোডে চলছে', 'info');
+});
+
+// On app launch — check status and process queue
+
+function updateQueueBadge() {
+  const q = getQueue();
+  const badge = document.getElementById('queueBadge');
+  if (!badge) return;
+  if (q.length > 0) {
+    badge.style.display = 'block';
+    badge.textContent = q.length + 'টি sync বাকি';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function initOnlineStatus() {
+  if (!navigator.onLine) {
+    showOfflineIndicator();
+  } else {
+    // Process any leftover queue from previous offline session
+    setTimeout(processOfflineQueue, 3000);
+  }
+}
+
 
 // ===== INIT =====
 renderUserScreen();
@@ -2792,9 +4299,10 @@ function copyNoteAI() {
 
 
 // ===== FIREBASE INTEGRATION =====
-let fbApp = null;
-let fbDb = null;
-let fbConfig = null;
+window.fbApp = null;
+window.fbDb = null;
+window.fbConfig = null;
+let fbApp = window.fbApp, fbDb = window.fbDb, fbConfig = window.fbConfig;
 
 function loadFbConfig() {
   const saved = localStorage.getItem('mf_firebase_config');
@@ -2813,9 +4321,9 @@ function initFirebase(config) {
     } catch(e) {
       app = firebase.initializeApp(config, 'masud-finance');
     }
-    fbApp = app;
-    fbDb = firebase.database(app);
-    fbConfig = config;
+    window.fbApp = app;
+    window.fbDb = firebase.database(app);
+    window.fbConfig = config;
     localStorage.setItem('mf_firebase_config', JSON.stringify(config));
     updateFbStatusUI(true, '✅ সংযুক্ত');
     return true;
@@ -2961,7 +4469,7 @@ function showFbBanner(msg, type) {
 
 // Firebase push (সব ডেটা আপলোড)
 async function pushToFirebase() {
-  if (!fbDb || !currentUser) {
+  if (!window.fbDb || !currentUser) {
     toast('Firebase সংযুক্ত নেই', 'error'); return;
   }
   try {
@@ -2976,6 +4484,9 @@ async function pushToFirebase() {
       categories: state.categories,
       accounts: state.accounts,
       notes: state.notes,
+      budgets: state.budgets||[],
+      recurring: state.recurring||[],
+      goals: state.goals||[],
       settings: settingsWithPin,
       userInfo: { name: currentUser.name, avatar: currentUser.avatar, id: currentUser.id },
       lastUpdated: new Date().toISOString(),
@@ -3008,6 +4519,9 @@ async function pullFromFirebase(silent) {
     if (data.categories) state.categories = data.categories;
     if (data.accounts) state.accounts = data.accounts;
     if (data.notes) state.notes = data.notes;
+    if (data.budgets) state.budgets = data.budgets;
+    if (data.recurring) state.recurring = data.recurring;
+    if (data.goals) state.goals = data.goals;
     if (data.settings) state.settings = { ...state.settings, ...data.settings };
     // Restore PIN from Firebase
     if (data.settings && data.settings.pin) {
@@ -3039,21 +4553,6 @@ function updateFbLastSync(ts) {
 
 // Override saveData to also push to Firebase if auto-sync enabled
 const _origSaveData = saveData;
-function saveData() {
-  if (!currentUser) return;
-  const uid = currentUser.id;
-  localStorage.setItem('mf_'+uid+'_cats', JSON.stringify(state.categories));
-  localStorage.setItem('mf_'+uid+'_txs', JSON.stringify(state.transactions));
-  localStorage.setItem('mf_'+uid+'_accs', JSON.stringify(state.accounts));
-  localStorage.setItem('mf_'+uid+'_notes', JSON.stringify(state.notes));
-  localStorage.setItem('mf_'+uid+'_settings', JSON.stringify(state.settings));
-  // Firebase auto-sync
-  const autoSync = localStorage.getItem('mf_fb_autosync') !== 'false';
-  if (window.fbDb && autoSync) {
-    pushToFirebase().catch(e => console.log('Auto-sync error:', e));
-  }
-}
-
 // Override loadState to also pull from Firebase if sync-on-load enabled
 const _origLoadState = loadState;
 function loadState() {
@@ -3067,7 +4566,7 @@ function loadState() {
   state.settings = { pin:'', darkMode:false, ...s };
   // Pull from Firebase if configured and sync-on-load enabled
   const syncOnLoad = localStorage.getItem('mf_fb_synconload') !== 'false';
-  if (fbDb && syncOnLoad) {
+  if (window.fbDb && syncOnLoad) {
     pullFromFirebase().catch(e => console.log('Load-sync error:', e));
   }
 }
@@ -3079,6 +4578,9 @@ function loadStateLocal() {
   state.transactions = JSON.parse(localStorage.getItem('mf_'+uid+'_txs') || '[]');
   state.accounts = JSON.parse(localStorage.getItem('mf_'+uid+'_accs') || 'null') || defaultAccounts();
   state.notes = JSON.parse(localStorage.getItem('mf_'+uid+'_notes') || '[]');
+  state.budgets = JSON.parse(localStorage.getItem('mf_'+uid+'_budgets') || '[]');
+  state.recurring = JSON.parse(localStorage.getItem('mf_'+uid+'_recurring') || '[]');
+  state.goals = JSON.parse(localStorage.getItem('mf_'+uid+'_goals') || '[]');
   const s = JSON.parse(localStorage.getItem('mf_'+uid+'_settings') || '{}');
   state.settings = { pin:'', darkMode:false, ...s };
 }
