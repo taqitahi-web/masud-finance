@@ -25,10 +25,20 @@ body{font-family:'Hind Siliguri',sans-serif;background:var(--bg);color:var(--tex
 #userScreen{position:fixed;inset:0;z-index:9999;background:linear-gradient(145deg,#e8533a,#c43d26);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;color:#fff;}
 .us-logo{font-size:56px;margin-bottom:12px;}
 .us-title{font-size:24px;font-weight:700;margin-bottom:6px;}
-.us-sub{font-size:13px;opacity:.8;margin-bottom:36px;}
-.us-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;width:100%;max-width:340px;}
-.us-card{background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.3);border-radius:16px;padding:18px 12px;text-align:center;cursor:pointer;transition:all .2s;backdrop-filter:blur(8px);}
-.us-card:hover,.us-card:active{background:rgba(255,255,255,.32);transform:scale(1.04);}
+.us-sub{font-size:13px;opacity:.8;margin-bottom:28px;}
+/* Login form styles */
+.us-login-box{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);border-radius:20px;padding:24px 20px;width:100%;max-width:340px;backdrop-filter:blur(10px);}
+.us-login-box .flbl{font-size:12px;color:rgba(255,255,255,.8);font-weight:600;letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:6px;}
+.us-login-select,.us-login-pin{width:100%;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);border-radius:12px;padding:12px 14px;color:#fff;font-family:'Hind Siliguri',sans-serif;font-size:15px;outline:none;margin-bottom:16px;transition:border-color .2s;}
+.us-login-select:focus,.us-login-pin:focus{border-color:rgba(255,255,255,.8);}
+.us-login-select option{background:#c43d26;color:#fff;}
+.us-login-pin::placeholder{color:rgba(255,255,255,.5);}
+.us-login-btn{width:100%;background:#fff;color:#c43d26;border:none;border-radius:12px;padding:14px;font-family:'Hind Siliguri',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:4px;}
+.us-login-btn:hover{background:rgba(255,255,255,.9);transform:translateY(-1px);}
+.us-login-err{color:#ffcdd2;font-size:13px;text-align:center;margin-top:10px;height:18px;}
+/* Legacy grid (hidden) */
+.us-grid{display:none;}
+.us-card{display:none;}
 .us-avatar{font-size:32px;margin-bottom:8px;}
 .us-name{font-size:14px;font-weight:600;}
 .us-info{font-size:11px;opacity:.7;margin-top:3px;}
@@ -233,6 +243,16 @@ body.dmode .layout-toggle{top:14px;right:16px;}
 body.dmode .dsk-wrap{display:flex;height:100vh;overflow:hidden;max-width:100%;}
 body.dmode #mainApp>.screen{display:none!important;}
 body.dmode #mainApp{max-width:100%;}
+/* Fix: modals must work in desktop mode */
+body.dmode .moverlay{position:fixed;inset:0;align-items:center;justify-content:center;z-index:2000;}
+body.dmode .moverlay.open{display:flex !important;}
+body.dmode .moverlay .modal{border-radius:20px;max-height:90vh;width:90%;max-width:460px;}
+body.dmode .cpicker{position:fixed;inset:0;align-items:center;justify-content:center;z-index:2001;}
+body.dmode .cpicker.open{display:flex !important;}
+body.dmode .cpicker .cp-inner{border-radius:20px;max-height:80vh;width:380px;}
+body.dmode .pop-ov{z-index:2002;}
+/* Desktop sidebar user badge */
+body.dmode .layout-toggle{z-index:2003;}
 
 /* Desktop sidebar */
 .dsk-side{width:230px;background:var(--card);border-right:1px solid var(--bd);display:flex;flex-direction:column;height:100vh;flex-shrink:0;}
@@ -488,23 +508,7 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
   @page { margin:1cm; }
 }
 
-/* ===== PWA INSTALL BANNER ===== */
-.pwa-banner{
-  display:none;position:fixed;bottom:72px;left:50%;transform:translateX(-50%);
-  background:var(--card);border:1px solid var(--bd);border-radius:16px;
-  padding:12px 16px;box-shadow:0 8px 30px rgba(0,0,0,.15);
-  z-index:800;width:calc(100% - 32px);max-width:398px;
-  animation:slideUp .3s ease;
-}
-.pwa-banner.show{display:flex;align-items:center;gap:12px;}
-.pwa-banner-ico{font-size:32px;flex-shrink:0;}
-.pwa-banner-info h4{font-size:14px;font-weight:600;margin-bottom:2px;}
-.pwa-banner-info p{font-size:12px;color:var(--tl);}
-.pwa-install-btn{margin-left:auto;background:var(--pr);color:white;border:none;
-  border-radius:10px;padding:8px 14px;font-family:inherit;font-size:13px;
-  font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;}
-.pwa-dismiss{position:absolute;top:8px;right:8px;background:none;border:none;
-  font-size:16px;cursor:pointer;color:var(--tl);}
+/* ===== PWA INSTALL BANNER (unified) ===== */
 
 /* ===== BUDGET TRACKER ===== */
 .budget-bar-wrap{padding:12px 16px;border-bottom:1px solid var(--bd);}
@@ -537,18 +541,20 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
 
 /* ===== PWA INSTALL BANNER ===== */
 .pwa-banner{
+  display:none;
   position:fixed;bottom:68px;left:0;right:0;max-width:430px;margin:0 auto;
   background:linear-gradient(135deg,var(--pr),#c43d26);color:#fff;
-  padding:12px 16px;display:flex;align-items:center;gap:12px;
-  z-index:400;transform:translateY(100%);transition:transform .35s ease;
-  box-shadow:0 -4px 20px rgba(0,0,0,.2);
+  padding:12px 16px;align-items:center;gap:12px;
+  z-index:1500;border-radius:16px 16px 0 0;
+  box-shadow:0 -4px 20px rgba(0,0,0,.25);
 }
-.pwa-banner.show{transform:translateY(0);}
+.pwa-banner.show{display:flex !important;}
+body.dmode .pwa-banner{bottom:0;border-radius:0;max-width:100%;}
 .pwa-banner-text{flex:1;}
 .pwa-banner-text h4{font-size:14px;font-weight:600;margin-bottom:2px;}
 .pwa-banner-text p{font-size:12px;opacity:.85;}
-.pwa-install-btn{background:#fff;color:var(--pr);border:none;border-radius:20px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap;}
-.pwa-banner-close{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:0 4px;opacity:.8;}
+.pwa-install-btn{background:#fff;color:var(--pr);border:none;border-radius:20px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap;flex-shrink:0;}
+.pwa-banner-close{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 6px;opacity:.9;line-height:1;flex-shrink:0;}
 
 /* ===== PDF / PRINT ===== */
 @media print {
@@ -572,22 +578,23 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
 </head>
 <body>
 
-<!-- ===== USER SELECT SCREEN ===== -->
+<!-- ===== USER SELECT SCREEN (LOGIN FORM) ===== -->
 <div id="userScreen">
   <div class="us-logo">💰</div>
   <div class="us-title">মাসউদ ফিন্যান্স</div>
-  <div class="us-sub">আপনার প্রোফাইল বেছে নিন</div>
-  <div class="us-grid" id="userGrid"></div>
-  <div style="margin-top:20px;width:100%;max-width:340px">
-    <div id="pinHintBox" style="font-size:11px;color:rgba(255,255,255,0.5);text-align:center;margin-bottom:10px;line-height:1.7">
-      ডিফল্ট PIN:<br>
-      Masud=<b>0000</b> | Mominur=<b>1111</b> | Nur Alam=<b>2222</b><br>
-      Apon=<b>3333</b> | Malek=<b>4444</b> | Rayhan=<b>5555</b>
-    </div>
-    <button onclick="showAdminPanel()" style="width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,215,0,0.5);color:rgba(255,215,0,0.9);border-radius:12px;padding:12px;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
-      👑 অ্যাডমিন প্যানেল (Masud)
-    </button>
+  <div class="us-sub">আপনার আইডি ও পাসওয়ার্ড দিন</div>
+  <div class="us-login-box">
+    <label class="flbl">আইডি বেছে নিন</label>
+    <select class="us-login-select" id="loginUserSelect">
+      <option value="">— আইডি বেছে নিন —</option>
+    </select>
+    <label class="flbl">পাসওয়ার্ড (PIN)</label>
+    <input type="password" class="us-login-pin" id="loginPinInput" placeholder="৪ সংখ্যার PIN" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="us-login-btn" onclick="doLogin()">🔓 প্রবেশ করুন</button>
+    <div class="us-login-err" id="loginErr"></div>
   </div>
+  <!-- Hidden grid (kept for admin usage internally) -->
+  <div class="us-grid" id="userGrid" style="display:none"></div>
 </div>
 
 <!-- ===== PIN SCREEN ===== -->
@@ -1219,16 +1226,7 @@ body.dark .pop-hl{background:#2a1a18;border-color:#5a2a20;}
   </div>
 </div>
 
-<!-- PWA INSTALL BANNER -->
-<div class="pwa-banner" id="pwaBanner">
-  <div class="pwa-banner-ico">📱</div>
-  <div class="pwa-banner-info">
-    <h4>অ্যাপ ইনস্টল করুন</h4>
-    <p>Home Screen এ যোগ করুন</p>
-  </div>
-  <button class="pwa-install-btn" onclick="installPWA()">ইনস্টল</button>
-  <button class="pwa-dismiss" onclick="dismissPWA()">✕</button>
-</div>
+<!-- PWA INSTALL BANNER (single, at bottom) -->
 
 <nav class="bnav" id="bnav" style="display:none">
   <button class="nav-btn active" id="nb-trans" onclick="switchScreen('trans')">
@@ -1684,29 +1682,45 @@ let USERS = loadUsers();
 let currentUser = null;
 let pinBuf = '';
 
-// ===== USER SCREEN =====
+// ===== USER SCREEN (LOGIN FORM) =====
 function renderUserScreen() {
   USERS = loadUsers(); // refresh
-  const grid = document.getElementById('userGrid');
-  grid.innerHTML = USERS.map(u => {
-    const data = getUserData(u.id);
-    const txCount = data.transactions.length;
-    const adminBadge = u.isAdmin ? '<div style="position:absolute;top:-6px;right:-6px;background:#f39c12;color:#fff;border-radius:10px;padding:2px 6px;font-size:9px;font-weight:700">ADMIN</div>' : '';
-    return `<div class="us-card" onclick="selectUser('${u.id}')" style="position:relative;border-color:${u.isAdmin?'rgba(255,215,0,0.6)':'rgba(255,255,255,.3)'}">
-      ${adminBadge}
-      <div class="us-avatar">${u.avatar}</div>
-      <div class="us-name">${u.name}</div>
-      <div class="us-info">${txCount > 0 ? toBN(txCount)+'টি লেনদেন' : 'নতুন'}</div>
-    </div>`;
-  }).join('');
-  // Default PIN hint
-  const hint = document.getElementById('adminHint');
-  if(hint) hint.style.display = 'block';
+  // Populate login dropdown
+  const sel = document.getElementById('loginUserSelect');
+  if (sel) {
+    sel.innerHTML = '<option value="">— আইডি বেছে নিন —</option>' +
+      USERS.map(u => `<option value="${u.id}">${u.isAdmin ? '👑 ' : ''}${u.name}</option>`).join('');
+  }
+  // Clear pin input and error
+  const pinInp = document.getElementById('loginPinInput');
+  if (pinInp) pinInp.value = '';
+  const errEl = document.getElementById('loginErr');
+  if (errEl) errEl.textContent = '';
   document.getElementById('userScreen').style.display = 'flex';
   document.getElementById('pinScreen').style.display = 'none';
   document.getElementById('mainApp').style.display = 'none';
   document.getElementById('bnav').style.display = 'none';
   document.getElementById('fabBtn').style.display = 'none';
+}
+
+function doLogin() {
+  USERS = loadUsers();
+  const uid = document.getElementById('loginUserSelect')?.value;
+  const pin = document.getElementById('loginPinInput')?.value?.trim();
+  const errEl = document.getElementById('loginErr');
+  if (!uid) { if(errEl) errEl.textContent = '⚠️ আইডি বেছে নিন'; return; }
+  if (!pin) { if(errEl) errEl.textContent = '⚠️ PIN দিন'; return; }
+  const user = USERS.find(u => u.id === uid);
+  if (!user) { if(errEl) errEl.textContent = '❌ আইডি পাওয়া যায়নি'; return; }
+  const correctPin = user.pin || '';
+  if (correctPin && pin !== correctPin) {
+    if(errEl) errEl.textContent = '❌ ভুল PIN! আবার চেষ্টা করুন';
+    document.getElementById('loginPinInput').value = '';
+    setTimeout(() => { if(errEl) errEl.textContent = ''; }, 3000);
+    return;
+  }
+  currentUser = user;
+  launchApp(user);
 }
 
 function selectUser(uid) {
@@ -1803,12 +1817,20 @@ function updateUserBadge() {
   if (!currentUser) return;
   const badge = document.getElementById('userBadge');
   const sbadge = document.getElementById('settingsUserBadge');
-  if (badge) badge.textContent = currentUser.avatar + ' ' + currentUser.name;
-  if (sbadge) sbadge.textContent = currentUser.avatar + ' ' + currentUser.name;
+  const dbadge = document.getElementById('dsk-user-badge');
+  const dlogoP = document.querySelector('.dsk-logo p');
+  const label = currentUser.avatar + ' ' + currentUser.name;
+  if (badge) badge.textContent = label;
+  if (sbadge) sbadge.textContent = label;
+  if (dbadge) dbadge.textContent = label;
+  if (dlogoP) dlogoP.textContent = currentUser.isAdmin ? '👑 অ্যাডমিন' : currentUser.name;
 }
 
 function switchUser() {
   currentUser = null;
+  document.body.classList.remove('dmode');
+  const txt = document.getElementById('ltText');
+  if(txt) txt.textContent = '💻 ডেস্কটপ ভিউ';
   renderUserScreen();
 }
 
@@ -2054,6 +2076,7 @@ async function saveTx(){
     toast('✅ সংরক্ষিত হয়েছে','success');
   }
   saveData();closeM('txModal');renderTx();
+  if(isDsk) dRefresh(dCurPanel);
 }
 
 // ===== CAT PICKER =====
@@ -2717,6 +2740,10 @@ async function addNewUser() {
   document.getElementById('newUserPin').value = '';
   document.getElementById('newUserAvatar').value = '👤';
   renderAdminUserList();
+  // Refresh login dropdown
+  const sel = document.getElementById('loginUserSelect');
+  if (sel) sel.innerHTML = '<option value="">— আইডি বেছে নিন —</option>' +
+    USERS.map(u => `<option value="${u.id}">${u.isAdmin ? '👑 ' : ''}${u.name}</option>`).join('');
   toast('✅ '+name+' যোগ হয়েছে','success');
 }
 
@@ -2738,6 +2765,10 @@ async function deleteUser(uid) {
   USERS = USERS.filter(u => u.id !== uid);
   saveUsers(USERS);
   renderAdminUserList();
+  // Refresh login dropdown
+  const sel = document.getElementById('loginUserSelect');
+  if (sel) sel.innerHTML = '<option value="">— আইডি বেছে নিন —</option>' +
+    USERS.map(u => `<option value="${u.id}">${u.isAdmin ? '👑 ' : ''}${u.name}</option>`).join('');
   toast('🗑️ '+user.name+' মুছে ফেলা হয়েছে','error');
 }
 
@@ -2848,7 +2879,7 @@ function applySearchFilter(txs){
   else if(_ft==='expense')r=r.filter(t=>t.type==='expense');
   else if(_ft==='today'){const d=new Date().toISOString().split('T')[0];r=r.filter(t=>t.date===d);}
   else if(_ft==='week'){const w=new Date(Date.now()-7*864e5).toISOString().split('T')[0];r=r.filter(t=>t.date>=w);}
-  else if(_ft==='month'){const y=state.curYear,m=String(state.curMonth+1).padStart(2,'0');r=r.filter(t=>t.date&&t.date.startsWith(y+'-'+m));}
+  else if(_ft==='month'){const y=state.y,m=String(state.m+1).padStart(2,'0');r=r.filter(t=>t.date&&t.date.startsWith(y+'-'+m));}
   if(_sq)r=r.filter(t=>{
     const cat=state.categories.find(c=>c.id===t.catId);
     return [(cat?cat.name:''),t.note||'',String(t.amount),t.subCat||''].some(s=>s.toLowerCase().includes(_sq));
@@ -3148,7 +3179,6 @@ function renderGoalSummary() {
   </div>`;
 }
 
-// ===== PRINT REPORT =====
 // ===== PWA INSTALL =====
 let _pwaPrompt = null;
 window.addEventListener('beforeinstallprompt', e => {
@@ -3157,14 +3187,52 @@ window.addEventListener('beforeinstallprompt', e => {
   const dismissed = localStorage.getItem('pwa_dismissed');
   if (!dismissed) {
     setTimeout(() => {
-      document.getElementById('pwaBanner')?.classList.add('show');
+      const banner = document.getElementById('pwaBanner');
+      if (banner) banner.classList.add('show');
     }, 3000);
   }
 });
 window.addEventListener('appinstalled', () => {
-  document.getElementById('pwaBanner')?.classList.remove('show');
+  const banner = document.getElementById('pwaBanner');
+  if (banner) banner.classList.remove('show');
   toast('✅ অ্যাপ সফলভাবে ইনস্টল হয়েছে!', 'success');
 });
+
+async function installPWA() {
+  if (!_pwaPrompt) {
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isAndroid = /android/i.test(navigator.userAgent);
+    if (isIOS) {
+      pop('📱','iOS তে ইনস্টল করুন',
+        'Safari ব্রাউজারে খুলুন → নিচে Share বাটন → "Add to Home Screen" চাপুন','',
+        [{l:'ঠিক আছে',c:'ok'}]);
+    } else if (isAndroid) {
+      pop('📱','Android তে ইনস্টল করুন',
+        'Chrome মেনু (⋮) → "Add to Home Screen" বা "Install app" চাপুন','',
+        [{l:'ঠিক আছে',c:'ok'}]);
+    } else {
+      pop('💻','Desktop এ ইনস্টল করুন',
+        'Chrome address bar-এর ডানে ⊕ Install আইকন চাপুন। অথবা Chrome মেনু → "Install app"','',
+        [{l:'ঠিক আছে',c:'ok'}]);
+    }
+    return;
+  }
+  try {
+    _pwaPrompt.prompt();
+    const { outcome } = await _pwaPrompt.userChoice;
+    if (outcome === 'accepted') {
+      const banner = document.getElementById('pwaBanner');
+      if (banner) banner.classList.remove('show');
+    }
+  } catch(e) { console.log('PWA install error:', e); }
+  _pwaPrompt = null;
+}
+
+function dismissPWA() {
+  const banner = document.getElementById('pwaBanner');
+  if (banner) banner.classList.remove('show');
+  localStorage.setItem('pwa_dismissed', '1');
+}
 
 // ===== SERVICE WORKER (PWA offline) =====
 function registerSW() {
@@ -3475,64 +3543,8 @@ function printReport() {
 }
 
 // ============================================================
-// ===== PWA — Progressive Web App =====
+// ===== PWA functions defined above =====
 // ============================================================
-window.addEventListener('beforeinstallprompt', e => {
-  e.preventDefault();
-  _pwaPrompt = e;
-  // Show banner after 3 seconds
-  const dismissed = localStorage.getItem('pwa_dismissed');
-  if (!dismissed) {
-    setTimeout(() => {
-      document.getElementById('pwaBanner')?.classList.add('show');
-    }, 3000);
-  }
-});
-
-window.addEventListener('appinstalled', () => {
-  document.getElementById('pwaBanner')?.classList.remove('show');
-  toast('✅ অ্যাপ ইনস্টল হয়েছে!','success');
-  _pwaPrompt = null;
-});
-
-async function installPWA() {
-  if (!_pwaPrompt) {
-    // iOS guide
-    pop('📱','iOS তে ইনস্টল করুন','Safari ব্রাউজারে খুলুন → Share বাটন → "Add to Home Screen" চাপুন','',
-      [{l:'ঠিক আছে',c:'ok'}]);
-    return;
-  }
-  _pwaPrompt.prompt();
-  const { outcome } = await _pwaPrompt.userChoice;
-  if (outcome === 'accepted') {
-    document.getElementById('pwaBanner')?.classList.remove('show');
-  }
-  _pwaPrompt = null;
-}
-
-function dismissPWA() {
-  document.getElementById('pwaBanner')?.classList.remove('show');
-  localStorage.setItem('pwa_dismissed', '1');
-}
-
-// Service Worker registration
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    // Inline SW via blob for GitHub Pages (no separate file needed)
-    const swCode = [
-      "const CACHE='masud-finance-v1';",
-      "const ASSETS=[self.location.pathname];",
-      "self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));self.skipWaiting();});",
-      "self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim();});",
-      "self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(cached=>{const fresh=fetch(e.request).then(res=>{if(res.ok)caches.open(CACHE).then(c=>c.put(e.request,res.clone()));return res;}).catch(()=>cached);return cached||fresh;}));});"
-    ].join('\n');
-    const blob = new Blob([swCode], {type:'application/javascript'});
-    const swUrl = URL.createObjectURL(blob);
-    navigator.serviceWorker.register(swUrl)
-      .then(() => console.log('SW registered'))
-      .catch(e => console.log('SW error:', e));
-  });
-}
 
 // Add PWA manifest dynamically
 (function addManifest() {
@@ -3807,7 +3819,7 @@ function dRefresh(panel) {
 
 function monLabel() {
   const BNM = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
-  return BNM[state.curMonth] + ' ' + toBN(state.curYear);
+  return BNM[state.m] + ' ' + toBN(state.y);
 }
 
 function dRenderTrans() {
@@ -3819,9 +3831,9 @@ function dRenderTrans() {
   const de = document.getElementById('d-exp');
   const db = document.getElementById('d-bal');
   const dc = document.getElementById('d-txCnt');
-  if (di) di.textContent = fmtA(inc);
-  if (de) de.textContent = fmtA(exp);
-  if (db) { db.textContent = fmtA(bal); db.style.color = bal>=0?'var(--inc)':'var(--exp)'; }
+  if (di) di.textContent = fmtAmt(inc);
+  if (de) de.textContent = fmtAmt(exp);
+  if (db) { db.textContent = fmtAmt(bal); db.style.color = bal>=0?'var(--inc)':'var(--exp)'; }
   if (dc) dc.textContent = toBN(txs.length) + 'টি';
 
   const list = document.getElementById('d-txList');
@@ -3844,10 +3856,10 @@ function dRenderTrans() {
       '<div class="dh"><div class="dh-l"><div class="day-badge">' + toBN(g.date.getDate()) + ' <span class="weekday">' + DAYS[g.date.getDay()] + '</span></div>' +
       '<span style="font-size:11px">' + k + '</span></div>' +
       '<div style="display:flex;gap:12px">' +
-      (dInc>0?'<span style="color:var(--inc)">'+fmtA(dInc)+'</span>':'') +
-      (dExp>0?'<span style="color:var(--exp)">'+fmtA(dExp)+'</span>':'') +
+      (dInc>0?'<span style="color:var(--inc)">'+fmtAmt(dInc)+'</span>':'') +
+      (dExp>0?'<span style="color:var(--exp)">'+fmtAmt(dExp)+'</span>':'') +
       '</div></div>' +
-      g.txs.map(t => txItemHTML(t)).join('') +
+      g.txs.map(t => txHTML(t)).join('') +
       '</div>';
   }).join('');
 }
@@ -3904,9 +3916,9 @@ function dRenderStats() {
     const inc2 = txsAll.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
     const exp2 = txsAll.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
     side.innerHTML = '<div style="display:flex;flex-direction:column;gap:12px;">' +
-      '<div style="background:var(--bg);border-radius:10px;padding:14px;"><div style="font-size:12px;color:var(--tl);margin-bottom:4px;">মোট আয়</div><div style="font-size:20px;font-weight:700;color:var(--inc);">' + fmtA(inc2) + '</div></div>' +
-      '<div style="background:var(--bg);border-radius:10px;padding:14px;"><div style="font-size:12px;color:var(--tl);margin-bottom:4px;">মোট ব্যয়</div><div style="font-size:20px;font-weight:700;color:var(--exp);">' + fmtA(exp2) + '</div></div>' +
-      '<div style="background:var(--bg);border-radius:10px;padding:14px;"><div style="font-size:12px;color:var(--tl);margin-bottom:4px;">নেট ব্যালেন্স</div><div style="font-size:20px;font-weight:700;color:'+(inc2-exp2>=0?'var(--inc)':'var(--exp)')+';">' + fmtA(inc2-exp2) + '</div></div>' +
+      '<div style="background:var(--bg);border-radius:10px;padding:14px;"><div style="font-size:12px;color:var(--tl);margin-bottom:4px;">মোট আয়</div><div style="font-size:20px;font-weight:700;color:var(--inc);">' + fmtAmt(inc2) + '</div></div>' +
+      '<div style="background:var(--bg);border-radius:10px;padding:14px;"><div style="font-size:12px;color:var(--tl);margin-bottom:4px;">মোট ব্যয়</div><div style="font-size:20px;font-weight:700;color:var(--exp);">' + fmtAmt(exp2) + '</div></div>' +
+      '<div style="background:var(--bg);border-radius:10px;padding:14px;"><div style="font-size:12px;color:var(--tl);margin-bottom:4px;">নেট ব্যালেন্স</div><div style="font-size:20px;font-weight:700;color:'+(inc2-exp2>=0?'var(--inc)':'var(--exp)')+';">' + fmtAmt(inc2-exp2) + '</div></div>' +
       '</div>';
   }
 }
@@ -3968,14 +3980,14 @@ function dAiKey(e) { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();dSendAI
 
 // Month nav (desktop)
 function prevMon() {
-  state.curMonth--;
-  if (state.curMonth<0){state.curMonth=11;state.curYear--;}
-  saveState(); dRefresh(dCurPanel); renderTx && renderTx();
+  state.m--;
+  if (state.m<0){state.m=11;state.y--;}
+  updateLabels(); dRefresh(dCurPanel); renderTx();
 }
 function nextMon() {
-  state.curMonth++;
-  if (state.curMonth>11){state.curMonth=0;state.curYear++;}
-  saveState(); dRefresh(dCurPanel); renderTx && renderTx();
+  state.m++;
+  if (state.m>11){state.m=0;state.y++;}
+  updateLabels(); dRefresh(dCurPanel); renderTx();
 }
 
 // Override renderTx to also update desktop
