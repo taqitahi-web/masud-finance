@@ -2,6 +2,9 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#e8533a">
 <meta name="mobile-web-app-capable" content="yes">
@@ -600,10 +603,30 @@ body.dmode .pwa-banner{bottom:0;border-radius:0;max-width:100%;}
 .print-header p{font-size:13px;color:#666;}
 </style>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<!-- Firebase SDK — async, non-blocking -->
+<script>
+(function() {
+  function loadScript(src, onDone) {
+    var s = document.createElement('script');
+    s.src = src;
+    s.async = true;
+    s.onload = onDone;
+    s.onerror = onDone; // continue even if fails
+    document.head.appendChild(s);
+  }
+  // Load Firebase SDKs after page loads — non-blocking
+  window.addEventListener('load', function() {
+    loadScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js', function() {
+      loadScript('https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js', function() {
+        // Firebase loaded — init if app is ready
+        if (typeof initFbOnStartup === 'function') {
+          try { initFbOnStartup(); } catch(e) {}
+        }
+      });
+    });
+  });
+})();
+</script>
 </head>
 <body>
 
@@ -3724,7 +3747,7 @@ function registerSW() {
   if (!('serviceWorker' in navigator)) return;
   try {
     const swCode = `
-const CACHE_NAME = 'masud-finance-v2';
+const CACHE_NAME = 'masud-finance-v4';
 self.addEventListener('install', e => {
   self.skipWaiting();
   e.waitUntil(
@@ -4122,52 +4145,47 @@ async function processOfflineQueue() {
   updateQueueBadge();
 }
 
-// Override saveData — queue if offline
-const _baseSaveData = saveData;
 function saveData() {
   if (!currentUser) return;
   const uid = currentUser.id;
-  // Always save to localStorage first (instant, offline-safe)
-  localStorage.setItem('mf_'+uid+'_cats', JSON.stringify(state.categories));
-  localStorage.setItem('mf_'+uid+'_txs', JSON.stringify(state.transactions));
-  localStorage.setItem('mf_'+uid+'_accs', JSON.stringify(state.accounts));
-  localStorage.setItem('mf_'+uid+'_notes', JSON.stringify(state.notes));
-  localStorage.setItem('mf_'+uid+'_settings', JSON.stringify(state.settings));
+  // Save to localStorage — wrapped in try/catch (fails if private/local mode)
+  try {
+    if (state.categories && state.categories.length > 0)
+      localStorage.setItem('mf_'+uid+'_cats', JSON.stringify(state.categories));
+    localStorage.setItem('mf_'+uid+'_txs', JSON.stringify(state.transactions));
+    localStorage.setItem('mf_'+uid+'_accs', JSON.stringify(state.accounts));
+    localStorage.setItem('mf_'+uid+'_notes', JSON.stringify(state.notes));
+    localStorage.setItem('mf_'+uid+'_settings', JSON.stringify(state.settings));
+  } catch(e) {}
 
-  const autoSync = localStorage.getItem('mf_fb_autosync') !== 'false';
-  if (!autoSync) return;
+  // Firebase sync (only if online and SDK loaded)
+  if (!window.fbDb) return;
+  try {
+    const autoSync = localStorage.getItem('mf_fb_autosync') !== 'false';
+    if (!autoSync) return;
+  } catch(e) {}
 
   if (!navigator.onLine) {
-    // Offline — add to queue
     const data = {
-      transactions: state.transactions,
-      categories: state.categories,
-      accounts: state.accounts,
-      notes: state.notes,
+      transactions: state.transactions, categories: state.categories,
+      accounts: state.accounts, notes: state.notes,
       settings: { ...state.settings, pin: currentUser.pin || '' },
       lastUpdated: new Date().toISOString(),
     };
-    addToQueue(uid, data);
-    // Show offline indicator
-    showOfflineIndicator();
+    try { addToQueue(uid, data); showOfflineIndicator(); } catch(e) {}
     return;
   }
 
-  // Online — push directly
-  if (window.fbDb) {
-    pushToFirebase().catch(() => {
-      // If push fails, queue it
-      const data = {
-        transactions: state.transactions,
-        categories: state.categories,
-        accounts: state.accounts,
-        notes: state.notes,
+  pushToFirebase().catch(function() {
+    try {
+      addToQueue(uid, {
+        transactions: state.transactions, categories: state.categories,
+        accounts: state.accounts, notes: state.notes,
         settings: { ...state.settings, pin: currentUser.pin || '' },
         lastUpdated: new Date().toISOString(),
-      };
-      addToQueue(uid, data);
-    });
-  }
+      });
+    } catch(e) {}
+  });
 }
 
 // Online/Offline status indicator
@@ -4224,7 +4242,14 @@ function initOnlineStatus() {
 
 
 // ===== INIT =====
-renderUserScreen();
+// Ensure DOM is ready before rendering
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
+    try { renderUserScreen(); } catch(e) { document.body.innerHTML = '<div style="padding:20px;font-family:sans-serif;"><h2>Error</h2><pre>'+e.message+'</pre></div>'; }
+  });
+} else {
+  try { renderUserScreen(); } catch(e) { document.body.innerHTML = '<div style="padding:20px;font-family:sans-serif;"><h2>Error</h2><pre>'+e.message+'</pre></div>'; }
+}
 
 // ===== BACK BUTTON PREVENTION =====
 // Prevent browser back button from exiting the app
@@ -4348,7 +4373,6 @@ function dRefresh(panel) {
 }
 
 function monLabel() {
-  const BNM = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
   return BNM[state.m] + ' ' + toBN(state.y);
 }
 
@@ -4521,7 +4545,6 @@ function nextMon() {
 }
 
 // Override renderTx to also update desktop
-const _origRenderTx = typeof renderTx !== 'undefined' ? renderTx : null;
 
 
 // ===== TEXT IMPROVE =====
@@ -4855,10 +4878,14 @@ function loadFbConfig() {
 }
 
 function initFirebase(config) {
+  // Check if Firebase SDK is loaded
+  if (typeof firebase === 'undefined') {
+    updateFbStatusUI(false, '❌ SDK লোড হয়নি');
+    return false;
+  }
   try {
     let app;
     try {
-      // Use existing named app if available
       app = firebase.app('masud-finance');
     } catch(e) {
       app = firebase.initializeApp(config, 'masud-finance');
@@ -4866,11 +4893,10 @@ function initFirebase(config) {
     window.fbApp = app;
     window.fbDb = firebase.database(app);
     window.fbConfig = config;
-    localStorage.setItem('mf_firebase_config', JSON.stringify(config));
+    try { localStorage.setItem('mf_firebase_config', JSON.stringify(config)); } catch(e) {}
     updateFbStatusUI(true, '✅ সংযুক্ত');
     return true;
   } catch(e) {
-    console.error('Firebase init error:', e);
     updateFbStatusUI(false, '❌ সংযোগ ব্যর্থ');
     return false;
   }
@@ -5093,10 +5119,6 @@ function updateFbLastSync(ts) {
   localStorage.setItem('mf_fb_lastsync', timeStr);
 }
 
-// Override saveData to also push to Firebase if auto-sync enabled
-const _origSaveData = saveData;
-// Override loadState to also pull from Firebase if sync-on-load enabled
-const _origLoadState = loadState;
 function loadState() {
   if (!currentUser) return;
   const uid = currentUser.id;
@@ -5136,24 +5158,17 @@ function loadStateLocal() {
 
 // Init Firebase on page load if config exists
 function initFbOnStartup() {
-  // Use baked config (window._FB_CONFIG) first, then localStorage
+  if (typeof firebase === 'undefined') return; // SDK not loaded — offline mode
   const cfg = window._FB_CONFIG || loadFbConfig();
-  if (cfg) {
-    try {
-      const ok = initFirebase(cfg);
-      if (ok) {
-        // [log removed]
-        updateFbStatusUI(true, '✅ সংযুক্ত');
-      }
-    } catch(e) {
-      // [log removed]
-    }
-  }
+  if (!cfg) return;
+  try {
+    const ok = initFirebase(cfg);
+    if (ok) updateFbStatusUI(true, '✅ সংযুক্ত');
+  } catch(e) {}
 }
 
 // ===== GITHUB PAGES DOWNLOAD =====
 // Override dlHTML to add Firebase config injection
-const _origDlHTML = typeof dlHTML !== 'undefined' ? dlHTML : null;
 function dlHTML() {
   let html = document.documentElement.outerHTML;
   if (fbConfig) {
@@ -5172,36 +5187,17 @@ function dlHTML() {
 }
 
 
-// Auto-init Firebase if config was baked into HTML (after GitHub Pages download)
 // ===== BAKED FIREBASE CONFIG =====
-(function() {
-  try {
-    window._FB_CONFIG = {
-    apiKey: "AIzaSyDwb66h1oXt2K0PNQqbeAdkOQ7JGJnKfT0",
-    authDomain: "masud-finance.firebaseapp.com",
-    databaseURL: "https://masud-finance-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "masud-finance",
-    storageBucket: "masud-finance.firebasestorage.app",
-    messagingSenderId: "160001518069",
-    appId: "1:160001518069:web:0d5f73bec90cdda8d058bc"
+window._FB_CONFIG = {
+  apiKey: "AIzaSyDwb66h1oXt2K0PNQqbeAdkOQ7JGJnKfT0",
+  authDomain: "masud-finance.firebaseapp.com",
+  databaseURL: "https://masud-finance-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "masud-finance",
+  storageBucket: "masud-finance.firebasestorage.app",
+  messagingSenderId: "160001518069",
+  appId: "1:160001518069:web:0d5f73bec90cdda8d058bc"
 };
-    const baked = window._FB_CONFIG;
-    if (baked) {
-      // Check if already initialized
-      let app;
-      try {
-        app = firebase.app('masud-finance');
-      } catch(e) {
-        app = firebase.initializeApp(baked, 'masud-finance');
-      }
-      window.fbApp = app;
-      window.fbDb = firebase.database(app);
-      window.fbConfig = baked;
-      localStorage.setItem('mf_firebase_config', JSON.stringify(baked));
-      // [log removed]
-    }
-  } catch(e) { console.log('Baked FB init error:', e); }
-})();
+// Firebase init deferred — runs after SDK loads (see initFbOnStartup)
 </script>
 </body>
 </html>
